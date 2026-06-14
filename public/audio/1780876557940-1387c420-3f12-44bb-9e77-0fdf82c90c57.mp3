@@ -1,0 +1,6 @@
+Mock audio artifact for 1780876557940-1387c420-3f12-44bb-9e77-0fdf82c90c57-whatsapp-video-2025-03-09-at-12-25-09-1.mp4.
+FFmpeg binary could not be found. Continuing with mock audio.
+FFmpeg source: missing
+FFmpeg path: C:\Users\Ufuoma\Documents\nigeria-video-translator\.next\dev\server\vendor-chunks\ffmpeg.exe
+FFmpeg file exists: false
+Mock transcription does not require playable audio in this MVP.

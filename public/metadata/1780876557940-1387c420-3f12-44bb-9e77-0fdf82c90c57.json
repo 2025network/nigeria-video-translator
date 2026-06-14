@@ -1,0 +1,45 @@
+{
+  "language": "Yoruba",
+  "translation": {
+    "text": "Eyi ni itumo idanwo si ede Yoruba. A pa oruko, ibi, ojo, awon nomba, ati awon ese Bibeli mo gege bi won se wa ninu oro atilẹba.",
+    "language": "Yoruba",
+    "confidence": 0.55,
+    "mode": "mock",
+    "usedOpenAI": false,
+    "message": "OPENAI_API_KEY is not configured. Using mock translation."
+  },
+  "translatedVideo": {
+    "outputPath": "C:\\Users\\Ufuoma\\Documents\\nigeria-video-translator\\public\\translated-videos\\1780876557940-1387c420-3f12-44bb-9e77-0fdf82c90c57.mp4",
+    "publicUrl": "/translated-videos/1780876557940-1387c420-3f12-44bb-9e77-0fdf82c90c57.mp4",
+    "usedFfmpeg": false,
+    "message": "FFmpeg binary could not be found. Copied original video as a fallback translated-video artifact.",
+    "command": [
+      "-y",
+      "-i",
+      "C:\\Users\\Ufuoma\\Documents\\nigeria-video-translator\\public\\uploads\\1780876557940-1387c420-3f12-44bb-9e77-0fdf82c90c57-whatsapp-video-2025-03-09-at-12-25-09-1.mp4",
+      "-i",
+      "C:\\Users\\Ufuoma\\Documents\\nigeria-video-translator\\public\\voiceovers\\1780876557940-1387c420-3f12-44bb-9e77-0fdf82c90c57.mp3",
+      "-map",
+      "0:v:0",
+      "-map",
+      "1:a:0",
+      "-c:v",
+      "copy",
+      "-c:a",
+      "aac",
+      "-shortest",
+      "C:\\Users\\Ufuoma\\Documents\\nigeria-video-translator\\public\\translated-videos\\1780876557940-1387c420-3f12-44bb-9e77-0fdf82c90c57.mp4"
+    ],
+    "originalDurationSeconds": null,
+    "voiceOverDurationSeconds": null,
+    "durationDifferenceSeconds": null,
+    "diagnostics": {
+      "ffmpegStaticInstalled": true,
+      "ffmpegStaticPath": "C:\\Users\\Ufuoma\\Documents\\nigeria-video-translator\\.next\\dev\\server\\vendor-chunks\\ffmpeg.exe",
+      "envFfmpegPath": null,
+      "selectedPath": "C:\\Users\\Ufuoma\\Documents\\nigeria-video-translator\\.next\\dev\\server\\vendor-chunks\\ffmpeg.exe",
+      "selectedPathExists": false,
+      "source": "missing"
+    }
+  }
+}

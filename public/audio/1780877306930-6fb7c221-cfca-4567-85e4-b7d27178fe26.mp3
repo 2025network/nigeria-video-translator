@@ -1,0 +1,6 @@
+Mock audio artifact for 1780877306930-6fb7c221-cfca-4567-85e4-b7d27178fe26-01-power-purpose-and-plenty-part-1.mp4.
+FFmpeg binary could not be found. Continuing with mock audio.
+FFmpeg source: missing
+FFmpeg path: C:\Users\Ufuoma\Documents\nigeria-video-translator\.next\dev\server\vendor-chunks\ffmpeg.exe
+FFmpeg file exists: false
+Mock transcription does not require playable audio in this MVP.

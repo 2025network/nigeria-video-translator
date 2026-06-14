@@ -1,0 +1,63 @@
+{
+  "language": "Yoruba",
+  "translation": {
+    "text": "Eyi ni itumo idanwo si ede Yoruba. A pa oruko, ibi, ojo, awon nomba, ati awon ese Bibeli mo gege bi won se wa ninu oro atilẹba.",
+    "language": "Yoruba",
+    "confidence": 0.55,
+    "mode": "mock",
+    "usedOpenAI": false,
+    "message": "OpenAI translation failed: 401 Incorrect API key provided: your_rea*****************here. You can find your API key at https://platform.openai.com/account/api-keys.. Using mock translation fallback."
+  },
+  "translatedVideo": {
+    "outputPath": "C:\\Users\\Ufuoma\\Documents\\nigeria-video-translator\\public\\translated-videos\\1780924546139-789c2f20-6df7-467c-adfc-5df0a4ed5784.mp4",
+    "publicUrl": "/translated-videos/1780924546139-789c2f20-6df7-467c-adfc-5df0a4ed5784.mp4",
+    "usedFfmpeg": true,
+    "message": "Created translated video with translated voice-over audio.",
+    "command": [
+      "-y",
+      "-i",
+      "C:\\Users\\Ufuoma\\Documents\\nigeria-video-translator\\public\\uploads\\1780924546139-789c2f20-6df7-467c-adfc-5df0a4ed5784-01-power-purpose-and-plenty-part-1.mp4",
+      "-i",
+      "C:\\Users\\Ufuoma\\Documents\\nigeria-video-translator\\public\\voiceovers\\1780924546139-789c2f20-6df7-467c-adfc-5df0a4ed5784.mp3",
+      "-map",
+      "0:v:0",
+      "-map",
+      "1:a:0",
+      "-c:v",
+      "libx264",
+      "-preset",
+      "veryfast",
+      "-pix_fmt",
+      "yuv420p",
+      "-c:a",
+      "aac",
+      "-b:a",
+      "192k",
+      "-movflags",
+      "+faststart",
+      "-shortest",
+      "C:\\Users\\Ufuoma\\Documents\\nigeria-video-translator\\public\\translated-videos\\1780924546139-789c2f20-6df7-467c-adfc-5df0a4ed5784.mp4"
+    ],
+    "exitCode": 0,
+    "originalDurationSeconds": 2428.2,
+    "voiceOverDurationSeconds": 4.05,
+    "durationDifferenceSeconds": 2424.1499999999996,
+    "diagnostics": {
+      "ffmpegStaticInstalled": true,
+      "ffmpegStaticPath": "\\ROOT\\node_modules\\ffmpeg-static\\ffmpeg.exe",
+      "projectFfmpegStaticPath": "C:\\Users\\Ufuoma\\Documents\\nigeria-video-translator\\node_modules\\ffmpeg-static\\ffmpeg.exe",
+      "envFfmpegPath": null,
+      "selectedPath": "C:\\Users\\Ufuoma\\Documents\\nigeria-video-translator\\node_modules\\ffmpeg-static\\ffmpeg.exe",
+      "selectedPathExists": true,
+      "source": "ffmpeg-static"
+    }
+  },
+  "tts": {
+    "inputText": "Eyi ni itumo idanwo si ede Yoruba. A pa oruko, ibi, ojo, awon nomba, ati awon ese Bibeli mo gege bi won se wa ninu oro atilẹba.",
+    "inputPreview": "Eyi ni itumo idanwo si ede Yoruba. A pa oruko, ibi, ojo, awon nomba, ati awon ese Bibeli mo gege bi won se wa ninu oro atilẹba.",
+    "inputMatchesTranslation": true,
+    "mode": "mock",
+    "usedMock": true,
+    "message": "OpenAI TTS failed (401 Incorrect API key provided: your_rea*****************here. You can find your API key at https://platform.openai.com/account/api-keys.). Using mock voice-over audio instead."
+  }
+}

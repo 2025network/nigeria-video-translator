@@ -1,0 +1,6 @@
+Mock audio artifact for 1780922427764-1ff6fc99-bd7f-4b70-8c96-7fe89eebda40-01-power-purpose-and-plenty-part-1.mp4.
+FFmpeg binary could not be found. Continuing with mock audio.
+FFmpeg source: missing
+FFmpeg path: \ROOT\node_modules\ffmpeg-static\ffmpeg.exe
+FFmpeg file exists: false
+Mock transcription does not require playable audio in this MVP.
