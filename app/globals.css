@@ -1,4 +1,4 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 
 :root {
   --background: #06110d;
@@ -44,3 +44,4 @@ textarea {
   outline: 3px solid rgba(52, 211, 153, 0.58);
   outline-offset: 3px;
 }
+

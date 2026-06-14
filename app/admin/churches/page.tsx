@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { PlusCircle, Radio } from "lucide-react";
 import { getChurches } from "@/lib/churchRepository";
 import { AdminNav } from "../AdminNav";
@@ -45,3 +45,4 @@ export default async function ChurchesAdminPage() {
     </main>
   );
 }
+

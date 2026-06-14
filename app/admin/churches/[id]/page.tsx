@@ -2,7 +2,7 @@
 import { notFound } from "next/navigation";
 import { ArrowLeft, Edit3, ExternalLink } from "lucide-react";
 import { getChurchById, toChurchView } from "@/lib/churchRepository";
-import { getChurchEmbedCode, getChurchEmbedUrl } from "@/lib/demoChurches";
+import { getChurchEmbedCode, getChurchEmbedUrl, getFloatingWidgetScriptCode } from "@/lib/demoChurches";
 import { AdminNav } from "../../AdminNav";
 import { deleteChurchAction } from "../actions";
 import { CopyEmbedButton } from "../CopyEmbedButton";
@@ -27,6 +27,7 @@ export default async function ChurchDetailPage({ params }: ChurchDetailPageProps
 
   const churchView = toChurchView(church);
   const embedCode = getChurchEmbedCode(church.slug);
+  const scriptCode = getFloatingWidgetScriptCode(church.slug);
   const embedUrl = getChurchEmbedUrl(church.slug);
   const deleteWithId = deleteChurchAction.bind(null, church.id);
 
@@ -72,6 +73,7 @@ export default async function ChurchDetailPage({ params }: ChurchDetailPageProps
               Open widget
             </Link>
             <CopyEmbedButton embedCode={embedCode} />
+            <CopyEmbedButton embedCode={scriptCode} label="Copy floating script" />
             <form action={deleteWithId}>
               <button
                 type="submit"
@@ -101,6 +103,10 @@ export default async function ChurchDetailPage({ params }: ChurchDetailPageProps
             </div>
             <pre className="max-h-52 overflow-auto rounded-md border border-emerald-300/14 bg-[#07140f] p-4 text-xs leading-6 text-emerald-50/78">
               {embedCode}
+            </pre>
+            <h2 className="text-2xl font-semibold">Floating button script</h2>
+            <pre className="max-h-52 overflow-auto rounded-md border border-emerald-300/14 bg-[#07140f] p-4 text-xs leading-6 text-emerald-50/78">
+              {scriptCode}
             </pre>
           </section>
         </div>
@@ -138,3 +144,4 @@ function Info({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+

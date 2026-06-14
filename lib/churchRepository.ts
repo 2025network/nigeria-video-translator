@@ -1,4 +1,4 @@
-import { prisma } from "./db";
+﻿import { prisma } from "./db";
 import type { ChurchStatus } from "./demoChurches";
 
 export type ChurchFormInput = {
@@ -109,3 +109,4 @@ export function toChurchView(church: ChurchWithRelations): ChurchView {
     enabledTranslationCountries: church.countries.map((item) => item.country),
   };
 }
+

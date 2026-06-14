@@ -43,10 +43,10 @@ export default function Home() {
           <div className="max-w-3xl">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-300/25 bg-emerald-300/10 px-4 py-2 text-sm font-medium text-emerald-100">
               <HeartHandshake className="h-4 w-4" />
-              Free public video translation for Nigerian languages
+              Free public video translation for sermon languages
             </div>
             <h1 className="text-5xl font-semibold leading-tight tracking-normal text-white sm:text-6xl lg:text-7xl">
-              Nigeria Video Translator
+              SermonBridge
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-emerald-50/78">
               Upload recorded videos or explore live stream translation demos to
@@ -150,3 +150,4 @@ export default function Home() {
     </main>
   );
 }
+

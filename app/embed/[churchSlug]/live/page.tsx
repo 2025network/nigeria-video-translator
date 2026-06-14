@@ -39,3 +39,4 @@ export default async function EmbedLivePage({ params }: EmbedLivePageProps) {
 
   return <LiveTranslationWidget church={toChurchView(church)} />;
 }
+

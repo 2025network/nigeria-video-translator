@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { getChurchById, toChurchView } from "@/lib/churchRepository";
@@ -62,3 +62,4 @@ export default async function EditChurchPage({ params }: EditChurchPageProps) {
     </main>
   );
 }
+

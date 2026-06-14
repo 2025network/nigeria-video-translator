@@ -1,4 +1,4 @@
-import { Code2, Globe2, Smartphone, TestTube2 } from "lucide-react";
+﻿import { Code2, Globe2, Smartphone, TestTube2 } from "lucide-react";
 import { getChurchEmbedCode } from "@/lib/demoChurches";
 import { AdminNav } from "../AdminNav";
 import { CopyEmbedButton } from "../churches/CopyEmbedButton";
@@ -96,3 +96,4 @@ function GuideCard({
     </article>
   );
 }
+

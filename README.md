@@ -1,4 +1,4 @@
-﻿# Nigeria Video Translator
+﻿# SermonBridge
 
 A Next.js App Router platform for recorded video translation and live church translation embed widgets.
 
@@ -199,3 +199,4 @@ prisma/dev.db
 npm.cmd run lint
 npm.cmd run build
 ```
+

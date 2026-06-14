@@ -1,4 +1,4 @@
-export type ChurchStatus = "Active" | "Inactive";
+﻿export type ChurchStatus = "Active" | "Inactive";
 
 export type DemoChurch = {
   id: string;
@@ -94,6 +94,10 @@ export function getChurchEmbedCode(slug: string) {
   return `<iframe src="${getChurchEmbedUrl(slug)}" width="100%" height="720" style="border:0;border-radius:16px;" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
 }
 
+export function getFloatingWidgetScriptCode(slug: string) {
+  return `<script src="${getSiteUrl()}/widget.js" data-church="${slug}"></script>`;
+}
+
 export function getYouTubeEmbedUrl(url: string) {
   const videoId = getYouTubeVideoId(url);
 
@@ -125,3 +129,4 @@ function getYouTubeVideoId(url: string) {
     return "";
   }
 }
+

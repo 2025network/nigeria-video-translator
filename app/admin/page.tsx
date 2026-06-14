@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { ArrowRight, Building2, FileCode2, Radio, UploadCloud } from "lucide-react";
 import { getChurches } from "@/lib/churchRepository";
 import { AdminNav } from "./AdminNav";
@@ -106,3 +106,4 @@ function AdminCard({
     </Link>
   );
 }
+

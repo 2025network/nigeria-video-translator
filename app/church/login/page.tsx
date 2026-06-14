@@ -2,18 +2,18 @@
 import { LogIn } from "lucide-react";
 import { createAdminSession, loginAdmin } from "@/lib/auth";
 
-type LoginPageProps = {
+type ChurchLoginPageProps = {
   searchParams: Promise<{
-    next?: string;
     error?: string;
+    next?: string;
   }>;
 };
 
 export const metadata = {
-  title: "Admin Login",
+  title: "Church Login",
 };
 
-export default async function AdminLoginPage({ searchParams }: LoginPageProps) {
+export default async function ChurchLoginPage({ searchParams }: ChurchLoginPageProps) {
   const params = await searchParams;
 
   async function login(formData: FormData) {
@@ -21,15 +21,15 @@ export default async function AdminLoginPage({ searchParams }: LoginPageProps) {
 
     const email = String(formData.get("email") ?? "");
     const password = String(formData.get("password") ?? "");
-    const nextPath = String(formData.get("next") ?? "/admin");
+    const nextPath = String(formData.get("next") ?? "/church/dashboard");
     const authenticated = await loginAdmin(email, password);
 
     if (!authenticated) {
-      redirect("/admin/login?error=invalid");
+      redirect("/church/login?error=invalid");
     }
 
     await createAdminSession();
-    redirect(nextPath.startsWith("/admin") ? nextPath : "/admin");
+    redirect(nextPath.startsWith("/church") ? nextPath : "/church/dashboard");
   }
 
   return (
@@ -38,9 +38,9 @@ export default async function AdminLoginPage({ searchParams }: LoginPageProps) {
         <div className="flex h-12 w-12 items-center justify-center rounded-md bg-emerald-400 text-[#04120c]">
           <LogIn className="h-6 w-6" />
         </div>
-        <h1 className="mt-5 text-3xl font-semibold">Admin login</h1>
+        <h1 className="mt-5 text-3xl font-semibold">Church owner login</h1>
         <p className="mt-2 text-sm leading-6 text-emerald-50/68">
-          Sign in to manage churches and embed widgets.
+          Manage your SermonBridge widget, stream URL, languages, and embed codes.
         </p>
         {params.error ? (
           <p className="mt-4 rounded-md border border-red-300/24 bg-red-950/24 p-3 text-sm text-red-100">
@@ -48,7 +48,7 @@ export default async function AdminLoginPage({ searchParams }: LoginPageProps) {
           </p>
         ) : null}
         <form action={login} className="mt-6 grid gap-4">
-          <input type="hidden" name="next" value={params.next ?? "/admin"} />
+          <input type="hidden" name="next" value={params.next ?? "/church/dashboard"} />
           <label className="grid gap-2 text-sm font-semibold text-emerald-100">
             Email
             <input
@@ -75,9 +75,6 @@ export default async function AdminLoginPage({ searchParams }: LoginPageProps) {
             Sign in
           </button>
         </form>
-        <p className="mt-4 text-xs leading-5 text-emerald-50/55">
-          Demo credentials are created by the Prisma seed script.
-        </p>
       </section>
     </main>
   );

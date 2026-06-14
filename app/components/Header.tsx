@@ -7,6 +7,8 @@ const navItems = [
   { label: "How It Works", href: "/how-it-works" },
   { label: "Upload Video", href: "/upload" },
   { label: "Live Stream", href: "/live" },
+  { label: "Church Login", href: "/church/login" },
+  { label: "Admin", href: "/admin" },
 ];
 
 export function Header() {
@@ -17,7 +19,7 @@ export function Header() {
           <span className="flex h-10 w-10 items-center justify-center rounded-md bg-emerald-400 text-[#04120c]">
             <Languages className="h-5 w-5" />
           </span>
-          <span>Nigeria Video Translator</span>
+          <span>SermonBridge</span>
         </Link>
         <nav className="flex flex-wrap gap-2 text-sm font-semibold text-emerald-50/76">
           {navItems.map((item) => (
@@ -34,3 +36,4 @@ export function Header() {
     </header>
   );
 }
+

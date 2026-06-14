@@ -107,7 +107,7 @@ async function translateWithOpenAI(
       {
         role: "system",
         content: [
-          "You are a careful Nigerian language translator.",
+          "You are a careful sermon translation assistant.",
           languagePrompts[language],
           "Return only JSON with keys translation and confidence.",
           "confidence must be a number from 0 to 1 representing your confidence in translation quality.",
@@ -216,3 +216,4 @@ function logTranslationConfidence(result: TranslationResult) {
     message: result.message,
   });
 }
+

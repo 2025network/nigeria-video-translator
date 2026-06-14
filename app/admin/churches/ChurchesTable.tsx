@@ -1,8 +1,8 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { Edit3, Eye, PlusCircle, Trash2 } from "lucide-react";
 import type { ChurchWithRelations } from "@/lib/churchRepository";
 import { toChurchView } from "@/lib/churchRepository";
-import { getChurchEmbedCode } from "@/lib/demoChurches";
+import { getChurchEmbedCode, getFloatingWidgetScriptCode } from "@/lib/demoChurches";
 import { CopyEmbedButton } from "./CopyEmbedButton";
 import { deleteChurchAction } from "./actions";
 
@@ -43,7 +43,7 @@ export function ChurchesTable({ churches }: { churches: ChurchWithRelations[] })
             <table className="min-w-[1050px] w-full border-collapse text-left text-sm">
               <thead className="bg-emerald-300/10 text-emerald-100">
                 <tr>
-                  {["Church", "Slug", "Country", "Languages", "YouTube Live", "Status", "Actions"].map((heading) => (
+                  {["Church", "Owner", "Slug", "Country", "Languages", "YouTube Live", "Widget status", "Actions"].map((heading) => (
                     <th key={heading} className="px-4 py-3 font-semibold">
                       {heading}
                     </th>
@@ -58,6 +58,7 @@ export function ChurchesTable({ churches }: { churches: ChurchWithRelations[] })
                   return (
                     <tr key={church.id} className="align-top">
                       <td className="px-4 py-4 font-semibold text-white">{church.churchName}</td>
+                      <td className="px-4 py-4 text-emerald-50/72">Seeded owner</td>
                       <td className="px-4 py-4 text-emerald-50/72">{church.slug}</td>
                       <td className="px-4 py-4 text-emerald-50/72">{church.country}</td>
                       <td className="px-4 py-4 text-emerald-50/72">
@@ -94,6 +95,7 @@ export function ChurchesTable({ churches }: { churches: ChurchWithRelations[] })
                             Edit
                           </Link>
                           <CopyEmbedButton embedCode={getChurchEmbedCode(church.slug)} />
+                          <CopyEmbedButton embedCode={getFloatingWidgetScriptCode(church.slug)} label="Copy Script" />
                           <form action={deleteWithId}>
                             <button
                               type="submit"
@@ -127,3 +129,4 @@ function Metric({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+

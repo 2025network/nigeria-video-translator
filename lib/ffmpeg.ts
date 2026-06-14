@@ -422,3 +422,4 @@ function runFfmpegCommand(ffmpegPath: string, args: string[]): Promise<number> {
     });
   });
 }
+

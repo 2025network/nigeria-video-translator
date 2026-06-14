@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { runOpenAIDiagnostics } from "@/lib/openaiDiagnostics";
 
 export const runtime = "nodejs";
@@ -9,3 +9,4 @@ export async function POST() {
 
   return NextResponse.json(diagnostics);
 }
+

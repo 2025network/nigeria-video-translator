@@ -1,4 +1,4 @@
-export const supportedLanguages = [
+﻿export const supportedLanguages = [
   "Yoruba",
   "Igbo",
   "Hausa",
@@ -10,3 +10,4 @@ export type SupportedLanguage = (typeof supportedLanguages)[number];
 export function isSupportedLanguage(value: string): value is SupportedLanguage {
   return supportedLanguages.some((language) => language === value);
 }
+

@@ -22,10 +22,10 @@ export default function AboutPage() {
             About
           </p>
           <h1 className="mt-3 text-4xl font-semibold leading-tight sm:text-5xl">
-            Helping people understand video content in Nigerian languages
+            Helping people understand video content in sermon languages
           </h1>
           <p className="mt-6 text-lg leading-8 text-emerald-50/76">
-            Nigeria Video Translator is a free public platform for making video
+            SermonBridge is a free public platform for making video
             content easier to understand across Yoruba, Igbo, Hausa, and Nigerian
             Pidgin. It helps turn spoken video content into translated text,
             subtitles, and a separate translated voice-over.
@@ -88,4 +88,5 @@ function InfoCard({
     </article>
   );
 }
+
 

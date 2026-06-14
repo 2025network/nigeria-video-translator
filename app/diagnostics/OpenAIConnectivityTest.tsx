@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { Loader2, PlayCircle } from "lucide-react";
@@ -97,3 +97,4 @@ function ResultRow({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+

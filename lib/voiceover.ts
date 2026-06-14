@@ -91,7 +91,7 @@ export async function generateVoiceOver(
 function createNarrationInstructions(targetLanguage: SupportedLanguage) {
   return [
     `Narrate naturally in ${targetLanguage}.`,
-    "Use a warm, clear, documentary-style delivery suitable for Nigerian audiences.",
+    "Use a warm, clear, documentary-style delivery suitable for church audiences.",
     "Keep pronunciation deliberate and conversational, with respectful pacing and confident intonation.",
     "This is an AI-generated translated voice-over, not a human recording.",
   ].join(" ");
@@ -126,7 +126,7 @@ async function createMockMp3Artifact(targetLanguage: SupportedLanguage) {
 
     return Buffer.from(
       [
-        "Mock MP3 voice-over artifact for Nigeria Video Translator.",
+        "Mock MP3 voice-over artifact for SermonBridge.",
         `Target language: ${targetLanguage}`,
         "Set OPENAI_API_KEY in .env.local to generate real OpenAI TTS audio.",
         "",
@@ -185,3 +185,4 @@ function createToneMp3(ffmpegPath: string, frequency: number): Promise<Buffer> {
     });
   });
 }
+

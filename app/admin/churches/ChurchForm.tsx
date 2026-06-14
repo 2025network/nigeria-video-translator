@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import {
@@ -212,3 +212,4 @@ function slugify(value: string) {
     .replace(/(^-|-$)/g, "")
     .slice(0, 80);
 }
+

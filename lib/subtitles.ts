@@ -1,4 +1,4 @@
-type SubtitleInput = {
+﻿type SubtitleInput = {
   transcript: string;
   translation: string;
   language: string;
@@ -16,3 +16,4 @@ export function generateSrt({ transcript, translation, language }: SubtitleInput
     "",
   ].join("\n");
 }
+

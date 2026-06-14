@@ -4,11 +4,11 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Nigeria Video Translator",
-    template: "%s | Nigeria Video Translator",
+    default: "SermonBridge",
+    template: "%s | SermonBridge",
   },
   description:
-    "A free public platform that helps people understand video content in Nigerian languages.",
+    "Live sermon translation for every nation, language, and church.",
 };
 
 export default function RootLayout({
@@ -24,3 +24,4 @@ export default function RootLayout({
     </html>
   );
 }
+

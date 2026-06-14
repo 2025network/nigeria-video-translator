@@ -1,4 +1,4 @@
-export const demoTranslationMessage =
+﻿export const demoTranslationMessage =
   "Real AI translation is temporarily unavailable. Demo translation is being shown.";
 
 export type OpenAIErrorDetails = {
@@ -58,3 +58,4 @@ export function getOpenAIErrorDetails(error: unknown): OpenAIErrorDetails {
     quotaUnavailable: false,
   };
 }
+

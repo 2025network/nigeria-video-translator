@@ -121,3 +121,4 @@ function DiagnosticItem({ label, value, ok, detail }: DiagnosticItemProps) {
     </div>
   );
 }
+

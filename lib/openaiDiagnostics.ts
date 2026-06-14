@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+﻿import OpenAI from "openai";
 import { getOpenAIErrorDetails } from "./openaiErrors";
 
 export type OpenAIDiagnosticCheck = {
@@ -58,7 +58,7 @@ async function testOpenAITextRequest(client: OpenAI): Promise<OpenAIDiagnosticCh
     const response = await client.responses.create({
       model: testModel,
       input:
-        "Diagnostic test only. Reply with exactly: Nigeria Video Translator OK",
+        "Diagnostic test only. Reply with exactly: SermonBridge OK",
       max_output_tokens: 20,
     });
 
@@ -77,7 +77,7 @@ async function testOpenAITtsRequest(client: OpenAI): Promise<OpenAIDiagnosticChe
     const response = await client.audio.speech.create({
       model: testTtsModel,
       voice: "cedar",
-      input: "Nigeria Video Translator diagnostic text to speech test.",
+      input: "SermonBridge diagnostic text to speech test.",
       response_format: "mp3",
     });
     const audioBuffer = Buffer.from(await response.arrayBuffer());
@@ -119,3 +119,4 @@ function createFailure(
     quotaUnavailable,
   };
 }
+
