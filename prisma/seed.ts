@@ -2,6 +2,9 @@ import { PrismaClient } from "@prisma/client";
 import { hashPassword } from "../lib/password";
 
 const prisma = new PrismaClient();
+const defaultAdminEmail =
+  process.env.ADMIN_EMAIL || "admin@nigeriavideotranslator.local";
+const defaultAdminPassword = process.env.ADMIN_PASSWORD || "Admin123!";
 
 const churches = [
   {
@@ -37,17 +40,23 @@ const churches = [
 ];
 
 async function main() {
-  const passwordHash = await hashPassword("Admin123!");
+  if (!process.env.ADMIN_PASSWORD) {
+    console.warn(
+      "ADMIN_PASSWORD is not set. Using the local fallback password. Do not use this password in production.",
+    );
+  }
+
+  const passwordHash = await hashPassword(defaultAdminPassword);
 
   await prisma.user.upsert({
-    where: { email: "admin@nigeriavideotranslator.local" },
+    where: { email: defaultAdminEmail },
     update: {
       name: "Demo Admin",
       passwordHash,
       role: "ADMIN",
     },
     create: {
-      email: "admin@nigeriavideotranslator.local",
+      email: defaultAdminEmail,
       name: "Demo Admin",
       passwordHash,
       role: "ADMIN",
