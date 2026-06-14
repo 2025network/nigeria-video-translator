@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         String   @default("ADMIN")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Church {
+  id                     String           @id @default(cuid())
+  churchName             String
+  slug                   String           @unique
+  country                String
+  youtubeLiveUrl         String
+  defaultSpokenLanguage  String
+  status                 String           @default("Active")
+  languages              ChurchLanguage[]
+  countries              ChurchCountry[]
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+}
+
+model ChurchLanguage {
+  id        String @id @default(cuid())
+  language  String
+  churchId  String
+  church    Church @relation(fields: [churchId], references: [id], onDelete: Cascade)
+
+  @@unique([churchId, language])
+}
+
+model ChurchCountry {
+  id       String @id @default(cuid())
+  country  String
+  churchId String
+  church   Church @relation(fields: [churchId], references: [id], onDelete: Cascade)
+
+  @@unique([churchId, country])
+}

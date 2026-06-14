@@ -2,10 +2,16 @@
 
 import { useMemo, useState } from "react";
 import { Headphones, Languages, Play, QrCode, Radio } from "lucide-react";
-import type { DemoChurch } from "@/lib/demoChurches";
 import { getYouTubeEmbedUrl, nigeriaChurchLanguages } from "@/lib/demoChurches";
 
 type LiveStatus = "Waiting" | "Listening" | "Translating" | "Live";
+type ChurchWidgetView = {
+  churchName: string;
+  youtubeLiveUrl: string;
+  enabledTranslationCountries: string[];
+  enabledLanguages: string[];
+  status: string;
+};
 
 const demoLines: Record<string, string> = {
   English:
@@ -32,7 +38,7 @@ const demoLines: Record<string, string> = {
     "Demo translation: Ovwata Oghene ro hope re families wey dey listen today.",
 };
 
-export function LiveTranslationWidget({ church }: { church: DemoChurch }) {
+export function LiveTranslationWidget({ church }: { church: ChurchWidgetView }) {
   const [country, setCountry] = useState(church.enabledTranslationCountries[0] ?? "Nigeria");
   const [language, setLanguage] = useState(church.enabledLanguages[0] ?? "English");
   const [status, setStatus] = useState<LiveStatus>("Waiting");

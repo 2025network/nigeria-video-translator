@@ -1,14 +1,15 @@
 import Link from "next/link";
 import { ArrowRight, Building2, FileCode2, Radio, UploadCloud } from "lucide-react";
-import { demoChurches } from "@/lib/demoChurches";
+import { getChurches } from "@/lib/churchRepository";
 import { AdminNav } from "./AdminNav";
 
 export const metadata = {
   title: "Admin Dashboard",
 };
 
-export default function AdminDashboardPage() {
-  const activeChurches = demoChurches.filter((church) => church.status === "Active").length;
+export default async function AdminDashboardPage() {
+  const churches = await getChurches();
+  const activeChurches = churches.filter((church) => church.status === "Active").length;
 
   return (
     <main className="min-h-screen bg-[#06110d] text-white">
@@ -30,9 +31,9 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <Metric label="Total churches" value={String(demoChurches.length)} />
+          <Metric label="Total churches" value={String(churches.length)} />
           <Metric label="Active churches" value={String(activeChurches)} />
-          <Metric label="Embed widgets generated" value={String(demoChurches.length)} />
+          <Metric label="Embed widgets generated" value={String(churches.length)} />
           <Metric label="Demo live sessions" value="3" />
         </div>
 

@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { AdminNav } from "../../AdminNav";
-import { AddChurchForm } from "./AddChurchForm";
+import { createChurchAction } from "../actions";
+import { ChurchForm } from "../ChurchForm";
 
 export const metadata = {
   title: "Add Church",
@@ -34,7 +35,7 @@ export default function AddChurchPage() {
           </p>
         </div>
 
-        <AddChurchForm />
+        <ChurchForm action={createChurchAction} submitLabel="Save church" />
       </section>
     </main>
   );

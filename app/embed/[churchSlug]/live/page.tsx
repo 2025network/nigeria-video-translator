@@ -1,6 +1,6 @@
 ﻿import Link from "next/link";
 import { AlertCircle } from "lucide-react";
-import { getChurchBySlug } from "@/lib/demoChurches";
+import { getChurchBySlug, toChurchView } from "@/lib/churchRepository";
 import { LiveTranslationWidget } from "./LiveTranslationWidget";
 
 type EmbedLivePageProps = {
@@ -15,7 +15,7 @@ export const metadata = {
 
 export default async function EmbedLivePage({ params }: EmbedLivePageProps) {
   const { churchSlug } = await params;
-  const church = getChurchBySlug(churchSlug);
+  const church = await getChurchBySlug(churchSlug);
 
   if (!church) {
     return (
@@ -24,7 +24,7 @@ export default async function EmbedLivePage({ params }: EmbedLivePageProps) {
           <AlertCircle className="mx-auto h-10 w-10 text-emerald-300" />
           <h1 className="mt-4 text-2xl font-semibold">Widget not found</h1>
           <p className="mt-3 text-sm leading-6 text-emerald-50/68">
-            This demo church slug does not exist yet. Add a demo church in the admin workspace or open one of the existing church widgets.
+            This church slug does not exist yet. Add a church in the admin workspace or open one of the seeded church widgets.
           </p>
           <Link
             href="/admin/churches"
@@ -37,6 +37,5 @@ export default async function EmbedLivePage({ params }: EmbedLivePageProps) {
     );
   }
 
-  return <LiveTranslationWidget church={church} />;
+  return <LiveTranslationWidget church={toChurchView(church)} />;
 }
-

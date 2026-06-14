@@ -20,7 +20,7 @@ const adminLinks = [
 export function AdminNav() {
   return (
     <nav className="rounded-lg border border-emerald-300/16 bg-white/[0.045] p-3">
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         {adminLinks.map((item) => {
           const Icon = item.icon;
 
@@ -35,6 +35,14 @@ export function AdminNav() {
             </Link>
           );
         })}
+        <form action="/admin/logout" method="post" className="ml-auto">
+          <button
+            type="submit"
+            className="inline-flex min-h-10 items-center justify-center rounded-md border border-emerald-300/20 px-3 text-sm font-semibold text-emerald-100 transition hover:bg-white/8"
+          >
+            Logout
+          </button>
+        </form>
       </div>
     </nav>
   );

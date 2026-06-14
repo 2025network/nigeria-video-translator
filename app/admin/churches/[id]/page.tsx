@@ -1,12 +1,10 @@
 ﻿import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ExternalLink } from "lucide-react";
-import {
-  getChurchById,
-  getChurchEmbedCode,
-  getChurchEmbedUrl,
-} from "@/lib/demoChurches";
+import { ArrowLeft, Edit3, ExternalLink } from "lucide-react";
+import { getChurchById, toChurchView } from "@/lib/churchRepository";
+import { getChurchEmbedCode, getChurchEmbedUrl } from "@/lib/demoChurches";
 import { AdminNav } from "../../AdminNav";
+import { deleteChurchAction } from "../actions";
 import { CopyEmbedButton } from "../CopyEmbedButton";
 
 type ChurchDetailPageProps = {
@@ -21,14 +19,16 @@ export const metadata = {
 
 export default async function ChurchDetailPage({ params }: ChurchDetailPageProps) {
   const { id } = await params;
-  const church = getChurchById(id);
+  const church = await getChurchById(id);
 
   if (!church) {
     notFound();
   }
 
+  const churchView = toChurchView(church);
   const embedCode = getChurchEmbedCode(church.slug);
   const embedUrl = getChurchEmbedUrl(church.slug);
+  const deleteWithId = deleteChurchAction.bind(null, church.id);
 
   return (
     <main className="min-h-screen bg-[#06110d] text-white">
@@ -58,6 +58,13 @@ export default async function ChurchDetailPage({ params }: ChurchDetailPageProps
           </div>
           <div className="flex flex-wrap gap-2">
             <Link
+              href={`/admin/churches/${church.id}/edit`}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-white/8 px-4 text-sm font-semibold text-white hover:bg-white/12"
+            >
+              <Edit3 className="h-4 w-4" />
+              Edit church
+            </Link>
+            <Link
               href={embedUrl}
               className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-white/8 px-4 text-sm font-semibold text-white hover:bg-white/12"
             >
@@ -65,6 +72,14 @@ export default async function ChurchDetailPage({ params }: ChurchDetailPageProps
               Open widget
             </Link>
             <CopyEmbedButton embedCode={embedCode} />
+            <form action={deleteWithId}>
+              <button
+                type="submit"
+                className="inline-flex min-h-11 items-center justify-center rounded-md border border-red-300/24 px-4 text-sm font-semibold text-red-100 hover:bg-red-950/24"
+              >
+                Delete church
+              </button>
+            </form>
           </div>
         </div>
 
@@ -75,8 +90,8 @@ export default async function ChurchDetailPage({ params }: ChurchDetailPageProps
             <Info label="Status" value={church.status} />
             <Info label="Default spoken language" value={church.defaultSpokenLanguage} />
             <Info label="YouTube Live URL" value={church.youtubeLiveUrl} />
-            <Info label="Enabled translation countries" value={church.enabledTranslationCountries.join(", ")} />
-            <Info label="Active languages" value={church.enabledLanguages.join(", ")} />
+            <Info label="Enabled translation countries" value={churchView.enabledTranslationCountries.join(", ")} />
+            <Info label="Active languages" value={churchView.enabledLanguages.join(", ")} />
           </section>
 
           <section className="grid gap-4 rounded-lg border border-emerald-300/16 bg-white/[0.045] p-5">
@@ -123,4 +138,3 @@ function Info({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
-

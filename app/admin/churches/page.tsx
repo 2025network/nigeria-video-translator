@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PlusCircle, Radio } from "lucide-react";
+import { getChurches } from "@/lib/churchRepository";
 import { AdminNav } from "../AdminNav";
 import { ChurchesTable } from "./ChurchesTable";
 
@@ -7,7 +8,9 @@ export const metadata = {
   title: "Churches Admin",
 };
 
-export default function ChurchesAdminPage() {
+export default async function ChurchesAdminPage() {
+  const churches = await getChurches();
+
   return (
     <main className="min-h-screen bg-[#06110d] text-white">
       <section className="section-shell py-8">
@@ -37,7 +40,7 @@ export default function ChurchesAdminPage() {
           </Link>
         </div>
 
-        <ChurchesTable />
+        <ChurchesTable churches={churches} />
       </section>
     </main>
   );

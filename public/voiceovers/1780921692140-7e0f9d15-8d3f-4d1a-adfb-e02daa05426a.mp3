@@ -1,0 +1,3 @@
+Mock MP3 voice-over artifact for Nigeria Video Translator.
+Target language: Yoruba
+Set OPENAI_API_KEY in .env.local to generate real OpenAI TTS audio.
