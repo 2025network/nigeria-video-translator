@@ -46,7 +46,7 @@ export default async function EditChurchPage({ params }: EditChurchPageProps) {
             Edit church
           </p>
           <h1 className="mt-3 text-4xl font-semibold leading-tight sm:text-5xl">
-            {church.churchName}
+            {church.name}
           </h1>
           <p className="mt-4 leading-7 text-emerald-50/72">
             Update church details, enabled languages, widget status, and embed configuration.

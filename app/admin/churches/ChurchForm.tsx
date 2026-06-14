@@ -7,11 +7,16 @@ import {
   translationCountries,
   type ChurchStatus,
 } from "@/lib/demoChurches";
+import { defaultListenerLanguages, listenerLanguageOptions } from "@/lib/listenerLanguages";
 import { CopyEmbedButton } from "./CopyEmbedButton";
 
 type ChurchFormInitialValues = {
+  name: string;
   churchName: string;
   slug: string;
+  email: string;
+  plan: string;
+  supportedLanguages: string[];
   country: string;
   youtubeLiveUrl: string;
   defaultSpokenLanguage: string;
@@ -31,6 +36,10 @@ export function ChurchForm({
 }) {
   const [name, setName] = useState(initialValues?.churchName ?? "");
   const [slug, setSlug] = useState(initialValues?.slug ?? "");
+  const [email, setEmail] = useState(initialValues?.email ?? "");
+  const [listenerLanguages, setListenerLanguages] = useState<string[]>(
+    initialValues?.supportedLanguages ?? [...defaultListenerLanguages],
+  );
   const [country, setCountry] = useState(initialValues?.country ?? "Nigeria");
   const [youtubeUrl, setYoutubeUrl] = useState(initialValues?.youtubeLiveUrl ?? "");
   const [defaultLanguage, setDefaultLanguage] = useState(
@@ -75,9 +84,34 @@ export function ChurchForm({
             onChange={(event) => setSlug(slugify(event.target.value))}
             placeholder="christ-embassy-lagos"
             className="min-h-12 rounded-md border border-emerald-300/18 bg-[#07140f] px-4 text-white outline-none focus-visible:focus-ring"
-            required
           />
+          <span className="text-xs font-normal text-emerald-50/55">
+            Leave blank to generate a unique slug from the church name.
+          </span>
         </Field>
+        <input type="hidden" name="plan" value="FULL_ACCESS" />
+        <div className="grid gap-4 md:grid-cols-2">
+          <Field label="Church email">
+            <input
+              name="email"
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="church@example.com"
+              className="min-h-12 rounded-md border border-emerald-300/18 bg-[#07140f] px-4 text-white outline-none focus-visible:focus-ring"
+              required
+            />
+          </Field>
+          <Field label={initialValues ? "New password" : "Password"}>
+            <input
+              name="password"
+              type="password"
+              placeholder={initialValues ? "Leave blank to keep current" : "Church123!"}
+              className="min-h-12 rounded-md border border-emerald-300/18 bg-[#07140f] px-4 text-white outline-none focus-visible:focus-ring"
+              required={!initialValues}
+            />
+          </Field>
+        </div>
         <div className="grid gap-4 md:grid-cols-2">
           <Field label="Country">
             <input
@@ -111,6 +145,13 @@ export function ChurchForm({
             required
           />
         </Field>
+        <CheckboxGroup
+          label="Listener languages enabled for this church"
+          name="supportedLanguages"
+          values={[...listenerLanguageOptions]}
+          selected={listenerLanguages}
+          onToggle={(value) => toggleValue(value, listenerLanguages, setListenerLanguages)}
+        />
         <CheckboxGroup
           label="Enabled translation countries"
           name="enabledTranslationCountries"

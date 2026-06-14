@@ -1,6 +1,7 @@
 ﻿import Link from "next/link";
-import { ArrowRight, Building2, FileCode2, Radio, UploadCloud } from "lucide-react";
+import { ArrowRight, Building2, FileCode2, Inbox, Radio, UploadCloud } from "lucide-react";
 import { getChurches } from "@/lib/churchRepository";
+import { getOnboardingRequests } from "@/lib/onboardingRepository";
 import { AdminNav } from "./AdminNav";
 
 export const metadata = {
@@ -8,8 +9,12 @@ export const metadata = {
 };
 
 export default async function AdminDashboardPage() {
-  const churches = await getChurches();
+  const [churches, onboardingRequests] = await Promise.all([
+    getChurches(),
+    getOnboardingRequests(),
+  ]);
   const activeChurches = churches.filter((church) => church.status === "Active").length;
+  const newRequests = onboardingRequests.filter((request) => request.status === "NEW").length;
 
   return (
     <main className="min-h-screen bg-[#06110d] text-white">
@@ -23,10 +28,12 @@ export default async function AdminDashboardPage() {
             Admin dashboard
           </p>
           <h1 className="mt-3 text-4xl font-semibold leading-tight sm:text-5xl">
-            Live church translation widgets
+            SermonBridge platform admin
           </h1>
           <p className="mt-4 leading-7 text-emerald-50/72">
-            Manage demo church profiles, generate iframe embeds, and preview live sermon translation widgets without a database or real AI connection.
+            Manage church profiles, owner access, stream URLs, widget status,
+            iframe embeds, and floating Translate Sermon button scripts from one
+            place.
           </p>
         </div>
 
@@ -34,25 +41,31 @@ export default async function AdminDashboardPage() {
           <Metric label="Total churches" value={String(churches.length)} />
           <Metric label="Active churches" value={String(activeChurches)} />
           <Metric label="Embed widgets generated" value={String(churches.length)} />
-          <Metric label="Demo live sessions" value="3" />
+          <Metric label="New onboarding requests" value={String(newRequests)} />
         </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           <AdminCard
             title="Manage Churches"
-            description="View demo churches, inspect live URLs, and copy iframe embed codes."
+            description="View churches, inspect stream URLs, and copy iframe or floating widget code."
             href="/admin/churches"
             icon={<Building2 className="h-5 w-5" />}
           />
           <AdminCard
             title="Add Church"
-            description="Open the demo form for configuring a church translation widget."
+            description="Create a church profile and prepare its live translation widget."
             href="/admin/churches/add"
             icon={<Radio className="h-5 w-5" />}
           />
           <AdminCard
+            title="Onboarding Requests"
+            description="Review churches asking for full SermonBridge platform access."
+            href="/admin/onboarding-requests"
+            icon={<Inbox className="h-5 w-5" />}
+          />
+          <AdminCard
             title="Public Upload Tool"
-            description="Keep using the existing video upload and translation demo."
+            description="Open the secondary recorded sermon upload and translation tool."
             href="/upload"
             icon={<UploadCloud className="h-5 w-5" />}
           />

@@ -94,6 +94,18 @@ export function getChurchEmbedCode(slug: string) {
   return `<iframe src="${getChurchEmbedUrl(slug)}" width="100%" height="720" style="border:0;border-radius:16px;" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
 }
 
+export function getBranchEmbedUrl(churchSlug: string, branchSlug: string) {
+  return `${getSiteUrl()}/embed/${churchSlug}/${branchSlug}/live`;
+}
+
+export function getBranchEmbedCode(churchSlug: string, branchSlug: string) {
+  return `<iframe src="${getBranchEmbedUrl(churchSlug, branchSlug)}" width="100%" height="720" style="border:0;border-radius:16px;" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+}
+
+export function getBranchWidgetEmbedCode(churchSlug: string, branchSlug: string) {
+  return `<div id="sermonbridge-widget" data-church-slug="${churchSlug}" data-branch-slug="${branchSlug}"></div>\n<script src="${getSiteUrl()}/sermonbridge-widget.js"></script>`;
+}
+
 export function getFloatingWidgetScriptCode(slug: string) {
   return `<script src="${getSiteUrl()}/widget.js" data-church="${slug}"></script>`;
 }

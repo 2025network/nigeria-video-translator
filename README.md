@@ -1,11 +1,11 @@
 ﻿# SermonBridge
 
-A Next.js App Router platform for recorded video translation and live church translation embed widgets.
+A Next.js App Router platform for live church translation widgets and secondary recorded sermon translation tools.
 
 The project has two surfaces:
 
-- Recorded video upload, transcript, subtitle, voice-over, and translated-video demo.
-- Live Church Translation Embed Widget platform for churches to paste into an existing website, WordPress page, or mobile app WebView.
+- Live church translation widgets that churches can paste into existing websites, WordPress pages, YouTube Live companion pages, and mobile app WebViews.
+- A secondary recorded sermon upload, transcript, subtitle, voice-over, and translated-video demo.
 
 OpenAI is optional. When OpenAI is unavailable, demo mode keeps uploads, subtitles, demo voice-over, translated video generation, and live widget previews working.
 
@@ -39,7 +39,7 @@ Local `.env` example:
 
 ```env
 DATABASE_URL="file:./dev.db"
-ADMIN_EMAIL=admin@nigeriavideotranslator.local
+ADMIN_EMAIL=admin@sermonbridge.local
 ADMIN_PASSWORD=Admin123!
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 OPENAI_API_KEY=
@@ -77,7 +77,7 @@ The seed creates:
 Local fallback credentials:
 
 ```text
-Email: admin@nigeriavideotranslator.local
+Email: admin@sermonbridge.local
 Password: Admin123!
 ```
 
@@ -101,7 +101,7 @@ Useful pages:
 http://localhost:3000/admin
 http://localhost:3000/admin/churches
 http://localhost:3000/admin/embed-guide
-http://localhost:3000/embed/grace-city/live
+http://localhost:3000/embed/christ-embassy-lagos/live
 http://localhost:3000/upload
 http://localhost:3000/diagnostics
 ```
@@ -113,7 +113,7 @@ The admin area generates iframe snippets for church websites and app WebViews. I
 Example iframe:
 
 ```html
-<iframe src="http://localhost:3000/embed/grace-city/live" width="100%" height="720" style="border:0;border-radius:16px;" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<iframe src="http://localhost:3000/embed/christ-embassy-lagos/live" width="100%" height="720" style="border:0;border-radius:16px;" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 ```
 
 Recommended iframe height: `720px`.

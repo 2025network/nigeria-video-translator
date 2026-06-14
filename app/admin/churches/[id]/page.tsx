@@ -1,10 +1,11 @@
 ﻿import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Edit3, ExternalLink } from "lucide-react";
+import { ArrowLeft, Edit3, ExternalLink, PauseCircle } from "lucide-react";
 import { getChurchById, toChurchView } from "@/lib/churchRepository";
 import { getChurchEmbedCode, getChurchEmbedUrl, getFloatingWidgetScriptCode } from "@/lib/demoChurches";
+import { getWidgetUsageStats } from "@/lib/widgetUsageRepository";
 import { AdminNav } from "../../AdminNav";
-import { deleteChurchAction } from "../actions";
+import { deleteChurchAction, disableChurchAction } from "../actions";
 import { CopyEmbedButton } from "../CopyEmbedButton";
 
 type ChurchDetailPageProps = {
@@ -29,7 +30,9 @@ export default async function ChurchDetailPage({ params }: ChurchDetailPageProps
   const embedCode = getChurchEmbedCode(church.slug);
   const scriptCode = getFloatingWidgetScriptCode(church.slug);
   const embedUrl = getChurchEmbedUrl(church.slug);
+  const usageStats = await getWidgetUsageStats(church.id);
   const deleteWithId = deleteChurchAction.bind(null, church.id);
+  const disableWithId = disableChurchAction.bind(null, church.id);
 
   return (
     <main className="min-h-screen bg-[#06110d] text-white">
@@ -51,7 +54,7 @@ export default async function ChurchDetailPage({ params }: ChurchDetailPageProps
               Church detail
             </p>
             <h1 className="mt-3 text-4xl font-semibold leading-tight sm:text-5xl">
-              {church.churchName}
+              {church.name}
             </h1>
             <p className="mt-4 text-emerald-50/72">
               Embed slug: <span className="font-semibold text-emerald-100">{church.slug}</span>
@@ -66,6 +69,12 @@ export default async function ChurchDetailPage({ params }: ChurchDetailPageProps
               Edit church
             </Link>
             <Link
+              href={`/admin/churches/${church.id}/branches`}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-white/8 px-4 text-sm font-semibold text-white hover:bg-white/12"
+            >
+              Branches
+            </Link>
+            <Link
               href={embedUrl}
               className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-white/8 px-4 text-sm font-semibold text-white hover:bg-white/12"
             >
@@ -74,6 +83,17 @@ export default async function ChurchDetailPage({ params }: ChurchDetailPageProps
             </Link>
             <CopyEmbedButton embedCode={embedCode} />
             <CopyEmbedButton embedCode={scriptCode} label="Copy floating script" />
+            {church.status === "Active" ? (
+              <form action={disableWithId}>
+                <button
+                  type="submit"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-amber-300/24 px-4 text-sm font-semibold text-amber-100 hover:bg-amber-950/24"
+                >
+                  <PauseCircle className="h-4 w-4" />
+                  Disable church
+                </button>
+              </form>
+            ) : null}
             <form action={deleteWithId}>
               <button
                 type="submit"
@@ -88,8 +108,13 @@ export default async function ChurchDetailPage({ params }: ChurchDetailPageProps
         <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
           <section className="grid h-fit gap-4 rounded-lg border border-emerald-300/16 bg-white/[0.045] p-5">
             <h2 className="text-2xl font-semibold">Church information</h2>
+            <Info label="Name" value={church.name} />
+            <Info label="Email" value={church.email} />
+            <Info label="Access" value="Full platform access" />
+            <Info label="Embed URL" value={embedUrl} />
             <Info label="Country" value={church.country} />
             <Info label="Status" value={church.status} />
+            <Info label="Listener languages" value={churchView.supportedLanguages.join(", ")} />
             <Info label="Default spoken language" value={church.defaultSpokenLanguage} />
             <Info label="YouTube Live URL" value={church.youtubeLiveUrl} />
             <Info label="Enabled translation countries" value={churchView.enabledTranslationCountries.join(", ")} />
@@ -112,6 +137,40 @@ export default async function ChurchDetailPage({ params }: ChurchDetailPageProps
         </div>
 
         <section className="mt-6 rounded-lg border border-emerald-300/16 bg-white/[0.045] p-5">
+          <h2 className="text-2xl font-semibold">Widget usage</h2>
+          <p className="mt-2 text-sm leading-6 text-emerald-50/68">
+            Anonymous usage counts only. SermonBridge does not track personal listener identity.
+          </p>
+          <div className="mt-5 grid gap-4 md:grid-cols-3">
+            <UsageMetric label="Total widget loads" value={usageStats.totalWidgetLoads} />
+            <UsageMetric label="Total live starts" value={usageStats.totalLiveStarts} />
+            <UsageMetric label="Language changes" value={usageStats.languageChangeCount} />
+          </div>
+          {usageStats.branchCounts.length ? (
+            <div className="mt-5 overflow-hidden rounded-lg border border-emerald-300/14">
+              <table className="w-full min-w-[620px] border-collapse text-left text-sm">
+                <thead className="bg-emerald-300/10 text-emerald-100">
+                  <tr>
+                    <th className="px-4 py-3 font-semibold">Branch</th>
+                    <th className="px-4 py-3 font-semibold">Event</th>
+                    <th className="px-4 py-3 font-semibold">Count</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-emerald-300/12">
+                  {usageStats.branchCounts.map((row) => (
+                    <tr key={`${row.branchId}-${row.branchSlug}-${row.eventType}`}>
+                      <td className="px-4 py-3 text-emerald-50/78">{row.branchSlug}</td>
+                      <td className="px-4 py-3 text-emerald-50/78">{row.eventType}</td>
+                      <td className="px-4 py-3 font-semibold text-white">{row._count._all}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : null}
+        </section>
+
+        <section className="mt-6 rounded-lg border border-emerald-300/16 bg-white/[0.045] p-5">
           <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h2 className="text-2xl font-semibold">Live widget preview</h2>
@@ -131,6 +190,17 @@ export default async function ChurchDetailPage({ params }: ChurchDetailPageProps
         </section>
       </section>
     </main>
+  );
+}
+
+function UsageMetric({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-md border border-emerald-300/14 bg-[#07140f] p-4">
+      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-emerald-300">
+        {label}
+      </p>
+      <p className="mt-2 text-3xl font-semibold text-white">{value}</p>
+    </div>
   );
 }
 

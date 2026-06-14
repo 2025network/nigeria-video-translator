@@ -1,34 +1,35 @@
 ﻿"use client";
 
 import { useMemo, useState } from "react";
-import { Radio, Video } from "lucide-react";
+import Link from "next/link";
+import { Code2, Radio, Video } from "lucide-react";
 import { supportedLanguages, type SupportedLanguage } from "@/lib/languages";
 
 const transcriptLines = [
   "Welcome everyone. We are starting the live session now.",
-  "Today we are sharing a message for families, schools, churches, and communities.",
+  "Today we are sharing a message for churches and communities following online.",
   "This demo shows where real-time transcript and translation will appear.",
 ];
 
 const mockTranslations: Record<SupportedLanguage, string[]> = {
   Yoruba: [
     "Kaabo gbogbo eniyan. A n bere eto taara bayii.",
-    "Loni a n pin ifiranse fun ebi, ile-iwe, ijo, ati agbegbe.",
+    "Loni a n pin ifiranse fun awon ijo ati agbegbe ti won n tele lori ayelujara.",
     "Apeere yi fihan ibi ti itumọ akoko-gidi yoo han.",
   ],
   Igbo: [
     "Nnọọ unu niile. Anyị amalitela mmemme dị ndụ ugbu a.",
-    "Taa anyị na-ekerịta ozi maka ezinụlọ, ụlọ akwụkwọ, ụka, na obodo.",
+    "Taa anyị na-ekerịta ozi maka ụka na obodo ndị na-eso n'ịntanetị.",
     "Ngosipụta a na-egosi ebe ntụgharị oge-adị ndụ ga-apụta.",
   ],
   Hausa: [
     "Barka da zuwa kowa. Muna fara shirin kai tsaye yanzu.",
-    "Yau muna raba sako ga iyalai, makarantu, majami'u, da al'ummomi.",
+    "Yau muna raba sako ga majami'u da al'ummomi da suke bi ta intanet.",
     "Wannan gwaji yana nuna inda fassarar kai tsaye za ta bayyana.",
   ],
   "Nigerian Pidgin": [
     "Welcome everybody. We dey start the live session now.",
-    "Today we dey share message for families, schools, churches, and communities.",
+    "Today we dey share message for churches and communities wey dey follow online.",
     "This demo dey show where live transcript and translation go appear.",
   ],
 };
@@ -45,20 +46,36 @@ export default function LiveStreamPage() {
       <section className="section-shell py-20">
         <div className="mb-10 max-w-3xl">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-emerald-300">
-            Live Stream
+            Live demo setup
           </p>
           <h1 className="mt-3 text-4xl font-semibold leading-tight sm:text-5xl">
-            Live translation foundation
+            Preview a stream beside demo translation panels
           </h1>
           <p className="mt-6 text-lg leading-8 text-emerald-50/76">
-            Enter a YouTube Live URL or RTMP stream URL, choose a Nigerian
-            language, and preview where live transcript and mock translation
-            output will appear.
+            Use this secondary page to test a stream source, transcript panel,
+            and mock translation output. The main SermonBridge product is the
+            embeddable church widget for websites, WordPress, YouTube Live
+            companion pages, and mobile app WebViews.
           </p>
           <p className="mt-5 rounded-md border border-emerald-300/18 bg-emerald-300/10 p-4 text-sm font-semibold leading-6 text-emerald-50">
-            Live translation is currently a foundation/demo feature. Real-time AI
-            translation will be added later.
+            Demo translation is active. Real AI translation can be connected later.
           </p>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <Link
+              href="/embed/christ-embassy-lagos/live"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-emerald-400 px-6 py-3 font-semibold text-[#04120c] transition hover:bg-emerald-300 focus-visible:focus-ring"
+            >
+              <Video className="h-5 w-5" />
+              View Live Demo
+            </Link>
+            <Link
+              href="/admin/embed-guide"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-emerald-200/20 px-6 py-3 font-semibold text-emerald-50 transition hover:bg-white/8 focus-visible:focus-ring"
+            >
+              <Code2 className="h-5 w-5" />
+              Embed Guide
+            </Link>
+          </div>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
@@ -96,7 +113,7 @@ export default function LiveStreamPage() {
 
               <label className="grid gap-2">
                 <span className="text-sm font-semibold text-emerald-100">
-                  Translation language
+                  Demo translation language
                 </span>
                 <select
                   value={language}

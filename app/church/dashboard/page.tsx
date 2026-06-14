@@ -1,7 +1,14 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { FileCode2, Languages, Radio, Settings } from "lucide-react";
+import { getBranchesForChurch } from "@/lib/branchRepository";
 import { getCurrentChurchView } from "@/lib/currentChurch";
-import { getChurchEmbedCode, getChurchEmbedUrl, getFloatingWidgetScriptCode } from "@/lib/demoChurches";
+import {
+  getBranchEmbedUrl,
+  getBranchWidgetEmbedCode,
+  getChurchEmbedCode,
+  getChurchEmbedUrl,
+  getFloatingWidgetScriptCode,
+} from "@/lib/demoChurches";
 import { ChurchNav } from "../ChurchNav";
 import { CopyEmbedButton } from "../../admin/churches/CopyEmbedButton";
 
@@ -19,6 +26,7 @@ export default async function ChurchDashboardPage() {
   const embedCode = getChurchEmbedCode(church.slug);
   const scriptCode = getFloatingWidgetScriptCode(church.slug);
   const widgetUrl = getChurchEmbedUrl(church.slug);
+  const branches = await getBranchesForChurch(church.id);
 
   return (
     <main className="min-h-screen bg-[#06110d] text-white">
@@ -33,24 +41,40 @@ export default async function ChurchDashboardPage() {
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-emerald-300">
             SermonBridge church dashboard
           </p>
-          <h1 className="mt-3 text-4xl font-semibold">{church.churchName}</h1>
+          <h1 className="mt-3 text-4xl font-semibold">{church.name}</h1>
           <p className="mt-4 leading-7 text-emerald-50/72">
             Live sermon translation for every nation, language, and church.
           </p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <Metric icon={<FileCode2 className="h-5 w-5" />} label="Church slug" value={church.slug} />
           <Metric icon={<Radio className="h-5 w-5" />} label="Widget status" value={church.status} />
+          <Metric icon={<FileCode2 className="h-5 w-5" />} label="Embed URL" value={widgetUrl} />
+          <Metric icon={<Settings className="h-5 w-5" />} label="Access" value="Full platform access" />
+        </div>
+
+        <div className="mt-4 grid gap-4 md:grid-cols-3">
           <Metric icon={<FileCode2 className="h-5 w-5" />} label="Stream URL" value={church.youtubeLiveUrl} />
           <Metric icon={<Settings className="h-5 w-5" />} label="Selected countries" value={church.enabledTranslationCountries.join(", ")} />
-          <Metric icon={<Languages className="h-5 w-5" />} label="Selected languages" value={church.enabledLanguages.join(", ")} />
+          <Metric icon={<Languages className="h-5 w-5" />} label="Listener languages" value={church.supportedLanguages.join(", ")} />
+        </div>
+
+        <div className="mt-4 rounded-lg border border-emerald-300/16 bg-emerald-300/10 p-4 text-sm leading-6 text-emerald-50/78">
+          Every viewer chooses their own listener language individually inside
+          the live widget. Changing language in one browser does not change the
+          language for the whole church, branch, or other viewers.
         </div>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
           <section className="grid h-fit gap-4 rounded-lg border border-emerald-300/16 bg-white/[0.045] p-5">
             <h2 className="text-2xl font-semibold">Embed code</h2>
+            <p className="break-all rounded-md border border-emerald-300/14 bg-[#07140f] p-4 text-sm text-emerald-50/78">
+              {widgetUrl}
+            </p>
+            <CopyEmbedButton embedCode={widgetUrl} label="Copy embed URL" />
             <pre className="overflow-auto rounded-md border border-emerald-300/14 bg-[#07140f] p-4 text-xs leading-6 text-emerald-50/78">{embedCode}</pre>
-            <CopyEmbedButton embedCode={embedCode} label="Copy iframe" />
+            <CopyEmbedButton embedCode={embedCode} label="Copy embed code" />
             <h2 className="pt-3 text-2xl font-semibold">Floating button code</h2>
             <pre className="overflow-auto rounded-md border border-emerald-300/14 bg-[#07140f] p-4 text-xs leading-6 text-emerald-50/78">{scriptCode}</pre>
             <CopyEmbedButton embedCode={scriptCode} label="Copy floating script" />
@@ -69,6 +93,48 @@ export default async function ChurchDashboardPage() {
             />
           </section>
         </div>
+
+        <section className="mt-6 rounded-lg border border-emerald-300/16 bg-white/[0.045] p-5">
+          <h2 className="text-2xl font-semibold">Branches</h2>
+          <p className="mt-2 text-sm leading-6 text-emerald-50/68">
+            Each branch has its own embed URL and live widget while using this church&apos;s enabled listener languages.
+          </p>
+          {branches.length === 0 ? (
+            <p className="mt-4 rounded-md border border-dashed border-emerald-300/20 bg-[#07140f] p-4 text-sm text-emerald-50/68">
+              No branches have been added yet.
+            </p>
+          ) : (
+            <div className="mt-4 grid gap-4">
+              {branches.map((branch) => {
+                const branchUrl = getBranchEmbedUrl(church.slug, branch.slug);
+                const branchCode = getBranchWidgetEmbedCode(church.slug, branch.slug);
+
+                return (
+                  <article key={branch.id} className="rounded-lg border border-emerald-300/14 bg-[#07140f] p-4">
+                    <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                      <div>
+                        <h3 className="text-xl font-semibold">{branch.name}</h3>
+                        <p className="mt-1 text-sm text-emerald-50/64">
+                          {branch.location} · slug: {branch.slug} · {branch.disabledAt ? "Disabled" : "Active"}
+                        </p>
+                        <Link href={branchUrl} className="mt-2 block break-all text-sm font-semibold text-emerald-200 hover:underline">
+                          {branchUrl}
+                        </Link>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <CopyEmbedButton embedCode={branchUrl} label="Copy branch URL" />
+                        <CopyEmbedButton embedCode={branchCode} label="Copy branch embed" />
+                      </div>
+                    </div>
+                    <pre className="mt-4 overflow-auto rounded-md border border-emerald-300/14 bg-[#06110d] p-4 text-xs leading-6 text-emerald-50/78">
+                      {branchCode}
+                    </pre>
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </section>
       </section>
     </main>
   );
@@ -93,4 +159,3 @@ function EmptyChurchState() {
     </main>
   );
 }
-

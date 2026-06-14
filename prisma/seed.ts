@@ -3,13 +3,17 @@ import { hashPassword } from "../lib/password";
 
 const prisma = new PrismaClient();
 const defaultAdminEmail =
-  process.env.ADMIN_EMAIL || "admin@nigeriavideotranslator.local";
+  process.env.ADMIN_EMAIL || "admin@sermonbridge.local";
 const defaultAdminPassword = process.env.ADMIN_PASSWORD || "Admin123!";
 
 const churches = [
   {
+    name: "Christ Embassy Lagos",
     churchName: "Christ Embassy Lagos",
     slug: "christ-embassy-lagos",
+    email: "christ-embassy-lagos@sermonbridge.local",
+    plan: "FULL_ACCESS",
+    supportedLanguages: "Yoruba,Igbo,Hausa,Nigerian Pidgin,French,Spanish",
     country: "Nigeria",
     youtubeLiveUrl: "https://www.youtube.com/watch?v=ysz5S6PUM-U",
     defaultSpokenLanguage: "English",
@@ -18,8 +22,12 @@ const churches = [
     status: "Active",
   },
   {
+    name: "RCCG Abuja",
     churchName: "RCCG Abuja",
     slug: "rccg-abuja",
+    email: "rccg-abuja@sermonbridge.local",
+    plan: "FULL_ACCESS",
+    supportedLanguages: "Yoruba,Hausa,Nigerian Pidgin,French",
     country: "Nigeria",
     youtubeLiveUrl: "https://www.youtube.com/live/jfKfPfyJRdk",
     defaultSpokenLanguage: "English",
@@ -28,8 +36,12 @@ const churches = [
     status: "Active",
   },
   {
+    name: "Winners Chapel Port Harcourt",
     churchName: "Winners Chapel Port Harcourt",
     slug: "winners-chapel-port-harcourt",
+    email: "winners-chapel-port-harcourt@sermonbridge.local",
+    plan: "FULL_ACCESS",
+    supportedLanguages: "Igbo,Nigerian Pidgin,Spanish",
     country: "Nigeria",
     youtubeLiveUrl: "https://youtu.be/21X5lGlDOfg",
     defaultSpokenLanguage: "English",
@@ -47,6 +59,7 @@ async function main() {
   }
 
   const passwordHash = await hashPassword(defaultAdminPassword);
+  const churchPasswordHash = await hashPassword("Church123!");
 
   await prisma.user.upsert({
     where: { email: defaultAdminEmail },
@@ -67,7 +80,12 @@ async function main() {
     await prisma.church.upsert({
       where: { slug: church.slug },
       update: {
+        name: church.name,
         churchName: church.churchName,
+        email: church.email,
+        passwordHash: churchPasswordHash,
+        plan: church.plan,
+        supportedLanguages: church.supportedLanguages,
         country: church.country,
         youtubeLiveUrl: church.youtubeLiveUrl,
         defaultSpokenLanguage: church.defaultSpokenLanguage,
@@ -82,8 +100,13 @@ async function main() {
         },
       },
       create: {
+        name: church.name,
         churchName: church.churchName,
         slug: church.slug,
+        email: church.email,
+        passwordHash: churchPasswordHash,
+        plan: church.plan,
+        supportedLanguages: church.supportedLanguages,
         country: church.country,
         youtubeLiveUrl: church.youtubeLiveUrl,
         defaultSpokenLanguage: church.defaultSpokenLanguage,

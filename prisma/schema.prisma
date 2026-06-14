@@ -19,16 +19,70 @@ model User {
 
 model Church {
   id                     String           @id @default(cuid())
+  name                   String
   churchName             String
   slug                   String           @unique
+  email                  String           @unique
+  passwordHash           String
+  plan                   String           @default("FULL_ACCESS")
+  supportedLanguages     String           @default("Yoruba,Igbo,Hausa,Nigerian Pidgin")
   country                String
   youtubeLiveUrl         String
   defaultSpokenLanguage  String
   status                 String           @default("Active")
   languages              ChurchLanguage[]
   countries              ChurchCountry[]
+  branches               ChurchBranch[]
+  usageEvents            WidgetUsageEvent[]
   createdAt              DateTime         @default(now())
   updatedAt              DateTime         @updatedAt
+}
+
+model ChurchBranch {
+  id         String    @id @default(cuid())
+  churchId   String
+  church     Church    @relation(fields: [churchId], references: [id], onDelete: Cascade)
+  name       String
+  slug       String
+  location   String
+  createdAt  DateTime  @default(now())
+  disabledAt DateTime?
+  usageEvents WidgetUsageEvent[]
+
+  @@unique([churchId, slug])
+}
+
+model WidgetUsageEvent {
+  id               String        @id @default(cuid())
+  churchId         String?
+  church           Church?       @relation(fields: [churchId], references: [id], onDelete: SetNull)
+  branchId         String?
+  branch           ChurchBranch? @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  churchSlug       String
+  branchSlug       String?
+  eventType        String
+  selectedLanguage String?
+  createdAt        DateTime      @default(now())
+
+  @@index([churchSlug, eventType])
+  @@index([branchSlug, eventType])
+  @@index([churchId, eventType])
+  @@index([branchId, eventType])
+}
+
+model ChurchOnboardingRequest {
+  id          String   @id @default(cuid())
+  churchName  String
+  contactName String
+  email       String
+  phone       String
+  country     String
+  city        String
+  message     String?
+  status      String   @default("NEW")
+  createdAt   DateTime @default(now())
+
+  @@index([status, createdAt])
 }
 
 model ChurchLanguage {

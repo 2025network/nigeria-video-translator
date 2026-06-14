@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     template: "%s | SermonBridge",
   },
   description:
-    "Live sermon translation for every nation, language, and church.",
+    "Live sermon translation widgets for churches, websites, WordPress, YouTube Live, and mobile apps.",
 };
 
 export default function RootLayout({

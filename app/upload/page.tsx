@@ -137,14 +137,16 @@ export default function UploadPage() {
       <section className="section-shell grid gap-8 pb-16 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="pt-4">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-emerald-300">
-            Upload
+            Secondary tool
           </p>
           <h1 className="mt-3 text-4xl font-semibold leading-tight sm:text-5xl">
-            Translate a recorded video
+            Upload a recorded sermon or event video
           </h1>
           <p className="mt-5 max-w-xl leading-7 text-emerald-50/72">
-            Add a video, choose the target language, and generate transcript,
-            translation, subtitles, and a separate translated voice-over.
+            SermonBridge is focused on live church translation widgets, but this
+            upload tool remains available for recorded sermons, conference
+            clips, and event videos that need transcript, translation,
+            subtitles, and a separate translated voice-over.
           </p>
           <p className="mt-4 max-w-xl rounded-md border border-emerald-300/18 bg-emerald-300/10 p-4 text-sm leading-6 text-emerald-50/78">
             Maximum upload size is 100MB for safe hosting and server

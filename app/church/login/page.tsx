@@ -1,6 +1,6 @@
-﻿import { redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { LogIn } from "lucide-react";
-import { createAdminSession, loginAdmin } from "@/lib/auth";
+import { createChurchSession, loginChurch } from "@/lib/auth";
 
 type ChurchLoginPageProps = {
   searchParams: Promise<{
@@ -22,13 +22,17 @@ export default async function ChurchLoginPage({ searchParams }: ChurchLoginPageP
     const email = String(formData.get("email") ?? "");
     const password = String(formData.get("password") ?? "");
     const nextPath = String(formData.get("next") ?? "/church/dashboard");
-    const authenticated = await loginAdmin(email, password);
+    const result = await loginChurch(email, password);
 
-    if (!authenticated) {
+    if (!result.ok) {
+      if (result.reason === "disabled") {
+        redirect("/church/login?error=disabled");
+      }
+
       redirect("/church/login?error=invalid");
     }
 
-    await createAdminSession();
+    await createChurchSession(result.churchId);
     redirect(nextPath.startsWith("/church") ? nextPath : "/church/dashboard");
   }
 
@@ -40,11 +44,14 @@ export default async function ChurchLoginPage({ searchParams }: ChurchLoginPageP
         </div>
         <h1 className="mt-5 text-3xl font-semibold">Church owner login</h1>
         <p className="mt-2 text-sm leading-6 text-emerald-50/68">
-          Manage your SermonBridge widget, stream URL, languages, and embed codes.
+          Sign in with your church email and password to manage your profile,
+          stream URL, listener languages, iframe embed, and floating widget button.
         </p>
         {params.error ? (
           <p className="mt-4 rounded-md border border-red-300/24 bg-red-950/24 p-3 text-sm text-red-100">
-            Invalid email or password.
+            {params.error === "disabled"
+              ? "This church account is disabled. Please contact the SermonBridge admin."
+              : "Invalid church email or password."}
           </p>
         ) : null}
         <form action={login} className="mt-6 grid gap-4">
@@ -54,7 +61,7 @@ export default async function ChurchLoginPage({ searchParams }: ChurchLoginPageP
             <input
               name="email"
               type="email"
-              defaultValue="admin@nigeriavideotranslator.local"
+              defaultValue="christ-embassy-lagos@sermonbridge.local"
               className="min-h-12 rounded-md border border-emerald-300/18 bg-[#07140f] px-4 text-white outline-none focus-visible:focus-ring"
               required
             />
@@ -79,4 +86,3 @@ export default async function ChurchLoginPage({ searchParams }: ChurchLoginPageP
     </main>
   );
 }
-

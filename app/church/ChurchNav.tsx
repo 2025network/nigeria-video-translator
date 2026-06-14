@@ -1,11 +1,12 @@
 ﻿import Link from "next/link";
-import { FileCode2, Gauge, Languages, Settings } from "lucide-react";
+import { BarChart3, FileCode2, Gauge, Languages, Settings } from "lucide-react";
 
 const churchLinks = [
   { label: "Dashboard", href: "/church/dashboard", icon: Gauge },
   { label: "Settings", href: "/church/settings", icon: Settings },
   { label: "Widget", href: "/church/widget", icon: FileCode2 },
   { label: "Languages", href: "/church/languages", icon: Languages },
+  { label: "Usage", href: "/church/usage", icon: BarChart3 },
 ];
 
 export function ChurchNav() {
@@ -26,7 +27,7 @@ export function ChurchNav() {
             </Link>
           );
         })}
-        <form action="/admin/logout" method="post" className="ml-auto">
+        <form action="/church/logout" method="post" className="ml-auto">
           <button
             type="submit"
             className="inline-flex min-h-10 items-center justify-center rounded-md border border-emerald-300/20 px-3 text-sm font-semibold text-emerald-100 transition hover:bg-white/8"

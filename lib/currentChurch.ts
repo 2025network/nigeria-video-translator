@@ -1,9 +1,27 @@
-﻿import { getChurches, toChurchView } from "./churchRepository";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { churchSessionCookie, clearChurchSession } from "./auth";
+import { getChurchById, toChurchView } from "./churchRepository";
 
 export async function getCurrentChurchView() {
-  const churches = await getChurches();
-  const church = churches[0];
+  const cookieStore = await cookies();
+  const churchId = cookieStore.get(churchSessionCookie)?.value;
 
-  return church ? toChurchView(church) : null;
+  if (!churchId) {
+    redirect("/church/login");
+  }
+
+  const church = await getChurchById(churchId);
+
+  if (!church) {
+    await clearChurchSession();
+    redirect("/church/login?error=invalid");
+  }
+
+  if (church.status !== "Active") {
+    await clearChurchSession();
+    redirect("/church/login?error=disabled");
+  }
+
+  return toChurchView(church);
 }
-

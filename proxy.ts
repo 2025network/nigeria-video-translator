@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 const adminSessionCookie = "nvt_admin_session";
+const churchSessionCookie = "sermonbridge_church_session";
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -12,8 +13,9 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const authenticated =
-    request.cookies.get(adminSessionCookie)?.value === "admin-authenticated";
+  const authenticated = isProtectedAdmin
+    ? request.cookies.get(adminSessionCookie)?.value === "admin-authenticated"
+    : Boolean(request.cookies.get(churchSessionCookie)?.value);
 
   if (authenticated) {
     return NextResponse.next();

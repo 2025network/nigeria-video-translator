@@ -1,62 +1,280 @@
-﻿"use client";
+"use client";
 
-import { useMemo, useState } from "react";
-import { Headphones, Languages, Play, QrCode, Radio } from "lucide-react";
-import { getYouTubeEmbedUrl, nigeriaChurchLanguages } from "@/lib/demoChurches";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  Headphones,
+  Languages,
+  Mic,
+  MicOff,
+  Play,
+  QrCode,
+  Radio,
+  Square,
+} from "lucide-react";
+import { getYouTubeEmbedUrl } from "@/lib/demoChurches";
+import { defaultListenerLanguages, isListenerLanguage } from "@/lib/listenerLanguages";
 
 type LiveStatus = "Waiting" | "Listening" | "Translating" | "Live";
+type ListenerLanguage =
+  | "Yoruba"
+  | "Igbo"
+  | "Hausa"
+  | "Nigerian Pidgin"
+  | "French"
+  | "Spanish";
 type ChurchWidgetView = {
+  slug: string;
   churchName: string;
   youtubeLiveUrl: string;
   enabledTranslationCountries: string[];
   enabledLanguages: string[];
+  supportedLanguages: string[];
   status: string;
 };
-
-const demoLines: Record<string, string> = {
-  English:
-    "Demo subtitle: God's word brings hope to every family listening today.",
-  "Nigerian Pidgin":
-    "Demo translation: God dey with us, and His word dey bring hope to every family.",
-  Yoruba:
-    "Demo translation: Oro Olorun mu ireti wa fun gbogbo idile ti n gbo loni.",
-  Igbo:
-    "Demo translation: Okwu Chineke na-ewetara ezinulo nile olile anya taa.",
-  Hausa:
-    "Demo translation: Maganar Allah tana kawo bege ga kowace iyali da ke sauraro yau.",
-  Tiv:
-    "Demo translation: Loho u Aondo ngu nana mlu u dedoo sha kwagh u tom la.",
-  Idoma:
-    "Demo translation: Owoicho la bring hope to every family wey dey listen today.",
-  Edo:
-    "Demo translation: Ivbi Osa ru hope ghi evbo evbo ne gha ru aro ebo.",
-  Efik:
-    "Demo translation: Ikwo Abasi anam idorenyin ke kpukpru ufok emi ekopde mfịn.",
-  Ibibio:
-    "Demo translation: Ikọ Abasi anam idorenyin ke kpukpru ufọk emi ekopde mfịn.",
-  Urhobo:
-    "Demo translation: Ovwata Oghene ro hope re families wey dey listen today.",
+type WidgetContext = {
+  branchSlug?: string;
+};
+type SpeechRecognitionResultLike = {
+  isFinal: boolean;
+  0: {
+    transcript: string;
+  };
+};
+type SpeechRecognitionEventLike = {
+  resultIndex: number;
+  results: {
+    length: number;
+    [index: number]: SpeechRecognitionResultLike;
+  };
+};
+type SpeechRecognitionErrorLike = {
+  error?: string;
+  message?: string;
+};
+type BrowserSpeechRecognition = {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onstart: (() => void) | null;
+  onresult: ((event: SpeechRecognitionEventLike) => void) | null;
+  onerror: ((event: SpeechRecognitionErrorLike) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+};
+type LiveTranslateResponse = {
+  translation?: string;
+  error?: string;
 };
 
-export function LiveTranslationWidget({ church }: { church: ChurchWidgetView }) {
+declare global {
+  interface Window {
+    SpeechRecognition?: new () => BrowserSpeechRecognition;
+    webkitSpeechRecognition?: new () => BrowserSpeechRecognition;
+  }
+}
+
+export function LiveTranslationWidget({
+  church,
+  widgetContext,
+}: {
+  church: ChurchWidgetView;
+  widgetContext?: WidgetContext;
+}) {
   const [country, setCountry] = useState(church.enabledTranslationCountries[0] ?? "Nigeria");
-  const [language, setLanguage] = useState(church.enabledLanguages[0] ?? "English");
-  const [status, setStatus] = useState<LiveStatus>("Waiting");
-  const availableLanguages = useMemo(
-    () => Array.from(new Set([...church.enabledLanguages, ...nigeriaChurchLanguages])),
-    [church.enabledLanguages],
+  const [language, setLanguage] = useState<ListenerLanguage>(() =>
+    getEnabledListenerLanguages(church.supportedLanguages)[0],
   );
+  const [status, setStatus] = useState<LiveStatus>("Waiting");
+  const [finalTranscript, setFinalTranscript] = useState("");
+  const [interimTranscript, setInterimTranscript] = useState("");
+  const [translatedText, setTranslatedText] = useState("");
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [translationError, setTranslationError] = useState("");
+  const [error, setError] = useState("");
+  const recognitionRef = useRef<BrowserSpeechRecognition | null>(null);
+  const manuallyStoppedRef = useRef(false);
+  const trackedWidgetLoadRef = useRef(false);
+
   const youtubeEmbedUrl = getYouTubeEmbedUrl(church.youtubeLiveUrl);
+  const transcript = `${finalTranscript} ${interimTranscript}`.trim();
+  const isListening = status === "Listening" || status === "Translating" || status === "Live";
+  const hasSpeechSupport =
+    typeof window !== "undefined" &&
+    Boolean(window.SpeechRecognition || window.webkitSpeechRecognition);
 
-  function startDemo() {
-    const nextStatuses: LiveStatus[] = ["Listening", "Translating", "Live"];
-    setStatus("Listening");
+  const countryOptions = useMemo(
+    () => Array.from(new Set([...(church.enabledTranslationCountries.length ? church.enabledTranslationCountries : ["Nigeria"])])),
+    [church.enabledTranslationCountries],
+  );
+  const enabledListenerLanguages = useMemo(
+    () => getEnabledListenerLanguages(church.supportedLanguages),
+    [church.supportedLanguages],
+  );
 
-    nextStatuses.forEach((nextStatus, index) => {
-      window.setTimeout(() => {
-        setStatus(nextStatus);
-      }, 700 * (index + 1));
+  useEffect(() => {
+    if (!trackedWidgetLoadRef.current) {
+      trackedWidgetLoadRef.current = true;
+      sendWidgetUsageEvent({
+        churchSlug: church.slug,
+        branchSlug: widgetContext?.branchSlug,
+        eventType: "widget_loaded",
+        selectedLanguage: language,
+      });
+    }
+
+    return () => {
+      recognitionRef.current?.stop();
+    };
+  }, [church.slug, language, widgetContext?.branchSlug]);
+
+  useEffect(() => {
+    const cleanTranscript = transcript.trim();
+
+    if (!cleanTranscript) {
+      return;
+    }
+
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(async () => {
+      setIsTranslating(true);
+      setTranslationError("");
+
+      try {
+        const response = await fetch("/api/live-translate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            transcript: cleanTranscript,
+            targetLanguage: language,
+          }),
+          signal: controller.signal,
+        });
+        const data = (await response.json()) as LiveTranslateResponse;
+
+        if (!response.ok) {
+          throw new Error(data.error ?? "Live translation failed.");
+        }
+
+        setTranslatedText(data.translation ?? "");
+      } catch (translationRequestError) {
+        if (controller.signal.aborted) return;
+
+        setTranslatedText("");
+        setTranslationError(
+          translationRequestError instanceof Error
+            ? translationRequestError.message
+            : "Live translation failed.",
+        );
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsTranslating(false);
+        }
+      }
+    }, 650);
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timeoutId);
+    };
+  }, [language, transcript]);
+
+  async function startLiveTranslation() {
+    sendWidgetUsageEvent({
+      churchSlug: church.slug,
+      branchSlug: widgetContext?.branchSlug,
+      eventType: "live_started",
+      selectedLanguage: language,
     });
+
+    setError("");
+    setFinalTranscript("");
+    setInterimTranscript("");
+    setTranslatedText("");
+    setTranslationError("");
+    setIsTranslating(false);
+    manuallyStoppedRef.current = false;
+
+    if (!hasSpeechSupport) {
+      setStatus("Waiting");
+      setError(
+        "This browser does not support the Web Speech API yet. Try Chrome or Edge on localhost or HTTPS.",
+      );
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach((track) => track.stop());
+    } catch {
+      setStatus("Waiting");
+      setError("Microphone permission is required to start live sermon transcription.");
+      return;
+    }
+
+    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!Recognition) return;
+
+    recognitionRef.current?.stop();
+    const recognition = new Recognition();
+    recognitionRef.current = recognition;
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = "en-US";
+
+    recognition.onstart = () => {
+      setStatus("Listening");
+    };
+
+    recognition.onresult = (event) => {
+      let nextFinal = "";
+      let nextInterim = "";
+
+      for (let index = event.resultIndex; index < event.results.length; index += 1) {
+        const result = event.results[index];
+        const text = result[0]?.transcript ?? "";
+
+        if (result.isFinal) {
+          nextFinal += `${text} `;
+        } else {
+          nextInterim += text;
+        }
+      }
+
+      if (nextFinal) {
+        setFinalTranscript((current) => `${current} ${nextFinal}`.trim());
+      }
+
+      setInterimTranscript(nextInterim.trim());
+      setStatus("Translating");
+
+      window.setTimeout(() => {
+        setStatus("Live");
+      }, 450);
+    };
+
+    recognition.onerror = (event) => {
+      setError(`Speech recognition stopped: ${event.error ?? event.message ?? "unknown error"}.`);
+      setStatus("Waiting");
+    };
+
+    recognition.onend = () => {
+      if (!manuallyStoppedRef.current && status !== "Waiting") {
+        setStatus("Waiting");
+      }
+    };
+
+    recognition.start();
+  }
+
+  function stopLiveTranslation() {
+    manuallyStoppedRef.current = true;
+    recognitionRef.current?.stop();
+    recognitionRef.current = null;
+    setStatus(finalTranscript ? "Live" : "Waiting");
+    setInterimTranscript("");
   }
 
   return (
@@ -67,18 +285,24 @@ export function LiveTranslationWidget({ church }: { church: ChurchWidgetView }) 
             <div>
               <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-300">
                 <Radio className="h-4 w-4" />
-                Live Translation Widget
+                SermonBridge Live Translation Widget
               </p>
               <h1 className="mt-2 text-2xl font-semibold leading-tight">{church.churchName}</h1>
               <p className="mt-1 text-sm text-emerald-50/68">
-                Follow the sermon in {language} from {country}.
+                Church live translation companion for sermons, websites, WordPress, YouTube Live, and app WebViews.
               </p>
             </div>
             <StatusBadge status={status} />
           </div>
         </header>
 
-        <div className="grid gap-3 lg:grid-cols-[1.2fr_0.8fr]">
+        {error ? (
+          <div className="rounded-lg border border-amber-300/24 bg-amber-400/10 p-4 text-sm font-semibold leading-6 text-amber-50">
+            {error}
+          </div>
+        ) : null}
+
+        <div className="grid gap-3 lg:grid-cols-[1.1fr_0.9fr]">
           <section className="rounded-lg border border-emerald-300/16 bg-black/30 p-3">
             <div className="aspect-video overflow-hidden rounded-md bg-black">
               {church.status === "Active" ? (
@@ -95,6 +319,27 @@ export function LiveTranslationWidget({ church }: { church: ChurchWidgetView }) 
                 </div>
               )}
             </div>
+
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={startLiveTranslation}
+                disabled={isListening}
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-emerald-400 px-5 font-semibold text-[#04120c] transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <Play className="h-5 w-5" />
+                Start Live Translation
+              </button>
+              <button
+                type="button"
+                onClick={stopLiveTranslation}
+                disabled={!isListening}
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-emerald-300/22 px-5 font-semibold text-emerald-50 transition hover:bg-white/8 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Square className="h-5 w-5" />
+                Stop
+              </button>
+            </div>
           </section>
 
           <aside className="grid gap-3">
@@ -107,19 +352,28 @@ export function LiveTranslationWidget({ church }: { church: ChurchWidgetView }) 
                     onChange={(event) => setCountry(event.target.value)}
                     className="min-h-11 rounded-md border border-emerald-300/18 bg-[#07140f] px-3 text-white"
                   >
-                    {church.enabledTranslationCountries.map((item) => (
+                    {countryOptions.map((item) => (
                       <option key={item}>{item}</option>
                     ))}
                   </select>
                 </label>
                 <label className="grid gap-2 text-sm font-semibold text-emerald-100">
-                  Language
+                  Listener language
                   <select
                     value={language}
-                    onChange={(event) => setLanguage(event.target.value)}
+                    onChange={(event) => {
+                      const nextLanguage = event.target.value as ListenerLanguage;
+                      setLanguage(nextLanguage);
+                      sendWidgetUsageEvent({
+                        churchSlug: church.slug,
+                        branchSlug: widgetContext?.branchSlug,
+                        eventType: "language_changed",
+                        selectedLanguage: nextLanguage,
+                      });
+                    }}
                     className="min-h-11 rounded-md border border-emerald-300/18 bg-[#07140f] px-3 text-white"
                   >
-                    {availableLanguages.map((item) => (
+                    {enabledListenerLanguages.map((item) => (
                       <option key={item}>{item}</option>
                     ))}
                   </select>
@@ -127,17 +381,20 @@ export function LiveTranslationWidget({ church }: { church: ChurchWidgetView }) 
               </div>
             </section>
 
-            <section className="rounded-lg border border-emerald-300/16 bg-white/[0.055] p-4">
-              <div className="mb-3 flex items-center gap-2 text-emerald-300">
-                <Languages className="h-5 w-5" />
-                <h2 className="font-semibold text-white">Live subtitles</h2>
-              </div>
-              <div className="min-h-36 rounded-md border border-emerald-300/14 bg-[#07140f] p-4 text-sm leading-7 text-emerald-50/78">
-                {status === "Waiting"
-                  ? "Press Start Demo Translation to preview live sermon subtitles."
-                  : demoLines[language] ?? demoLines.English}
-              </div>
-            </section>
+            <TranscriptPanel
+              title="Live English transcript"
+              icon={isListening ? <Mic className="h-5 w-5" /> : <MicOff className="h-5 w-5" />}
+            >
+              {transcript || "Press Start Live Translation and speak in English. Your browser will ask for microphone permission."}
+            </TranscriptPanel>
+
+            <TranscriptPanel title={`${language} translation`} icon={<Languages className="h-5 w-5" />}>
+              {isTranslating
+                ? "Translating..."
+                : translationError ||
+                  translatedText ||
+                  "Speak in English to see live server-side translation here."}
+            </TranscriptPanel>
 
             <section className="rounded-lg border border-emerald-300/16 bg-white/[0.055] p-4">
               <div className="mb-3 flex items-center gap-2 text-emerald-300">
@@ -162,17 +419,30 @@ export function LiveTranslationWidget({ church }: { church: ChurchWidgetView }) 
             <QrCode className="h-12 w-12" />
           </div>
         </footer>
-
-        <button
-          type="button"
-          onClick={startDemo}
-          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-emerald-400 px-5 font-semibold text-[#04120c] hover:bg-emerald-300"
-        >
-          <Play className="h-5 w-5" />
-          Start Demo Translation
-        </button>
       </section>
     </main>
+  );
+}
+
+function TranscriptPanel({
+  title,
+  icon,
+  children,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="rounded-lg border border-emerald-300/16 bg-white/[0.055] p-4">
+      <div className="mb-3 flex items-center gap-2 text-emerald-300">
+        {icon}
+        <h2 className="font-semibold text-white">{title}</h2>
+      </div>
+      <div className="min-h-36 rounded-md border border-emerald-300/14 bg-[#07140f] p-4 text-sm leading-7 text-emerald-50/78">
+        {children}
+      </div>
+    </section>
   );
 }
 
@@ -180,14 +450,35 @@ function StatusBadge({ status }: { status: LiveStatus }) {
   const live = status === "Live";
 
   return (
-    <span className={`inline-flex w-fit items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold ${
-      live ? "bg-emerald-300 text-[#04120c]" : "bg-white/10 text-emerald-100"
-    }`}>
+    <span
+      className={`inline-flex w-fit items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold ${
+        live ? "bg-emerald-300 text-[#04120c]" : "bg-white/10 text-emerald-100"
+      }`}
+    >
       <span className={`h-2 w-2 rounded-full ${live ? "bg-[#04120c]" : "bg-emerald-300"}`} />
       {status}
     </span>
   );
 }
 
+function getEnabledListenerLanguages(languages: string[]) {
+  const enabled = languages.filter(isListenerLanguage);
 
+  return (enabled.length ? enabled : [...defaultListenerLanguages]) as ListenerLanguage[];
+}
 
+function sendWidgetUsageEvent(input: {
+  churchSlug: string;
+  branchSlug?: string;
+  eventType: "widget_loaded" | "live_started" | "language_changed";
+  selectedLanguage?: string;
+}) {
+  fetch("/api/widget-usage", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+    keepalive: true,
+  }).catch(() => {
+    // Usage tracking must never interrupt the listener experience.
+  });
+}

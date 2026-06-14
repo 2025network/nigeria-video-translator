@@ -1,10 +1,14 @@
 ﻿import Link from "next/link";
-import { Edit3, Eye, PlusCircle, Trash2 } from "lucide-react";
+import { Edit3, Eye, PauseCircle, PlusCircle, Trash2 } from "lucide-react";
 import type { ChurchWithRelations } from "@/lib/churchRepository";
 import { toChurchView } from "@/lib/churchRepository";
-import { getChurchEmbedCode, getFloatingWidgetScriptCode } from "@/lib/demoChurches";
+import {
+  getChurchEmbedCode,
+  getChurchEmbedUrl,
+  getFloatingWidgetScriptCode,
+} from "@/lib/demoChurches";
 import { CopyEmbedButton } from "./CopyEmbedButton";
-import { deleteChurchAction } from "./actions";
+import { deleteChurchAction, disableChurchAction } from "./actions";
 
 export function ChurchesTable({ churches }: { churches: ChurchWithRelations[] }) {
   const activeCount = churches.filter((church) => church.status === "Active").length;
@@ -19,7 +23,7 @@ export function ChurchesTable({ churches }: { churches: ChurchWithRelations[] })
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm leading-6 text-emerald-50/68">
-          Manage church widgets from the SQLite database and copy iframe snippets for websites, WordPress pages, or app WebViews.
+          Manage churches from the database, disable widgets, and copy embed URLs or code for websites, WordPress pages, or app WebViews.
         </p>
         <Link
           href="/admin/churches/add"
@@ -40,10 +44,10 @@ export function ChurchesTable({ churches }: { churches: ChurchWithRelations[] })
       ) : (
         <div className="overflow-hidden rounded-lg border border-emerald-300/16 bg-white/[0.045]">
           <div className="overflow-x-auto">
-            <table className="min-w-[1050px] w-full border-collapse text-left text-sm">
+            <table className="min-w-[1240px] w-full border-collapse text-left text-sm">
               <thead className="bg-emerald-300/10 text-emerald-100">
                 <tr>
-                  {["Church", "Owner", "Slug", "Country", "Languages", "YouTube Live", "Widget status", "Actions"].map((heading) => (
+                  {["Church", "Email", "Slug", "Embed URL", "Listener languages", "Widget status", "Actions"].map((heading) => (
                     <th key={heading} className="px-4 py-3 font-semibold">
                       {heading}
                     </th>
@@ -54,20 +58,21 @@ export function ChurchesTable({ churches }: { churches: ChurchWithRelations[] })
                 {churches.map((church) => {
                   const churchView = toChurchView(church);
                   const deleteWithId = deleteChurchAction.bind(null, church.id);
+                  const disableWithId = disableChurchAction.bind(null, church.id);
+                  const embedUrl = getChurchEmbedUrl(church.slug);
 
                   return (
                     <tr key={church.id} className="align-top">
-                      <td className="px-4 py-4 font-semibold text-white">{church.churchName}</td>
-                      <td className="px-4 py-4 text-emerald-50/72">Seeded owner</td>
+                      <td className="px-4 py-4 font-semibold text-white">{church.name}</td>
+                      <td className="px-4 py-4 text-emerald-50/72">{church.email}</td>
                       <td className="px-4 py-4 text-emerald-50/72">{church.slug}</td>
-                      <td className="px-4 py-4 text-emerald-50/72">{church.country}</td>
-                      <td className="px-4 py-4 text-emerald-50/72">
-                        {churchView.enabledLanguages.join(", ")}
-                      </td>
                       <td className="px-4 py-4">
-                        <a className="break-all text-emerald-200 hover:underline" href={church.youtubeLiveUrl}>
-                          {church.youtubeLiveUrl}
+                        <a className="break-all text-emerald-200 hover:underline" href={embedUrl}>
+                          {embedUrl}
                         </a>
+                      </td>
+                      <td className="px-4 py-4 text-emerald-50/72">
+                        {churchView.supportedLanguages.join(", ")}
                       </td>
                       <td className="px-4 py-4">
                         <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
@@ -96,6 +101,17 @@ export function ChurchesTable({ churches }: { churches: ChurchWithRelations[] })
                           </Link>
                           <CopyEmbedButton embedCode={getChurchEmbedCode(church.slug)} />
                           <CopyEmbedButton embedCode={getFloatingWidgetScriptCode(church.slug)} label="Copy Script" />
+                          {church.status === "Active" ? (
+                            <form action={disableWithId}>
+                              <button
+                                type="submit"
+                                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-amber-300/24 px-3 font-semibold text-amber-100 hover:bg-amber-950/24"
+                              >
+                                <PauseCircle className="h-4 w-4" />
+                                Disable
+                              </button>
+                            </form>
+                          ) : null}
                           <form action={deleteWithId}>
                             <button
                               type="submit"

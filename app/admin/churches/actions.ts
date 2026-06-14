@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import {
   createChurch,
   deleteChurch,
+  disableChurch,
   updateChurch,
   type ChurchFormInput,
 } from "@/lib/churchRepository";
@@ -31,9 +32,19 @@ export async function deleteChurchAction(id: string) {
   redirect("/admin/churches?deleted=1");
 }
 
+export async function disableChurchAction(id: string) {
+  await disableChurch(id);
+  revalidatePath("/admin");
+  revalidatePath("/admin/churches");
+  revalidatePath(`/admin/churches/${id}`);
+}
+
 function parseChurchForm(formData: FormData): ChurchFormInput {
   const churchName = String(formData.get("churchName") ?? "").trim();
   const slug = String(formData.get("slug") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const password = String(formData.get("password") ?? "").trim();
+  const plan = "FULL_ACCESS";
   const country = String(formData.get("country") ?? "").trim();
   const youtubeLiveUrl = String(formData.get("youtubeLiveUrl") ?? "").trim();
   const defaultSpokenLanguage = String(
@@ -41,17 +52,23 @@ function parseChurchForm(formData: FormData): ChurchFormInput {
   );
   const status = String(formData.get("status") ?? "Active") as "Active" | "Inactive";
   const enabledLanguages = formData.getAll("enabledLanguages").map(String);
+  const supportedLanguages = formData.getAll("supportedLanguages").map(String);
   const enabledTranslationCountries = formData
     .getAll("enabledTranslationCountries")
     .map(String);
 
-  if (!churchName || !slug || !country || !youtubeLiveUrl) {
-    throw new Error("Church name, slug, country, and YouTube Live URL are required.");
+  if (!churchName || !email || !country || !youtubeLiveUrl) {
+    throw new Error("Church name, email, country, and YouTube Live URL are required.");
   }
 
   return {
+    name: churchName,
     churchName,
     slug,
+    email,
+    password,
+    plan,
+    supportedLanguages,
     country,
     youtubeLiveUrl,
     defaultSpokenLanguage,
