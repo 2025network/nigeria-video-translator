@@ -1,6 +1,0 @@
-Mock audio artifact for 1780873021267-a965a22b-c6bc-4f96-a697-35d5c459e6e0-p-p.mp4.
-FFmpeg binary could not be found. Continuing with mock audio.
-FFmpeg source: missing
-FFmpeg path: C:\Users\Ufuoma\Documents\nigeria-video-translator\.next\dev\server\vendor-chunks\ffmpeg.exe
-FFmpeg file exists: false
-Mock transcription does not require playable audio in this MVP.
