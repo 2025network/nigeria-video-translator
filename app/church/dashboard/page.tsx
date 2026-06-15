@@ -26,6 +26,7 @@ export default async function ChurchDashboardPage() {
   const embedCode = getChurchEmbedCode(church.slug);
   const scriptCode = getFloatingWidgetScriptCode(church.slug);
   const widgetUrl = getChurchEmbedUrl(church.slug);
+  const publicPageUrl = `/churches/${church.slug}`;
   const branches = await getBranchesForChurch(church.id);
 
   return (
@@ -45,6 +46,12 @@ export default async function ChurchDashboardPage() {
           <p className="mt-4 leading-7 text-emerald-50/72">
             Live sermon translation for every nation, language, and church.
           </p>
+          <Link
+            href={publicPageUrl}
+            className="mt-5 inline-flex min-h-11 items-center justify-center rounded-md border border-emerald-300/22 px-4 text-sm font-semibold text-emerald-50 transition hover:bg-white/8"
+          >
+            View Public Page
+          </Link>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">

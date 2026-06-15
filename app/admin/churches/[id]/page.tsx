@@ -30,6 +30,7 @@ export default async function ChurchDetailPage({ params }: ChurchDetailPageProps
   const embedCode = getChurchEmbedCode(church.slug);
   const scriptCode = getFloatingWidgetScriptCode(church.slug);
   const embedUrl = getChurchEmbedUrl(church.slug);
+  const publicPageUrl = `/churches/${church.slug}`;
   const usageStats = await getWidgetUsageStats(church.id);
   const deleteWithId = deleteChurchAction.bind(null, church.id);
   const disableWithId = disableChurchAction.bind(null, church.id);
@@ -80,6 +81,13 @@ export default async function ChurchDetailPage({ params }: ChurchDetailPageProps
             >
               <ExternalLink className="h-4 w-4" />
               Open widget
+            </Link>
+            <Link
+              href={publicPageUrl}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-white/8 px-4 text-sm font-semibold text-white hover:bg-white/12"
+            >
+              <ExternalLink className="h-4 w-4" />
+              View Public Page
             </Link>
             <CopyEmbedButton embedCode={embedCode} />
             <CopyEmbedButton embedCode={scriptCode} label="Copy floating script" />
