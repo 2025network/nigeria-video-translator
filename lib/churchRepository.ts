@@ -63,6 +63,14 @@ export async function getChurches() {
   });
 }
 
+export async function getActiveChurches() {
+  return prisma.church.findMany({
+    where: { status: "Active" },
+    include: churchInclude,
+    orderBy: { churchName: "asc" },
+  });
+}
+
 export async function getChurchById(id: string) {
   return prisma.church.findUnique({
     where: { id },

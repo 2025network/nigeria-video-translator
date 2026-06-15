@@ -3,6 +3,7 @@ import { Languages } from "lucide-react";
 
 const navItems = [
   { label: "Home", href: "/" },
+  { label: "Churches", href: "/churches" },
   { label: "How It Works", href: "/how-it-works" },
   { label: "Live Demo", href: "/embed/christ-embassy-lagos/live" },
   { label: "Onboarding", href: "/church-onboarding" },
