@@ -34,6 +34,26 @@ export async function getSermonSessionById(id: string) {
   });
 }
 
+export async function getSermonSessionForChurch(id: string, churchId: string) {
+  return prisma.sermonSession.findFirst({
+    where: { id, churchId },
+    include: sermonSessionInclude,
+  });
+}
+
+export async function getTranscriptMessagesForSession(
+  sessionId: string,
+  language?: string,
+) {
+  return prisma.sermonTranscriptMessage.findMany({
+    where: {
+      sessionId,
+      ...(language ? { language } : {}),
+    },
+    orderBy: { createdAt: "asc" },
+  });
+}
+
 export async function getLatestListenableSessionForChurch(churchId: string) {
   return prisma.sermonSession.findFirst({
     where: {
@@ -98,6 +118,17 @@ export async function endSermonSession(id: string, churchId: string) {
       status: "ENDED",
       endedAt: new Date(),
     },
+  });
+}
+
+export async function addTranscriptMessage(input: {
+  sessionId: string;
+  sourceText: string;
+  translatedText: string;
+  language: string;
+}) {
+  return prisma.sermonTranscriptMessage.create({
+    data: input,
   });
 }
 

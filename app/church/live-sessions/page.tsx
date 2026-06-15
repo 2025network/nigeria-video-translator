@@ -218,6 +218,12 @@ export default async function ChurchLiveSessionsPage({
 
                     <div className="mt-4 flex flex-wrap gap-2">
                       <Link
+                        href={`/church/live-sessions/${session.id}`}
+                        className="inline-flex min-h-10 items-center justify-center rounded-md bg-emerald-400 px-4 text-sm font-semibold text-[#04120c] transition hover:bg-emerald-300"
+                      >
+                        Manage session
+                      </Link>
+                      <Link
                         href={listenUrl}
                         className="inline-flex min-h-10 items-center justify-center rounded-md border border-emerald-300/26 px-4 text-sm font-semibold text-emerald-100 transition hover:bg-white/8"
                       >

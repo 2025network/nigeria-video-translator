@@ -61,11 +61,24 @@ model SermonSession {
   status            String    @default("READY")
   startedAt         DateTime?
   endedAt           DateTime?
+  transcriptMessages SermonTranscriptMessage[]
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
   @@index([churchId, status, createdAt])
   @@index([status, startedAt])
+}
+
+model SermonTranscriptMessage {
+  id             String        @id @default(cuid())
+  sessionId      String
+  session        SermonSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  sourceText     String
+  translatedText String
+  language       String
+  createdAt      DateTime      @default(now())
+
+  @@index([sessionId, language, createdAt])
 }
 
 model ChurchBranch {

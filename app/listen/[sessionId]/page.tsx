@@ -4,14 +4,17 @@ import { notFound } from "next/navigation";
 import { Languages, Radio } from "lucide-react";
 import {
   getSermonSessionById,
+  getTranscriptMessagesForSession,
   parseSessionLanguages,
 } from "@/lib/sermonSessionRepository";
+import { AutoRefresh } from "./AutoRefresh";
 
 type ListenerPageProps = {
   params: Promise<{
     sessionId: string;
   }>;
   searchParams?: Promise<{
+    lang?: string;
     language?: string;
   }>;
 };
@@ -44,13 +47,16 @@ export default async function PublicListenerPage({
   }
 
   const languages = parseSessionLanguages(session.listenerLanguages);
+  const requestedLanguage = query?.lang ?? query?.language;
   const selectedLanguage =
-    query?.language && languages.includes(query.language)
-      ? query.language
+    requestedLanguage && languages.includes(requestedLanguage)
+      ? requestedLanguage
       : languages[0] ?? "English";
+  const messages = await getTranscriptMessagesForSession(session.id, selectedLanguage);
 
   return (
     <main className="min-h-screen bg-[#06110d] text-white">
+      <AutoRefresh />
       <section className="border-b border-emerald-400/15 bg-[linear-gradient(135deg,rgba(15,23,42,0.96),rgba(4,12,9,1)_62%)]">
         <div className="section-shell grid gap-8 py-14 lg:grid-cols-[1fr_0.42fr] lg:items-end">
           <div>
@@ -75,7 +81,7 @@ export default async function PublicListenerPage({
             <label className="grid gap-2 text-sm font-semibold text-emerald-100">
               Listener language
               <select
-                name="language"
+                name="lang"
                 defaultValue={selectedLanguage}
                 className="min-h-12 rounded-md border border-emerald-300/18 bg-[#07140f] px-4 text-white outline-none focus:border-emerald-300"
               >
@@ -90,6 +96,12 @@ export default async function PublicListenerPage({
             >
               Change language
             </button>
+            <Link
+              href={`/listen/${session.id}?lang=${encodeURIComponent(selectedLanguage)}`}
+              className="mt-2 inline-flex min-h-11 w-full items-center justify-center rounded-md border border-emerald-300/22 px-4 text-sm font-semibold text-emerald-50 transition hover:bg-white/8"
+            >
+              Refresh updates
+            </Link>
           </form>
         </div>
       </section>
@@ -108,7 +120,7 @@ export default async function PublicListenerPage({
               {languages.map((language) => (
                 <Link
                   key={language}
-                  href={`/listen/${session.id}?language=${encodeURIComponent(language)}`}
+                  href={`/listen/${session.id}?lang=${encodeURIComponent(language)}`}
                   className={`rounded-md border px-3 py-2 text-sm font-semibold transition ${
                     language === selectedLanguage
                       ? "border-emerald-300 bg-emerald-300 text-[#04120c]"
@@ -134,7 +146,7 @@ export default async function PublicListenerPage({
             <div>
               <h2 className="text-2xl font-semibold">Translated transcript</h2>
               <p className="mt-1 text-sm text-emerald-50/62">
-                Placeholder transcript area for the MVP session flow.
+                Auto-refreshes every 5 seconds. Manual refresh is also available.
               </p>
             </div>
           </div>
@@ -143,21 +155,64 @@ export default async function PublicListenerPage({
             {session.status === "LIVE" ? (
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-300">
-                  Live placeholder
+                  Latest sermon updates
                 </p>
-                <p className="mt-4 text-2xl leading-9 text-emerald-50">
-                  Translated sermon text will appear here in {selectedLanguage}.
-                </p>
-                <p className="mt-4 leading-7 text-emerald-50/66">
-                  Real-time speech recognition, translation, and audio output
-                  will connect here later. For now this confirms the church can
-                  create, start, share, and end a listener session.
-                </p>
+                {messages.length ? (
+                  <div className="mt-4 grid gap-4">
+                    {messages.map((message) => (
+                      <article
+                        key={message.id}
+                        className="rounded-md border border-emerald-300/12 bg-white/[0.035] p-4"
+                      >
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-300">
+                          {message.createdAt.toLocaleTimeString()}
+                        </p>
+                        <p className="mt-3 text-xl leading-9 text-emerald-50">
+                          {message.translatedText}
+                        </p>
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <div>
+                    <p className="mt-4 text-2xl leading-9 text-emerald-50">
+                      No {selectedLanguage} updates yet.
+                    </p>
+                    <p className="mt-4 leading-7 text-emerald-50/66">
+                      The church team can publish manual sermon updates from the
+                      live session control page. Real-time automation will
+                      connect here later.
+                    </p>
+                  </div>
+                )}
               </div>
             ) : session.status === "ENDED" ? (
-              <p className="text-2xl font-semibold text-emerald-50">
-                Session ended
-              </p>
+              <div>
+                <p className="text-2xl font-semibold text-emerald-50">
+                  Session ended
+                </p>
+                {messages.length ? (
+                  <div className="mt-5 grid gap-4">
+                    {messages.map((message) => (
+                      <article
+                        key={message.id}
+                        className="rounded-md border border-emerald-300/12 bg-white/[0.035] p-4"
+                      >
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-300">
+                          {message.createdAt.toLocaleTimeString()}
+                        </p>
+                        <p className="mt-3 text-xl leading-9 text-emerald-50">
+                          {message.translatedText}
+                        </p>
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-4 leading-7 text-emerald-50/66">
+                    No translated updates were published for {selectedLanguage}.
+                  </p>
+                )}
+              </div>
             ) : (
               <p className="text-2xl font-semibold text-emerald-50">
                 Waiting for sermon to start
