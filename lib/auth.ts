@@ -86,13 +86,6 @@ export async function requireAdminSession() {
   const cookieValue = cookieStore.get(adminSessionCookie)?.value;
   const authenticated = cookieValue === sessionValue;
 
-  console.info("[admin-auth] requireAdminSession", {
-    cookieName: adminSessionCookie,
-    cookieValue,
-    authenticated,
-    secureCookies: shouldUseSecureCookies(),
-  });
-
   if (!authenticated) {
     redirect("/admin/login");
   }

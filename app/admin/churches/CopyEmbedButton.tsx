@@ -6,9 +6,11 @@ import { Copy, Check } from "lucide-react";
 export function CopyEmbedButton({
   embedCode,
   label = "Copy Embed Code",
+  copiedLabel = "Embed code copied",
 }: {
   embedCode: string;
   label?: string;
+  copiedLabel?: string;
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -29,7 +31,7 @@ export function CopyEmbedButton({
       }`}
     >
       {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-      {copied ? "Embed code copied" : label}
+      {copied ? copiedLabel : label}
     </button>
   );
 }

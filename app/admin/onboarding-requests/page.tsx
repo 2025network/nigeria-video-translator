@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Inbox, Mail, Phone } from "lucide-react";
+import { CheckCircle2, Inbox, Mail, Phone } from "lucide-react";
+import { CopyEmbedButton } from "../churches/CopyEmbedButton";
 import { AdminNav } from "../AdminNav";
 import {
   getOnboardingRequests,
@@ -34,6 +35,7 @@ export default async function OnboardingRequestsPage({
   const approvalError = params?.approveError;
   const statusError = params?.statusError;
   const statusUpdated = params?.statusUpdated === "1";
+  const churchLoginUrl = getChurchLoginUrl();
   const createdCredentials =
     params?.approved === "1" && params.churchId && params.email && params.password
       ? {
@@ -41,8 +43,18 @@ export default async function OnboardingRequestsPage({
           churchName: params.churchName ?? "Created church",
           email: params.email,
           password: params.password,
+          loginUrl: churchLoginUrl,
         }
       : null;
+  const credentialsText = createdCredentials
+    ? [
+        "SermonBridge church login credentials",
+        `Church: ${createdCredentials.churchName}`,
+        `Login URL: ${createdCredentials.loginUrl}`,
+        `Email: ${createdCredentials.email}`,
+        `Temporary password: ${createdCredentials.password}`,
+      ].join("\n")
+    : "";
 
   return (
     <main className="min-h-screen bg-[#06110d] py-10 text-white">
@@ -73,29 +85,57 @@ export default async function OnboardingRequestsPage({
 
           {createdCredentials ? (
             <div className="mt-6 rounded-lg border border-emerald-300/24 bg-emerald-300/10 p-5">
-              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-300">
-                Church account created
-              </p>
-              <h2 className="mt-2 text-2xl font-semibold">
-                {createdCredentials.churchName}
-              </h2>
-              <div className="mt-4 grid gap-3 md:grid-cols-3">
-                <Credential label="Login email" value={createdCredentials.email} />
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-md bg-emerald-400 text-[#04120c]">
+                      <CheckCircle2 className="h-6 w-6" />
+                    </span>
+                    <div>
+                      <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-300">
+                        Church created successfully
+                      </p>
+                      <h2 className="mt-1 text-2xl font-semibold">
+                        {createdCredentials.churchName}
+                      </h2>
+                    </div>
+                  </div>
+                  <p className="mt-4 max-w-2xl text-sm leading-6 text-emerald-50/70">
+                    Share these credentials with the church. The temporary
+                    password is shown only on this approval result screen.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  <CopyEmbedButton
+                    embedCode={credentialsText}
+                    label="Copy credentials"
+                    copiedLabel="Credentials copied"
+                  />
+                  <Link
+                    href="/admin/onboarding-requests"
+                    className="inline-flex min-h-10 items-center justify-center rounded-md border border-emerald-300/26 px-4 text-sm font-semibold text-emerald-100 transition hover:bg-white/8"
+                  >
+                    Back to onboarding requests
+                  </Link>
+                  <Link
+                    href={`/admin/churches/${createdCredentials.churchId}`}
+                    className="inline-flex min-h-10 items-center justify-center rounded-md bg-emerald-400 px-4 text-sm font-semibold text-[#04120c] transition hover:bg-emerald-300"
+                  >
+                    View church
+                  </Link>
+                </div>
+              </div>
+
+              <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                <Credential label="Church name" value={createdCredentials.churchName} />
+                <Credential label="Church login email" value={createdCredentials.email} />
                 <Credential
-                  label="Temporary password"
+                  label="Generated temporary password"
                   value={createdCredentials.password}
                 />
-                <Link
-                  href={`/admin/churches/${createdCredentials.churchId}`}
-                  className="inline-flex min-h-12 items-center justify-center rounded-md bg-emerald-400 px-4 text-sm font-semibold text-[#04120c] transition hover:bg-emerald-300"
-                >
-                  Open church account
-                </Link>
+                <Credential label="Church login URL" value={createdCredentials.loginUrl} />
               </div>
-              <p className="mt-4 text-sm leading-6 text-emerald-50/70">
-                Share these credentials with the church so they can log in at
-                /church/login and change their setup from the dashboard.
-              </p>
             </div>
           ) : null}
 
@@ -234,6 +274,12 @@ function Credential({ label, value }: { label: string; value: string }) {
       <p className="mt-2 break-words font-mono text-sm text-white">{value}</p>
     </div>
   );
+}
+
+function getChurchLoginUrl() {
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "").replace(/\/$/, "");
+
+  return siteUrl ? `${siteUrl}/church/login` : "/church/login";
 }
 
 function InfoCard({

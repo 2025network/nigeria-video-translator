@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { revalidatePath } from "next/cache";
-import { adminSessionCookie, requireAdminSession } from "@/lib/auth";
+import { requireAdminSession } from "@/lib/auth";
 import {
   isOnboardingStatus,
   updateOnboardingRequestStatus,
@@ -14,12 +14,6 @@ type StatusRouteContext = {
 
 export async function POST(request: NextRequest, { params }: StatusRouteContext) {
   const { id } = await params;
-  const adminCookieValue = request.cookies.get(adminSessionCookie)?.value;
-
-  console.info("[onboarding-status] route reached", {
-    requestId: id,
-    adminCookieValue,
-  });
 
   await requireAdminSession();
 
