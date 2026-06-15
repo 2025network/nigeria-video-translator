@@ -3,6 +3,10 @@ import Link from "next/link";
 import { Building2, Languages, MapPin, Search, UserRound } from "lucide-react";
 import { getActiveChurches, toChurchView } from "@/lib/churchRepository";
 import { getChurchEmbedUrl } from "@/lib/demoChurches";
+import {
+  getLatestListenableSessionsForChurches,
+  getSessionListenUrl,
+} from "@/lib/sermonSessionRepository";
 
 type ChurchesDirectoryPageProps = {
   searchParams?: Promise<{
@@ -23,6 +27,9 @@ export default async function ChurchesDirectoryPage({
   const params = await searchParams;
   const query = (params?.q ?? "").trim();
   const churches = await getActiveChurches();
+  const latestSessions = await getLatestListenableSessionsForChurches(
+    churches.map((church) => church.id),
+  );
   const filteredChurches = query
     ? churches.filter((church) => matchesSearch(church, query))
     : churches;
@@ -108,6 +115,10 @@ export default async function ChurchesDirectoryPage({
                 ]),
               );
               const location = [church.city, church.country].filter(Boolean).join(", ");
+              const latestSession = latestSessions.get(church.id);
+              const listenUrl = latestSession
+                ? getSessionListenUrl(latestSession.id)
+                : getChurchEmbedUrl(church.slug);
 
               return (
                 <article
@@ -166,7 +177,7 @@ export default async function ChurchesDirectoryPage({
                       View Church
                     </Link>
                     <Link
-                      href={getChurchEmbedUrl(church.slug)}
+                      href={listenUrl}
                       className="inline-flex min-h-11 flex-1 items-center justify-center rounded-md border border-emerald-300/22 px-4 text-sm font-semibold text-emerald-50 transition hover:bg-white/8"
                     >
                       Listen In Your Language

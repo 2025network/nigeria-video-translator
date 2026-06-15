@@ -45,8 +45,27 @@ model Church {
   countries              ChurchCountry[]
   branches               ChurchBranch[]
   usageEvents            WidgetUsageEvent[]
+  sermonSessions         SermonSession[]
   createdAt              DateTime         @default(now())
   updatedAt              DateTime         @updatedAt
+}
+
+model SermonSession {
+  id                String    @id @default(cuid())
+  churchId          String
+  church            Church    @relation(fields: [churchId], references: [id], onDelete: Cascade)
+  title             String
+  sourceLanguage    String
+  listenerLanguages String
+  streamUrl         String?
+  status            String    @default("READY")
+  startedAt         DateTime?
+  endedAt           DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([churchId, status, createdAt])
+  @@index([status, startedAt])
 }
 
 model ChurchBranch {

@@ -52,6 +52,12 @@ export default async function ChurchDashboardPage() {
           >
             View Public Page
           </Link>
+          <Link
+            href="/church/live-sessions"
+            className="ml-0 mt-3 inline-flex min-h-11 items-center justify-center rounded-md bg-emerald-400 px-4 text-sm font-semibold text-[#04120c] transition hover:bg-emerald-300 sm:ml-3"
+          >
+            Manage Live Sessions
+          </Link>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">

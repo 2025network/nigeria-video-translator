@@ -14,6 +14,10 @@ import {
 } from "lucide-react";
 import { getChurchBySlug, toChurchView } from "@/lib/churchRepository";
 import { getChurchEmbedUrl } from "@/lib/demoChurches";
+import {
+  getLatestListenableSessionForChurch,
+  getSessionListenUrl,
+} from "@/lib/sermonSessionRepository";
 
 type PublicChurchPageProps = {
   params: Promise<{
@@ -52,7 +56,10 @@ export default async function PublicChurchProfilePage({
   }
 
   const churchView = toChurchView(church);
-  const listenUrl = getChurchEmbedUrl(church.slug);
+  const latestSession = await getLatestListenableSessionForChurch(church.id);
+  const listenUrl = latestSession
+    ? getSessionListenUrl(latestSession.id)
+    : getChurchEmbedUrl(church.slug);
   const watchUrl = church.youtubeLiveUrl || church.websiteUrl || "";
   const socialLinks = [
     { label: "Website", href: church.websiteUrl, icon: <Globe2 className="h-4 w-4" /> },
