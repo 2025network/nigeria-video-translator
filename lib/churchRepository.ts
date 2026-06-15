@@ -20,6 +20,22 @@ export type ChurchFormInput = {
   status: "Active" | "Inactive";
 };
 
+export type ChurchProfileInput = {
+  churchName: string;
+  logoUrl?: string;
+  bannerUrl?: string;
+  description?: string;
+  pastorName?: string;
+  phone?: string;
+  websiteUrl?: string;
+  facebookUrl?: string;
+  youtubeUrl?: string;
+  instagramUrl?: string;
+  country: string;
+  city: string;
+  address?: string;
+};
+
 export type ChurchWithRelations = Awaited<ReturnType<typeof getChurches>>[number];
 export type ChurchView = Omit<ChurchWithRelations, "status" | "supportedLanguages"> & {
   status: ChurchStatus;
@@ -120,6 +136,28 @@ export async function updateChurch(id: string, input: ChurchFormInput) {
         deleteMany: {},
         create: input.enabledTranslationCountries.map((country) => ({ country })),
       },
+    },
+  });
+}
+
+export async function updateChurchProfile(id: string, input: ChurchProfileInput) {
+  return prisma.church.update({
+    where: { id },
+    data: {
+      name: input.churchName,
+      churchName: input.churchName,
+      logoUrl: input.logoUrl || null,
+      bannerUrl: input.bannerUrl || null,
+      description: input.description || null,
+      pastorName: input.pastorName || null,
+      phone: input.phone || null,
+      websiteUrl: input.websiteUrl || null,
+      facebookUrl: input.facebookUrl || null,
+      youtubeUrl: input.youtubeUrl || null,
+      instagramUrl: input.instagramUrl || null,
+      country: input.country,
+      city: input.city,
+      address: input.address || null,
     },
   });
 }

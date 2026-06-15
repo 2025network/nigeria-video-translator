@@ -28,6 +28,16 @@ model Church {
   supportedLanguages     String           @default("Yoruba,Igbo,Hausa,Nigerian Pidgin")
   country                String
   city                   String           @default("")
+  logoUrl                String?
+  bannerUrl              String?
+  description            String?
+  pastorName             String?
+  phone                  String?
+  websiteUrl             String?
+  facebookUrl            String?
+  youtubeUrl             String?
+  instagramUrl           String?
+  address                String?
   youtubeLiveUrl         String
   defaultSpokenLanguage  String
   status                 String           @default("Active")

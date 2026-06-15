@@ -1,8 +1,9 @@
 ﻿import Link from "next/link";
-import { BarChart3, FileCode2, Gauge, Languages, Settings } from "lucide-react";
+import { BarChart3, FileCode2, Gauge, Languages, Settings, UserRound } from "lucide-react";
 
 const churchLinks = [
   { label: "Dashboard", href: "/church/dashboard", icon: Gauge },
+  { label: "Profile", href: "/church/profile", icon: UserRound },
   { label: "Settings", href: "/church/settings", icon: Settings },
   { label: "Widget", href: "/church/widget", icon: FileCode2 },
   { label: "Languages", href: "/church/languages", icon: Languages },
