@@ -27,6 +27,7 @@ model Church {
   plan                   String           @default("FULL_ACCESS")
   supportedLanguages     String           @default("Yoruba,Igbo,Hausa,Nigerian Pidgin")
   country                String
+  city                   String           @default("")
   youtubeLiveUrl         String
   defaultSpokenLanguage  String
   status                 String           @default("Active")

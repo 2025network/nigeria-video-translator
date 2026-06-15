@@ -12,6 +12,7 @@ export type ChurchFormInput = {
   plan: string;
   supportedLanguages: string[];
   country: string;
+  city?: string;
   youtubeLiveUrl: string;
   defaultSpokenLanguage: string;
   enabledTranslationCountries: string[];
@@ -79,6 +80,7 @@ export async function createChurch(input: ChurchFormInput) {
       plan: input.plan,
       supportedLanguages: serializeListenerLanguages(input.supportedLanguages),
       country: input.country,
+      city: input.city ?? "",
       youtubeLiveUrl: input.youtubeLiveUrl,
       defaultSpokenLanguage: input.defaultSpokenLanguage,
       status: input.status,
@@ -106,6 +108,7 @@ export async function updateChurch(id: string, input: ChurchFormInput) {
       supportedLanguages: serializeListenerLanguages(input.supportedLanguages),
       ...(input.password ? { passwordHash: await hashPassword(input.password) } : {}),
       country: input.country,
+      city: input.city ?? "",
       youtubeLiveUrl: input.youtubeLiveUrl,
       defaultSpokenLanguage: input.defaultSpokenLanguage,
       status: input.status,

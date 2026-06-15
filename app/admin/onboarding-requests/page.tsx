@@ -6,7 +6,20 @@ import {
   getOnboardingRequests,
   onboardingStatuses,
 } from "@/lib/onboardingRepository";
-import { updateOnboardingStatusAction } from "./actions";
+import {
+  approveAndCreateChurchAction,
+  updateOnboardingStatusAction,
+} from "./actions";
+
+type OnboardingRequestsPageProps = {
+  searchParams?: Promise<{
+    approveError?: string;
+    createdChurch?: string;
+    churchName?: string;
+    email?: string;
+    password?: string;
+  }>;
+};
 
 export const metadata: Metadata = {
   title: "Onboarding Requests",
@@ -14,8 +27,21 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function OnboardingRequestsPage() {
+export default async function OnboardingRequestsPage({
+  searchParams,
+}: OnboardingRequestsPageProps) {
+  const params = await searchParams;
   const requests = await getOnboardingRequests();
+  const approvalError = params?.approveError;
+  const createdCredentials =
+    params?.createdChurch && params.email && params.password
+      ? {
+          churchId: params.createdChurch,
+          churchName: params.churchName ?? "Created church",
+          email: params.email,
+          password: params.password,
+        }
+      : null;
 
   return (
     <main className="min-h-screen bg-[#06110d] py-10 text-white">
@@ -43,6 +69,40 @@ export default async function OnboardingRequestsPage() {
               View public form
             </Link>
           </div>
+
+          {createdCredentials ? (
+            <div className="mt-6 rounded-lg border border-emerald-300/24 bg-emerald-300/10 p-5">
+              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-300">
+                Church account created
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold">
+                {createdCredentials.churchName}
+              </h2>
+              <div className="mt-4 grid gap-3 md:grid-cols-3">
+                <Credential label="Login email" value={createdCredentials.email} />
+                <Credential
+                  label="Temporary password"
+                  value={createdCredentials.password}
+                />
+                <Link
+                  href={`/admin/churches/${createdCredentials.churchId}`}
+                  className="inline-flex min-h-12 items-center justify-center rounded-md bg-emerald-400 px-4 text-sm font-semibold text-[#04120c] transition hover:bg-emerald-300"
+                >
+                  Open church account
+                </Link>
+              </div>
+              <p className="mt-4 text-sm leading-6 text-emerald-50/70">
+                Share these credentials with the church so they can log in at
+                /church/login and change their setup from the dashboard.
+              </p>
+            </div>
+          ) : null}
+
+          {approvalError ? (
+            <div className="mt-6 rounded-md border border-amber-300/30 bg-amber-300/10 p-4 text-sm font-semibold text-amber-50">
+              {approvalError}
+            </div>
+          ) : null}
 
           {requests.length === 0 ? (
             <div className="mt-8 rounded-lg border border-dashed border-emerald-300/24 bg-[#07140f] p-10 text-center">
@@ -98,6 +158,18 @@ export default async function OnboardingRequestsPage() {
                     </form>
                   </div>
 
+                  {request.status === "NEW" || request.status === "CONTACTED" ? (
+                    <form action={approveAndCreateChurchAction} className="mt-4">
+                      <input type="hidden" name="id" value={request.id} />
+                      <button
+                        type="submit"
+                        className="inline-flex min-h-11 items-center justify-center rounded-md bg-emerald-400 px-4 text-sm font-semibold text-[#04120c] transition hover:bg-emerald-300"
+                      >
+                        Approve & Create Church
+                      </button>
+                    </form>
+                  ) : null}
+
                   <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                     <InfoCard label="Contact" value={request.contactName} />
                     <InfoCard
@@ -134,6 +206,17 @@ export default async function OnboardingRequestsPage() {
         </section>
       </div>
     </main>
+  );
+}
+
+function Credential({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md border border-emerald-300/16 bg-[#07140f] p-4">
+      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-300">
+        {label}
+      </p>
+      <p className="mt-2 break-words font-mono text-sm text-white">{value}</p>
+    </div>
   );
 }
 

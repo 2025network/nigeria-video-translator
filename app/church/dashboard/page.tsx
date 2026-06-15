@@ -49,6 +49,7 @@ export default async function ChurchDashboardPage() {
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <Metric icon={<FileCode2 className="h-5 w-5" />} label="Church slug" value={church.slug} />
+          <Metric icon={<FileCode2 className="h-5 w-5" />} label="Church email" value={church.email} />
           <Metric icon={<Radio className="h-5 w-5" />} label="Widget status" value={church.status} />
           <Metric icon={<FileCode2 className="h-5 w-5" />} label="Embed URL" value={widgetUrl} />
           <Metric icon={<Settings className="h-5 w-5" />} label="Access" value="Full platform access" />

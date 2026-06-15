@@ -31,9 +31,10 @@ export default function AddChurchPage() {
             Create a live translation widget
           </h1>
           <p className="mt-4 leading-7 text-emerald-50/72">
-            Configure a church profile, highlight preferred listener languages,
-            and prepare iframe or floating widget code for a website or WebView.
-            All languages are available by default.
+            Manual church creation is still available. The preferred flow is:
+            church submits onboarding request → admin approves → church account
+            is created automatically. All languages are available by default,
+            and churches can later highlight preferred listener languages.
           </p>
         </div>
 
