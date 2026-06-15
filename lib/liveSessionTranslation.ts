@@ -1,4 +1,9 @@
 import { isSupportedLanguage } from "./languages";
+import { generateLiveTextToSpeech } from "./liveTextToSpeech";
+import {
+  addTranscriptMessage,
+  updateTranscriptMessageAudio,
+} from "./sermonSessionRepository";
 import { translateTranscript } from "./translation";
 
 export type LiveSessionTranslationResult = {
@@ -45,4 +50,46 @@ export async function translateForListenerLanguage(
     translatedText: "Language support coming soon.",
     mode: "pending",
   };
+}
+
+export async function createLiveTranscriptMessage(input: {
+  sessionId: string;
+  sourceText: string;
+  language: string;
+}) {
+  const translation = await translateForListenerLanguage(
+    input.sourceText,
+    input.language,
+  );
+
+  const message = await addTranscriptMessage({
+    sessionId: input.sessionId,
+    sourceText: input.sourceText,
+    translatedText: translation.translatedText,
+    language: input.language,
+    audioStatus: "PENDING",
+    audioUrl: null,
+    audioError: null,
+  });
+
+  const audio = await generateLiveTextToSpeech({
+    sessionId: input.sessionId,
+    messageId: message.id,
+    language: input.language,
+    translatedText: translation.translatedText,
+  });
+
+  if (audio.ok) {
+    return updateTranscriptMessageAudio(message.id, {
+      audioUrl: audio.audioUrl,
+      audioStatus: audio.audioStatus,
+      audioError: null,
+    });
+  }
+
+  return updateTranscriptMessageAudio(message.id, {
+    audioUrl: null,
+    audioStatus: audio.audioStatus,
+    audioError: audio.audioError,
+  });
 }

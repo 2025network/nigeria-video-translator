@@ -3,9 +3,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { churchSessionCookie } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { transcribeLiveAudio } from "@/lib/liveTranscription";
-import { translateForListenerLanguage } from "@/lib/liveSessionTranslation";
+import { createLiveTranscriptMessage } from "@/lib/liveSessionTranslation";
 import {
-  addTranscriptMessage,
   getSermonSessionForChurch,
   logLiveSessionError,
   parseSessionLanguages,
@@ -91,15 +90,9 @@ export async function POST(request: NextRequest, { params }: TranscribeRouteCont
 
   for (const language of listenerLanguages) {
     try {
-      const translation = await translateForListenerLanguage(
-        transcription.transcript,
-        language,
-      );
-
-      await addTranscriptMessage({
+      await createLiveTranscriptMessage({
         sessionId,
         sourceText: transcription.transcript,
-        translatedText: translation.translatedText,
         language,
       });
 

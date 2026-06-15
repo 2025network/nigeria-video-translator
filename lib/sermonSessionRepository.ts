@@ -54,6 +54,23 @@ export async function getTranscriptMessagesForSession(
   });
 }
 
+export async function getLatestTranscriptMessagesForSession(
+  sessionId: string,
+  language?: string,
+  take = 12,
+) {
+  const messages = await prisma.sermonTranscriptMessage.findMany({
+    where: {
+      sessionId,
+      ...(language ? { language } : {}),
+    },
+    orderBy: { createdAt: "desc" },
+    take,
+  });
+
+  return messages.reverse();
+}
+
 export async function getTranscriptMessageStats(sessionId: string) {
   const [messageCount, lastMessage] = await Promise.all([
     prisma.sermonTranscriptMessage.count({
@@ -152,8 +169,25 @@ export async function addTranscriptMessage(input: {
   sourceText: string;
   translatedText: string;
   language: string;
+  audioUrl?: string | null;
+  audioStatus?: string | null;
+  audioError?: string | null;
 }) {
   return prisma.sermonTranscriptMessage.create({
+    data: input,
+  });
+}
+
+export async function updateTranscriptMessageAudio(
+  id: string,
+  input: {
+    audioUrl?: string | null;
+    audioStatus: string;
+    audioError?: string | null;
+  },
+) {
+  return prisma.sermonTranscriptMessage.update({
+    where: { id },
     data: input,
   });
 }

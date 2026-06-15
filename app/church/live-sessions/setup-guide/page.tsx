@@ -17,6 +17,17 @@ const guideSections = [
     ],
   },
   {
+    title: "Connect translated audio to church speaker",
+    items: [
+      "Use the laptop headphone output or USB audio interface output.",
+      "Connect the laptop to a mixer AUX, stereo, or line input channel.",
+      "Select one translated language in Speaker Output Mode.",
+      "Keep the pastor original microphone on the main channel.",
+      "Keep translated audio volume lower to avoid feedback.",
+      "Use a separate speaker or room when playing a different language publicly.",
+    ],
+  },
+  {
     title: "Use Chrome or Edge",
     items: [
       "Open the church session control page in Chrome or Microsoft Edge.",

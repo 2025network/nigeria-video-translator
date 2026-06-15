@@ -22,6 +22,7 @@ import {
   startSessionFromDetailAction,
 } from "./actions";
 import { LiveMicCapture } from "./LiveMicCapture";
+import { SpeakerOutputMode, type SpeakerOutputMessage } from "./SpeakerOutputMode";
 
 type SessionDetailPageProps = {
   params: Promise<{
@@ -203,6 +204,14 @@ export default async function ChurchLiveSessionDetailPage({
           </section>
         </div>
 
+        <div className="mb-6">
+          <SpeakerOutputMode
+            sessionId={session.id}
+            languages={listenerLanguages}
+            initialMessages={messages.map(toSpeakerOutputMessage)}
+          />
+        </div>
+
         <div className="grid gap-6 xl:grid-cols-[0.82fr_1.18fr]">
           <form
             action={addTranscriptMessageAction}
@@ -312,6 +321,14 @@ export default async function ChurchLiveSessionDetailPage({
                       <p className="mt-3 leading-7 text-emerald-50">
                         {message.translatedText}
                       </p>
+                      <p className="mt-3 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-50/50">
+                        Speaker audio: {formatAudioStatus(message.audioStatus)}
+                      </p>
+                      {message.audioError ? (
+                        <p className="mt-2 rounded-md border border-amber-300/24 bg-amber-300/10 p-3 text-sm leading-6 text-amber-50">
+                          {message.audioError}
+                        </p>
+                      ) : null}
                       <form action={deleteTranscriptMessageAction} className="mt-4">
                         <input type="hidden" name="sessionId" value={session.id} />
                         <input type="hidden" name="messageId" value={message.id} />
@@ -347,6 +364,36 @@ export default async function ChurchLiveSessionDetailPage({
       </section>
     </main>
   );
+}
+
+function toSpeakerOutputMessage(message: {
+  id: string;
+  sourceText: string;
+  translatedText: string;
+  language: string;
+  audioUrl: string | null;
+  audioStatus: string | null;
+  audioError: string | null;
+  createdAt: Date;
+}): SpeakerOutputMessage {
+  return {
+    id: message.id,
+    sourceText: message.sourceText,
+    translatedText: message.translatedText,
+    language: message.language,
+    audioUrl: message.audioUrl,
+    audioStatus: message.audioStatus,
+    audioError: message.audioError,
+    createdAt: message.createdAt.toISOString(),
+  };
+}
+
+function formatAudioStatus(status?: string | null) {
+  if (status === "READY") return "Ready";
+  if (status === "PENDING") return "Audio is being prepared";
+  if (status === "FAILED") return "Needs configuration";
+
+  return "Not generated";
 }
 
 function StatusMessage({

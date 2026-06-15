@@ -3,9 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getCurrentChurchView } from "@/lib/currentChurch";
-import { translateForListenerLanguage } from "@/lib/liveSessionTranslation";
+import { createLiveTranscriptMessage } from "@/lib/liveSessionTranslation";
 import {
-  addTranscriptMessage,
   clearTranscriptMessages,
   deleteTranscriptMessage,
   endSermonSession,
@@ -52,12 +51,9 @@ export async function addTranscriptMessageAction(formData: FormData) {
     redirect("/church/live-sessions?error=session");
   }
 
-  const translation = await translateForListenerLanguage(sourceText, language);
-
-  await addTranscriptMessage({
+  await createLiveTranscriptMessage({
     sessionId,
     sourceText,
-    translatedText: translation.translatedText,
     language,
   });
 
@@ -83,12 +79,9 @@ export async function addTranscriptMessageToAllAction(formData: FormData) {
   const listenerLanguages = parseSessionLanguages(session.listenerLanguages);
 
   for (const language of listenerLanguages) {
-    const translation = await translateForListenerLanguage(sourceText, language);
-
-    await addTranscriptMessage({
+    await createLiveTranscriptMessage({
       sessionId,
       sourceText,
-      translatedText: translation.translatedText,
       language,
     });
   }
