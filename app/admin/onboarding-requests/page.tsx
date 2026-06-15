@@ -6,15 +6,14 @@ import {
   getOnboardingRequests,
   onboardingStatuses,
 } from "@/lib/onboardingRepository";
-import {
-  approveAndCreateChurchAction,
-  updateOnboardingStatusAction,
-} from "./actions";
 
 type OnboardingRequestsPageProps = {
   searchParams?: Promise<{
+    approved?: string;
     approveError?: string;
-    createdChurch?: string;
+    statusError?: string;
+    statusUpdated?: string;
+    churchId?: string;
     churchName?: string;
     email?: string;
     password?: string;
@@ -33,10 +32,12 @@ export default async function OnboardingRequestsPage({
   const params = await searchParams;
   const requests = await getOnboardingRequests();
   const approvalError = params?.approveError;
+  const statusError = params?.statusError;
+  const statusUpdated = params?.statusUpdated === "1";
   const createdCredentials =
-    params?.createdChurch && params.email && params.password
+    params?.approved === "1" && params.churchId && params.email && params.password
       ? {
-          churchId: params.createdChurch,
+          churchId: params.churchId,
           churchName: params.churchName ?? "Created church",
           email: params.email,
           password: params.password,
@@ -104,6 +105,18 @@ export default async function OnboardingRequestsPage({
             </div>
           ) : null}
 
+          {statusError ? (
+            <div className="mt-6 rounded-md border border-amber-300/30 bg-amber-300/10 p-4 text-sm font-semibold text-amber-50">
+              {statusError}
+            </div>
+          ) : null}
+
+          {statusUpdated ? (
+            <div className="mt-6 rounded-md border border-emerald-300/24 bg-emerald-300/10 p-4 text-sm font-semibold text-emerald-50">
+              Request status updated.
+            </div>
+          ) : null}
+
           {requests.length === 0 ? (
             <div className="mt-8 rounded-lg border border-dashed border-emerald-300/24 bg-[#07140f] p-10 text-center">
               <Inbox className="mx-auto h-10 w-10 text-emerald-300" />
@@ -134,10 +147,10 @@ export default async function OnboardingRequestsPage({
                     </div>
 
                     <form
-                      action={updateOnboardingStatusAction}
+                      action={`/admin/onboarding-requests/${request.id}/status`}
+                      method="post"
                       className="flex flex-wrap gap-2"
                     >
-                      <input type="hidden" name="id" value={request.id} />
                       <select
                         name="status"
                         defaultValue={request.status}
@@ -159,8 +172,11 @@ export default async function OnboardingRequestsPage({
                   </div>
 
                   {request.status === "NEW" || request.status === "CONTACTED" ? (
-                    <form action={approveAndCreateChurchAction} className="mt-4">
-                      <input type="hidden" name="id" value={request.id} />
+                    <form
+                      action={`/admin/onboarding-requests/${request.id}/approve`}
+                      method="post"
+                      className="mt-4"
+                    >
                       <button
                         type="submit"
                         className="inline-flex min-h-11 items-center justify-center rounded-md bg-emerald-400 px-4 text-sm font-semibold text-[#04120c] transition hover:bg-emerald-300"

@@ -71,7 +71,41 @@ export async function approveOnboardingRequestAndCreateChurch(id: string) {
     };
   }
 
+  if (request.status === "APPROVED") {
+    return {
+      ok: false as const,
+      reason: "already-approved" as const,
+      message: "This onboarding request has already been approved.",
+    };
+  }
+
   const slug = slugify(request.churchName);
+  const existingByEmail = await prisma.church.findUnique({
+    where: { email: request.email },
+    select: { id: true },
+  });
+
+  if (existingByEmail) {
+    return {
+      ok: false as const,
+      reason: "duplicate-email" as const,
+      message: "A church account already exists with this email address.",
+    };
+  }
+
+  const existingBySlug = await prisma.church.findUnique({
+    where: { slug },
+    select: { id: true },
+  });
+
+  if (existingBySlug) {
+    return {
+      ok: false as const,
+      reason: "duplicate-slug" as const,
+      message: "A church account already exists with this generated slug.",
+    };
+  }
+
   const existingChurch = await prisma.church.findFirst({
     where: {
       OR: [{ email: request.email }, { slug }],
@@ -83,15 +117,10 @@ export async function approveOnboardingRequestAndCreateChurch(id: string) {
   });
 
   if (existingChurch) {
-    const reason =
-      existingChurch.email === request.email
-        ? "A church account already exists with this email address."
-        : "A church account already exists with this generated slug.";
-
     return {
       ok: false as const,
       reason: "duplicate" as const,
-      message: reason,
+      message: "A church account already exists with this email address or slug.",
     };
   }
 
