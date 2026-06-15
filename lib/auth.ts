@@ -6,6 +6,7 @@ import { verifyPassword } from "./password";
 export const adminSessionCookie = "nvt_admin_session";
 export const churchSessionCookie = "sermonbridge_church_session";
 const sessionValue = "admin-authenticated";
+const cookieMaxAge = 60 * 60 * 8;
 
 export async function loginAdmin(email: string, password: string) {
   const user = await prisma.user.findUnique({
@@ -23,9 +24,9 @@ export async function createAdminSession() {
   cookieStore.set(adminSessionCookie, sessionValue, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: shouldUseSecureCookies(),
     path: "/",
-    maxAge: 60 * 60 * 8,
+    maxAge: cookieMaxAge,
   });
 }
 
@@ -62,9 +63,9 @@ export async function createChurchSession(churchId: string) {
   cookieStore.set(churchSessionCookie, churchId, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: shouldUseSecureCookies(),
     path: "/",
-    maxAge: 60 * 60 * 8,
+    maxAge: cookieMaxAge,
   });
 }
 
@@ -82,10 +83,30 @@ export async function clearAdminSession() {
 
 export async function requireAdminSession() {
   const cookieStore = await cookies();
-  const authenticated = cookieStore.get(adminSessionCookie)?.value === sessionValue;
+  const cookieValue = cookieStore.get(adminSessionCookie)?.value;
+  const authenticated = cookieValue === sessionValue;
+
+  console.info("[admin-auth] requireAdminSession", {
+    cookieName: adminSessionCookie,
+    cookieValue,
+    authenticated,
+    secureCookies: shouldUseSecureCookies(),
+  });
 
   if (!authenticated) {
     redirect("/admin/login");
   }
+}
+
+function shouldUseSecureCookies() {
+  if (process.env.AUTH_COOKIE_SECURE === "true") {
+    return true;
+  }
+
+  if (process.env.AUTH_COOKIE_SECURE === "false") {
+    return false;
+  }
+
+  return (process.env.NEXT_PUBLIC_SITE_URL ?? "").startsWith("https://");
 }
 

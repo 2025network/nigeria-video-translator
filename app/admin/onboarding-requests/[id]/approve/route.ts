@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { revalidatePath } from "next/cache";
-import { requireAdminSession } from "@/lib/auth";
+import { adminSessionCookie, requireAdminSession } from "@/lib/auth";
 import { approveOnboardingRequestAndCreateChurch } from "@/lib/onboardingRepository";
 
 type ApproveRouteContext = {
@@ -10,9 +10,16 @@ type ApproveRouteContext = {
 };
 
 export async function POST(request: NextRequest, { params }: ApproveRouteContext) {
+  const { id } = await params;
+  const adminCookieValue = request.cookies.get(adminSessionCookie)?.value;
+
+  console.info("[onboarding-approve] route reached", {
+    requestId: id,
+    adminCookieValue,
+  });
+
   await requireAdminSession();
 
-  const { id } = await params;
   const result = await approveOnboardingRequestAndCreateChurch(id);
 
   revalidatePath("/admin");
