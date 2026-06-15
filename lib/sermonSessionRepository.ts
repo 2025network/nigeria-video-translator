@@ -10,6 +10,7 @@ export type SermonSessionFormInput = {
   sourceLanguage: string;
   listenerLanguages: string[];
   streamUrl?: string;
+  branchId?: string;
 };
 
 const sermonSessionInclude = {
@@ -23,6 +24,7 @@ export type SermonSessionWithChurch = Awaited<
 export async function getSermonSessionsForChurch(churchId: string) {
   return prisma.sermonSession.findMany({
     where: { churchId },
+    include: { branch: true },
     orderBy: { createdAt: "desc" },
   });
 }
@@ -107,6 +109,16 @@ export async function getLatestListenableSessionForChurch(churchId: string) {
   });
 }
 
+export async function getLatestListenableSessionForBranch(branchId: string) {
+  return prisma.sermonSession.findFirst({
+    where: {
+      branchId,
+      status: { in: ["READY", "LIVE"] },
+    },
+    orderBy: [{ status: "asc" }, { createdAt: "desc" }],
+  });
+}
+
 export async function getLatestListenableSessionsForChurches(churchIds: string[]) {
   const sessions = await prisma.sermonSession.findMany({
     where: {
@@ -138,9 +150,24 @@ export async function createSermonSession(
       sourceLanguage: input.sourceLanguage,
       listenerLanguages: serializeSessionLanguages(input.listenerLanguages),
       streamUrl: input.streamUrl || null,
+      branchId: input.branchId || null,
       status: "READY",
     },
   });
+}
+
+export async function getChurchSessionStats(churchId: string) {
+  const [totalLiveSessions, totalListeners] = await Promise.all([
+    prisma.sermonSession.count({ where: { churchId } }),
+    prisma.widgetUsageEvent.count({
+      where: {
+        churchId,
+        eventType: { in: ["widget_loaded", "live_started"] },
+      },
+    }),
+  ]);
+
+  return { totalLiveSessions, totalListeners };
 }
 
 export async function startSermonSession(id: string, churchId: string) {

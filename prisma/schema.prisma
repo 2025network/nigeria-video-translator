@@ -54,6 +54,8 @@ model SermonSession {
   id                String    @id @default(cuid())
   churchId          String
   church            Church    @relation(fields: [churchId], references: [id], onDelete: Cascade)
+  branchId          String?
+  branch            ChurchBranch? @relation(fields: [branchId], references: [id], onDelete: SetNull)
   title             String
   sourceLanguage    String
   listenerLanguages String
@@ -67,6 +69,7 @@ model SermonSession {
   updatedAt         DateTime  @updatedAt
 
   @@index([churchId, status, createdAt])
+  @@index([branchId, status, createdAt])
   @@index([status, startedAt])
 }
 
@@ -103,9 +106,20 @@ model ChurchBranch {
   name       String
   slug       String
   location   String
+  pastorName String?
+  email      String?
+  phone      String?
+  country    String    @default("")
+  state      String    @default("")
+  city       String    @default("")
+  address    String    @default("")
+  description String?
+  bannerUrl  String?
+  logoUrl    String?
   createdAt  DateTime  @default(now())
   disabledAt DateTime?
   usageEvents WidgetUsageEvent[]
+  sermonSessions SermonSession[]
 
   @@unique([churchId, slug])
 }

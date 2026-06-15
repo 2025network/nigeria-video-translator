@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CalendarClock, Languages, Play, Radio, Square } from "lucide-react";
 import { CopyEmbedButton } from "@/app/admin/churches/CopyEmbedButton";
+import { getBranchesForChurch } from "@/lib/branchRepository";
 import { catalogLanguages } from "@/lib/languageCatalog";
 import { getCurrentChurchView } from "@/lib/currentChurch";
 import {
@@ -35,7 +36,11 @@ export default async function ChurchLiveSessionsPage({
   searchParams,
 }: LiveSessionsPageProps) {
   const [church, params] = await Promise.all([getCurrentChurchView(), searchParams]);
-  const sessions = await getSermonSessionsForChurch(church.id);
+  const [sessions, branches] = await Promise.all([
+    getSermonSessionsForChurch(church.id),
+    getBranchesForChurch(church.id),
+  ]);
+  const activeBranches = branches.filter((branch) => !branch.disabledAt);
   const defaultListenerLanguages = church.supportedLanguages.length
     ? church.supportedLanguages
     : catalogLanguages;
@@ -102,6 +107,22 @@ export default async function ChurchLiveSessionsPage({
               type="url"
             />
 
+            <label className="grid gap-2 text-sm font-semibold text-emerald-100">
+              Branch optional
+              <select
+                name="branchId"
+                defaultValue=""
+                className="min-h-12 rounded-md border border-emerald-300/18 bg-[#07140f] px-4 text-white outline-none focus-visible:focus-ring"
+              >
+                <option value="">Main church session</option>
+                {activeBranches.map((branch) => (
+                  <option key={branch.id} value={branch.id}>
+                    {branch.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+
             <fieldset className="grid gap-3">
               <legend className="text-sm font-semibold text-emerald-100">
                 Listener languages
@@ -166,6 +187,9 @@ export default async function ChurchLiveSessionsPage({
                         <p className="mt-2 text-sm leading-6 text-emerald-50/66">
                           Source: {session.sourceLanguage} · Created{" "}
                           {session.createdAt.toLocaleDateString()}
+                        </p>
+                        <p className="mt-1 text-sm leading-6 text-emerald-50/62">
+                          Branch: {session.branch?.name ?? "Main church"}
                         </p>
                       </div>
 

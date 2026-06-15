@@ -8,6 +8,7 @@ import {
   startSermonSession,
 } from "@/lib/sermonSessionRepository";
 import { getCurrentChurchView } from "@/lib/currentChurch";
+import { getBranchForChurch } from "@/lib/branchRepository";
 
 export async function createSermonSessionAction(formData: FormData) {
   const church = await getCurrentChurchView();
@@ -15,9 +16,18 @@ export async function createSermonSessionAction(formData: FormData) {
   const sourceLanguage = String(formData.get("sourceLanguage") ?? "English").trim();
   const listenerLanguages = formData.getAll("listenerLanguages").map(String);
   const streamUrl = String(formData.get("streamUrl") ?? "").trim();
+  const branchId = String(formData.get("branchId") ?? "").trim();
 
   if (!title || !sourceLanguage) {
     redirect("/church/live-sessions?error=missing");
+  }
+
+  if (branchId) {
+    const branch = await getBranchForChurch(branchId, church.id);
+
+    if (!branch || branch.disabledAt) {
+      redirect("/church/live-sessions?error=branch");
+    }
   }
 
   await createSermonSession(church.id, {
@@ -25,6 +35,7 @@ export async function createSermonSessionAction(formData: FormData) {
     sourceLanguage,
     listenerLanguages,
     streamUrl,
+    branchId,
   });
 
   revalidatePath("/church/live-sessions");

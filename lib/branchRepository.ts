@@ -4,12 +4,28 @@ export type BranchFormInput = {
   name: string;
   slug: string;
   location: string;
+  pastorName?: string;
+  email?: string;
+  phone?: string;
+  country?: string;
+  state?: string;
+  city?: string;
+  address?: string;
+  description?: string;
+  bannerUrl?: string;
+  logoUrl?: string;
 };
 
 export async function getBranchesForChurch(churchId: string) {
   return prisma.churchBranch.findMany({
     where: { churchId },
     orderBy: { createdAt: "asc" },
+  });
+}
+
+export async function getBranchForChurch(branchId: string, churchId: string) {
+  return prisma.churchBranch.findFirst({
+    where: { id: branchId, churchId },
   });
 }
 
@@ -31,6 +47,23 @@ export async function getBranchByChurchAndSlug(churchSlug: string, branchSlug: s
   });
 }
 
+export async function getPublicBranchBySlugs(churchSlug: string, branchSlug: string) {
+  return prisma.churchBranch.findFirst({
+    where: {
+      slug: branchSlug,
+      church: { slug: churchSlug, status: "Active" },
+    },
+    include: {
+      church: {
+        include: {
+          languages: { orderBy: { language: "asc" } },
+          countries: { orderBy: { country: "asc" } },
+        },
+      },
+    },
+  });
+}
+
 export async function createBranch(churchId: string, input: BranchFormInput) {
   const slug = await createUniqueBranchSlug(churchId, input.slug || input.name);
 
@@ -39,18 +72,18 @@ export async function createBranch(churchId: string, input: BranchFormInput) {
       churchId,
       name: input.name,
       slug,
-      location: input.location,
+      ...normalizeBranchInput(input),
     },
   });
 }
 
-export async function updateBranch(branchId: string, input: BranchFormInput) {
+export async function updateBranch(branchId: string, churchId: string, input: BranchFormInput) {
   const branch = await prisma.churchBranch.findUnique({
     where: { id: branchId },
     select: { churchId: true },
   });
 
-  if (!branch) {
+  if (!branch || branch.churchId !== churchId) {
     throw new Error("Branch not found.");
   }
 
@@ -61,22 +94,45 @@ export async function updateBranch(branchId: string, input: BranchFormInput) {
     data: {
       name: input.name,
       slug,
-      location: input.location,
+      ...normalizeBranchInput(input),
     },
   });
 }
 
-export async function disableBranch(branchId: string) {
-  return prisma.churchBranch.update({
-    where: { id: branchId },
+export async function disableBranch(branchId: string, churchId?: string) {
+  return prisma.churchBranch.updateMany({
+    where: { id: branchId, ...(churchId ? { churchId } : {}) },
     data: { disabledAt: new Date() },
   });
 }
 
-export async function deleteBranch(branchId: string) {
-  return prisma.churchBranch.delete({
-    where: { id: branchId },
+export async function activateBranch(branchId: string, churchId?: string) {
+  return prisma.churchBranch.updateMany({
+    where: { id: branchId, ...(churchId ? { churchId } : {}) },
+    data: { disabledAt: null },
   });
+}
+
+export async function deleteBranch(branchId: string, churchId?: string) {
+  return prisma.churchBranch.deleteMany({
+    where: { id: branchId, ...(churchId ? { churchId } : {}) },
+  });
+}
+
+function normalizeBranchInput(input: BranchFormInput) {
+  return {
+    location: input.location || [input.city, input.state, input.country].filter(Boolean).join(", "),
+    pastorName: input.pastorName || null,
+    email: input.email || null,
+    phone: input.phone || null,
+    country: input.country || "",
+    state: input.state || "",
+    city: input.city || "",
+    address: input.address || "",
+    description: input.description || null,
+    bannerUrl: input.bannerUrl || null,
+    logoUrl: input.logoUrl || null,
+  };
 }
 
 async function createUniqueBranchSlug(churchId: string, value: string, currentBranchId?: string) {

@@ -16,19 +16,19 @@ export async function createBranchAction(churchId: string, formData: FormData) {
 }
 
 export async function updateBranchAction(branchId: string, churchId: string, formData: FormData) {
-  await updateBranch(branchId, parseBranchForm(formData));
+  await updateBranch(branchId, churchId, parseBranchForm(formData));
   revalidatePath(`/admin/churches/${churchId}/branches`);
   revalidatePath("/church/dashboard");
 }
 
 export async function disableBranchAction(branchId: string, churchId: string) {
-  await disableBranch(branchId);
+  await disableBranch(branchId, churchId);
   revalidatePath(`/admin/churches/${churchId}/branches`);
   revalidatePath("/church/dashboard");
 }
 
 export async function deleteBranchAction(branchId: string, churchId: string) {
-  await deleteBranch(branchId);
+  await deleteBranch(branchId, churchId);
   revalidatePath(`/admin/churches/${churchId}/branches`);
   revalidatePath("/church/dashboard");
 }

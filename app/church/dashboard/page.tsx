@@ -1,5 +1,5 @@
 ﻿import Link from "next/link";
-import { FileCode2, Languages, Radio, Settings } from "lucide-react";
+import { Building2, FileCode2, Languages, Radio, Settings, Users } from "lucide-react";
 import { getBranchesForChurch } from "@/lib/branchRepository";
 import { getCurrentChurchView } from "@/lib/currentChurch";
 import {
@@ -9,6 +9,7 @@ import {
   getChurchEmbedUrl,
   getFloatingWidgetScriptCode,
 } from "@/lib/demoChurches";
+import { getChurchSessionStats } from "@/lib/sermonSessionRepository";
 import { ChurchNav } from "../ChurchNav";
 import { CopyEmbedButton } from "../../admin/churches/CopyEmbedButton";
 
@@ -27,7 +28,11 @@ export default async function ChurchDashboardPage() {
   const scriptCode = getFloatingWidgetScriptCode(church.slug);
   const widgetUrl = getChurchEmbedUrl(church.slug);
   const publicPageUrl = `/churches/${church.slug}`;
-  const branches = await getBranchesForChurch(church.id);
+  const [branches, stats] = await Promise.all([
+    getBranchesForChurch(church.id),
+    getChurchSessionStats(church.id),
+  ]);
+  const activeBranches = branches.filter((branch) => !branch.disabledAt);
 
   return (
     <main className="min-h-screen bg-[#06110d] text-white">
@@ -58,6 +63,12 @@ export default async function ChurchDashboardPage() {
           >
             Manage Live Sessions
           </Link>
+          <Link
+            href="/church/branches"
+            className="ml-0 mt-3 inline-flex min-h-11 items-center justify-center rounded-md border border-emerald-300/22 px-4 text-sm font-semibold text-emerald-50 transition hover:bg-white/8 sm:ml-3"
+          >
+            Manage Branches
+          </Link>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -66,6 +77,10 @@ export default async function ChurchDashboardPage() {
           <Metric icon={<Radio className="h-5 w-5" />} label="Widget status" value={church.status} />
           <Metric icon={<FileCode2 className="h-5 w-5" />} label="Embed URL" value={widgetUrl} />
           <Metric icon={<Settings className="h-5 w-5" />} label="Access" value="Full platform access" />
+          <Metric icon={<Building2 className="h-5 w-5" />} label="Total branches" value={String(branches.length)} />
+          <Metric icon={<Building2 className="h-5 w-5" />} label="Active branches" value={String(activeBranches.length)} />
+          <Metric icon={<Radio className="h-5 w-5" />} label="Total live sessions" value={String(stats.totalLiveSessions)} />
+          <Metric icon={<Users className="h-5 w-5" />} label="Total listeners" value={String(stats.totalListeners)} />
         </div>
 
         <div className="mt-4 grid gap-4 md:grid-cols-3">
@@ -117,6 +132,12 @@ export default async function ChurchDashboardPage() {
             available by default, and this church can highlight preferred
             listener languages for its audience.
           </p>
+          <Link
+            href="/church/branches"
+            className="mt-4 inline-flex min-h-10 items-center justify-center rounded-md bg-emerald-400 px-4 text-sm font-semibold text-[#04120c] transition hover:bg-emerald-300"
+          >
+            Open branch management
+          </Link>
           {branches.length === 0 ? (
             <p className="mt-4 rounded-md border border-dashed border-emerald-300/20 bg-[#07140f] p-4 text-sm text-emerald-50/68">
               No branches have been added yet.
