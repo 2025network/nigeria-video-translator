@@ -13,9 +13,11 @@ import {
 import { ChurchNav } from "../../ChurchNav";
 import {
   addTranscriptMessageAction,
+  addTranscriptMessageToAllAction,
   endSessionFromDetailAction,
   startSessionFromDetailAction,
 } from "./actions";
+import { LiveMicCapture } from "./LiveMicCapture";
 
 type SessionDetailPageProps = {
   params: Promise<{
@@ -124,6 +126,20 @@ export default async function ChurchLiveSessionDetailPage({
 
         <StatusMessage query={query} />
 
+        <div className="mb-6 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+          <LiveMicCapture sessionId={session.id} sessionStatus={session.status} />
+          <section className="rounded-lg border border-emerald-300/16 bg-emerald-300/10 p-5">
+            <h2 className="text-2xl font-semibold">Best audio setup</h2>
+            <ul className="mt-4 grid gap-2 text-sm leading-6 text-emerald-50/78">
+              <li>Use Chrome or Edge.</li>
+              <li>Use a laptop close to the speaker or connect church mixer output to laptop audio input.</li>
+              <li>Use stable internet.</li>
+              <li>Start session before microphone capture.</li>
+              <li>Keep manual update as fallback.</li>
+            </ul>
+          </section>
+        </div>
+
         <div className="grid gap-6 xl:grid-cols-[0.82fr_1.18fr]">
           <form
             action={addTranscriptMessageAction}
@@ -172,6 +188,14 @@ export default async function ChurchLiveSessionDetailPage({
             >
               <Languages className="h-5 w-5" />
               Save message
+            </button>
+            <button
+              type="submit"
+              formAction={addTranscriptMessageToAllAction}
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-emerald-300/24 px-5 font-semibold text-emerald-100 transition hover:bg-white/8"
+            >
+              <Languages className="h-5 w-5" />
+              Save to all listener languages
             </button>
           </form>
 

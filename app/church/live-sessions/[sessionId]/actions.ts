@@ -2,14 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { isSupportedLanguage } from "@/lib/languages";
-import { translateTranscript } from "@/lib/translation";
 import { getCurrentChurchView } from "@/lib/currentChurch";
+import { translateForListenerLanguage } from "@/lib/liveSessionTranslation";
 import {
   addTranscriptMessage,
   endSermonSession,
   getSermonSessionForChurch,
   startSermonSession,
+  parseSessionLanguages,
 } from "@/lib/sermonSessionRepository";
 
 export async function startSessionFromDetailAction(formData: FormData) {
@@ -50,12 +50,12 @@ export async function addTranscriptMessageAction(formData: FormData) {
     redirect("/church/live-sessions?error=session");
   }
 
-  const translatedText = await translateManualMessage(sourceText, language);
+  const translation = await translateForListenerLanguage(sourceText, language);
 
   await addTranscriptMessage({
     sessionId,
     sourceText,
-    translatedText,
+    translatedText: translation.translatedText,
     language,
   });
 
@@ -63,20 +63,36 @@ export async function addTranscriptMessageAction(formData: FormData) {
   redirect(`/church/live-sessions/${sessionId}?message=1`);
 }
 
-async function translateManualMessage(sourceText: string, language: string) {
-  if (language === "English") {
-    return `[English original] ${sourceText}`;
+export async function addTranscriptMessageToAllAction(formData: FormData) {
+  const church = await getCurrentChurchView();
+  const sessionId = String(formData.get("sessionId") ?? "");
+  const sourceText = String(formData.get("sourceText") ?? "").trim();
+
+  if (!sessionId || !sourceText) {
+    redirect(`/church/live-sessions/${sessionId || ""}?error=message`);
   }
 
-  if (isSupportedLanguage(language)) {
-    const result = await translateTranscript(sourceText, language);
+  const session = await getSermonSessionForChurch(sessionId, church.id);
 
-    return result.mode === "real"
-      ? result.text
-      : `[Demo translation to ${language}] ${result.text}`;
+  if (!session) {
+    redirect("/church/live-sessions?error=session");
   }
 
-  return `[Placeholder translation to ${language}] ${sourceText}`;
+  const listenerLanguages = parseSessionLanguages(session.listenerLanguages);
+
+  for (const language of listenerLanguages) {
+    const translation = await translateForListenerLanguage(sourceText, language);
+
+    await addTranscriptMessage({
+      sessionId,
+      sourceText,
+      translatedText: translation.translatedText,
+      language,
+    });
+  }
+
+  revalidateSessionPaths(sessionId, church.slug);
+  redirect(`/church/live-sessions/${sessionId}?message=all`);
 }
 
 function revalidateSessionPaths(sessionId: string, churchSlug: string) {
