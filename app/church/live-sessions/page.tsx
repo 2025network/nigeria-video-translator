@@ -230,6 +230,12 @@ export default async function ChurchLiveSessionsPage({
                       >
                         View listener link
                       </Link>
+                      <Link
+                        href={`/church/live-sessions/${session.id}/analytics`}
+                        className="inline-flex min-h-10 items-center justify-center rounded-md border border-emerald-300/26 px-4 text-sm font-semibold text-emerald-100 transition hover:bg-white/8"
+                      >
+                        Analytics
+                      </Link>
                       <CopyEmbedButton
                         embedCode={listenUrl}
                         label="Copy listener link"

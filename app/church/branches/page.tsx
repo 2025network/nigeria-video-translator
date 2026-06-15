@@ -5,6 +5,7 @@ import { CopyEmbedButton } from "@/app/admin/churches/CopyEmbedButton";
 import { getBranchesForChurch } from "@/lib/branchRepository";
 import { getCurrentChurchView } from "@/lib/currentChurch";
 import { getBranchEmbedUrl, getBranchWidgetEmbedCode } from "@/lib/demoChurches";
+import { getBranchAnalytics } from "@/lib/listenerAnalyticsRepository";
 import { ChurchNav } from "../ChurchNav";
 import {
   activateChurchBranchAction,
@@ -34,7 +35,11 @@ export const dynamic = "force-dynamic";
 
 export default async function ChurchBranchesPage({ searchParams }: BranchesPageProps) {
   const [church, params] = await Promise.all([getCurrentChurchView(), searchParams]);
-  const branches = await getBranchesForChurch(church.id);
+  const [branches, branchAnalytics] = await Promise.all([
+    getBranchesForChurch(church.id),
+    getBranchAnalytics(church.id),
+  ]);
+  const analyticsByBranch = new Map(branchAnalytics.map((item) => [item.branchId, item]));
   const query = (params?.q ?? "").trim().toLowerCase();
   const visibleBranches = query
     ? branches.filter((branch) =>
@@ -116,6 +121,7 @@ export default async function ChurchBranchesPage({ searchParams }: BranchesPageP
               const branchWidgetUrl = getBranchEmbedUrl(church.slug, branch.slug);
               const branchPublicUrl = `/churches/${church.slug}/branches/${branch.slug}`;
               const branchEmbedCode = getBranchWidgetEmbedCode(church.slug, branch.slug);
+              const analytics = analyticsByBranch.get(branch.id);
 
               return (
                 <article
@@ -135,6 +141,11 @@ export default async function ChurchBranchesPage({ searchParams }: BranchesPageP
                       <p className="mt-2 text-sm text-emerald-50/64">
                         {branch.location || [branch.city, branch.state, branch.country].filter(Boolean).join(", ") || "Location not added"}
                       </p>
+                      <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                        <MiniMetric label="Listeners" value={String(analytics?.listenerCount ?? 0)} />
+                        <MiniMetric label="Sessions" value={String(analytics?.sessionCount ?? 0)} />
+                        <MiniMetric label="Top language" value={analytics?.topLanguage ?? "No listener data yet"} />
+                      </div>
                       <div className="mt-4 flex flex-wrap gap-2">
                         <Link href={branchPublicUrl} className="inline-flex min-h-10 items-center gap-2 rounded-md border border-emerald-300/22 px-3 text-sm font-semibold text-emerald-50 hover:bg-white/8">
                           <ExternalLink className="h-4 w-4" />
@@ -286,6 +297,15 @@ function Metric({ label, value }: { label: string; value: string }) {
     <div className="rounded-lg border border-emerald-300/16 bg-white/[0.045] p-4">
       <p className="text-xs font-semibold uppercase tracking-[0.12em] text-emerald-300">{label}</p>
       <p className="mt-2 text-3xl font-semibold">{value}</p>
+    </div>
+  );
+}
+
+function MiniMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md border border-emerald-300/12 bg-[#07140f] p-3">
+      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-emerald-300">{label}</p>
+      <p className="mt-1 break-words text-sm font-semibold text-emerald-50">{value}</p>
     </div>
   );
 }

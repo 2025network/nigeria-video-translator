@@ -12,6 +12,7 @@ import {
   parseSessionLanguages,
 } from "@/lib/sermonSessionRepository";
 import { AutoRefresh } from "./AutoRefresh";
+import { ListenerVisitTracker } from "./ListenerVisitTracker";
 
 type ListenerPageProps = {
   params: Promise<{
@@ -67,6 +68,7 @@ export default async function PublicListenerPage({
   return (
     <main className="min-h-screen bg-[#06110d] text-white">
       <AutoRefresh />
+      <ListenerVisitTracker sessionId={session.id} language={selectedLanguage} />
       <section className="border-b border-emerald-400/15 bg-[linear-gradient(135deg,rgba(15,23,42,0.96),rgba(4,12,9,1)_62%)]">
         <div className="section-shell grid gap-8 py-14 lg:grid-cols-[1fr_0.42fr] lg:items-end">
           <div>

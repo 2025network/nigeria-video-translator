@@ -9,6 +9,7 @@ import {
   getChurchEmbedUrl,
   getFloatingWidgetScriptCode,
 } from "@/lib/demoChurches";
+import { getChurchAnalyticsSummary } from "@/lib/listenerAnalyticsRepository";
 import { getChurchSessionStats } from "@/lib/sermonSessionRepository";
 import { ChurchNav } from "../ChurchNav";
 import { CopyEmbedButton } from "../../admin/churches/CopyEmbedButton";
@@ -32,6 +33,7 @@ export default async function ChurchDashboardPage() {
     getBranchesForChurch(church.id),
     getChurchSessionStats(church.id),
   ]);
+  const analytics = await getChurchAnalyticsSummary(church.id);
   const activeBranches = branches.filter((branch) => !branch.disabledAt);
 
   return (
@@ -80,7 +82,11 @@ export default async function ChurchDashboardPage() {
           <Metric icon={<Building2 className="h-5 w-5" />} label="Total branches" value={String(branches.length)} />
           <Metric icon={<Building2 className="h-5 w-5" />} label="Active branches" value={String(activeBranches.length)} />
           <Metric icon={<Radio className="h-5 w-5" />} label="Total live sessions" value={String(stats.totalLiveSessions)} />
-          <Metric icon={<Users className="h-5 w-5" />} label="Total listeners" value={String(stats.totalListeners)} />
+          <Metric icon={<Users className="h-5 w-5" />} label="Total listeners" value={String(analytics.totalListeners)} />
+          <Metric icon={<Users className="h-5 w-5" />} label="Active listeners" value={String(analytics.activeListeners)} />
+          <Metric icon={<Radio className="h-5 w-5" />} label="Sessions this month" value={String(analytics.sessionsThisMonth)} />
+          <Metric icon={<Languages className="h-5 w-5" />} label="Top language" value={analytics.mostPopularLanguage} />
+          <Metric icon={<Building2 className="h-5 w-5" />} label="Top branch" value={analytics.mostPopularBranch} />
         </div>
 
         <div className="mt-4 grid gap-4 md:grid-cols-3">
