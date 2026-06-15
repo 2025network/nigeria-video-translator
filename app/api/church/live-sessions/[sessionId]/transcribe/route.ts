@@ -7,6 +7,7 @@ import { translateForListenerLanguage } from "@/lib/liveSessionTranslation";
 import {
   addTranscriptMessage,
   getSermonSessionForChurch,
+  logLiveSessionError,
   parseSessionLanguages,
 } from "@/lib/sermonSessionRepository";
 
@@ -65,6 +66,12 @@ export async function POST(request: NextRequest, { params }: TranscribeRouteCont
   const transcription = await transcribeLiveAudio(audio);
 
   if (!transcription.ok) {
+    await logLiveSessionError({
+      sessionId,
+      message: transcription.message,
+      context: { code: transcription.code, stage: "transcription" },
+    });
+
     return NextResponse.json(
       {
         error: transcription.message,
@@ -98,9 +105,17 @@ export async function POST(request: NextRequest, { params }: TranscribeRouteCont
 
       languagesSaved.push(language);
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Translation failed.";
+
       failedLanguages.push({
         language,
-        error: error instanceof Error ? error.message : "Translation failed.",
+        error: errorMessage,
+      });
+
+      await logLiveSessionError({
+        sessionId,
+        message: `Translation failed for ${language}.`,
+        context: { language, error: errorMessage, stage: "translation" },
       });
     }
   }

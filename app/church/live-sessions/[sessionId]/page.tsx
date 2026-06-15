@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Languages, Play, Radio, Square } from "lucide-react";
+import { ArrowLeft, Languages, Play, Radio, Square, Trash2 } from "lucide-react";
 import { CopyEmbedButton } from "@/app/admin/churches/CopyEmbedButton";
 import { getCurrentChurchView } from "@/lib/currentChurch";
 import {
+  getSessionErrorLogs,
   getSermonSessionForChurch,
   getSessionListenUrl,
+  getTranscriptMessageStats,
   getTranscriptMessagesForSession,
   parseSessionLanguages,
 } from "@/lib/sermonSessionRepository";
@@ -14,6 +16,8 @@ import { ChurchNav } from "../../ChurchNav";
 import {
   addTranscriptMessageAction,
   addTranscriptMessageToAllAction,
+  clearTranscriptMessagesAction,
+  deleteTranscriptMessageAction,
   endSessionFromDetailAction,
   startSessionFromDetailAction,
 } from "./actions";
@@ -28,6 +32,8 @@ type SessionDetailPageProps = {
     started?: string;
     ended?: string;
     error?: string;
+    deleted?: string;
+    cleared?: string;
   }>;
 };
 
@@ -53,8 +59,14 @@ export default async function ChurchLiveSessionDetailPage({
   }
 
   const listenerLanguages = parseSessionLanguages(session.listenerLanguages);
-  const messages = await getTranscriptMessagesForSession(session.id);
+  const [messages, stats, errorLogs] = await Promise.all([
+    getTranscriptMessagesForSession(session.id),
+    getTranscriptMessageStats(session.id),
+    getSessionErrorLogs(session.id),
+  ]);
   const listenUrl = getSessionListenUrl(session.id);
+  const transcriptionModel = process.env.OPENAI_TRANSCRIPTION_MODEL || "whisper-1";
+  const openAiConfigured = Boolean(process.env.OPENAI_API_KEY);
 
   return (
     <main className="min-h-screen bg-[#06110d] text-white">
@@ -121,10 +133,53 @@ export default async function ChurchLiveSessionDetailPage({
               label="Copy listener link"
               copiedLabel="Listener link copied"
             />
+            <Link
+              href="/church/live-sessions/test-guide"
+              className="inline-flex min-h-11 items-center justify-center rounded-md border border-emerald-300/26 px-4 text-sm font-semibold text-emerald-100 transition hover:bg-white/8"
+            >
+              Testing guide
+            </Link>
           </div>
         </div>
 
         <StatusMessage query={query} />
+
+        <section className="mb-6 rounded-lg border border-emerald-300/16 bg-white/[0.045] p-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.16em] text-emerald-300">
+                Session health
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold">Pilot readiness panel</h2>
+            </div>
+            <StatusBadge status={session.status} />
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <Info label="Listener link" value={listenUrl} />
+            <Info label="Transcript messages" value={String(stats.messageCount)} />
+            <Info
+              label="Last transcript time"
+              value={stats.lastTranscriptAt ? stats.lastTranscriptAt.toLocaleString() : "No messages yet"}
+            />
+            <Info
+              label="Mic readiness"
+              value={session.status === "LIVE" ? "Ready for mic capture" : "Session must be LIVE before mic capture"}
+            />
+            <Info
+              label="OPENAI_API_KEY"
+              value={openAiConfigured ? "Configured" : "Missing"}
+            />
+            <Info label="Transcription model" value={transcriptionModel} />
+            <Info
+              label="Selected listener languages"
+              value={listenerLanguages.join(", ")}
+            />
+            <Info
+              label="Latest errors"
+              value={errorLogs.length ? `${errorLogs.length} recent error(s)` : "No recent errors"}
+            />
+          </div>
+        </section>
 
         <div className="mb-6 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
           <LiveMicCapture sessionId={session.id} sessionStatus={session.status} />
@@ -209,7 +264,21 @@ export default async function ChurchLiveSessionDetailPage({
             </div>
 
             <section className="rounded-lg border border-emerald-300/16 bg-white/[0.045] p-5">
-              <h2 className="text-2xl font-semibold">Messages sent</h2>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <h2 className="text-2xl font-semibold">Messages sent</h2>
+                {messages.length ? (
+                  <form action={clearTranscriptMessagesAction}>
+                    <input type="hidden" name="sessionId" value={session.id} />
+                    <button
+                      type="submit"
+                      className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-red-300/24 px-4 text-sm font-semibold text-red-100 transition hover:bg-red-950/24"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Clear test messages
+                    </button>
+                  </form>
+                ) : null}
+              </div>
               {messages.length === 0 ? (
                 <p className="mt-4 rounded-md border border-dashed border-emerald-300/20 bg-[#07140f] p-4 text-sm text-emerald-50/62">
                   No sermon updates have been sent yet.
@@ -235,11 +304,36 @@ export default async function ChurchLiveSessionDetailPage({
                       <p className="mt-3 leading-7 text-emerald-50">
                         {message.translatedText}
                       </p>
+                      <form action={deleteTranscriptMessageAction} className="mt-4">
+                        <input type="hidden" name="sessionId" value={session.id} />
+                        <input type="hidden" name="messageId" value={message.id} />
+                        <button
+                          type="submit"
+                          className="inline-flex min-h-9 items-center justify-center gap-2 rounded-md border border-red-300/20 px-3 text-xs font-semibold text-red-100 transition hover:bg-red-950/24"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          Delete message
+                        </button>
+                      </form>
                     </article>
                   ))}
                 </div>
               )}
             </section>
+
+            {errorLogs.length ? (
+              <section className="rounded-lg border border-amber-300/24 bg-amber-300/10 p-5">
+                <h2 className="text-2xl font-semibold">Recent live errors</h2>
+                <div className="mt-4 grid gap-3">
+                  {errorLogs.map((errorLog) => (
+                    <article key={errorLog.id} className="rounded-md border border-amber-300/20 bg-[#07140f] p-4">
+                      <p className="text-sm font-semibold text-amber-100">{errorLog.message}</p>
+                      <p className="mt-2 text-xs text-emerald-50/50">{errorLog.createdAt.toLocaleString()}</p>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            ) : null}
           </section>
         </div>
       </section>
@@ -250,7 +344,14 @@ export default async function ChurchLiveSessionDetailPage({
 function StatusMessage({
   query,
 }: {
-  query?: { message?: string; started?: string; ended?: string; error?: string };
+  query?: {
+    message?: string;
+    started?: string;
+    ended?: string;
+    error?: string;
+    deleted?: string;
+    cleared?: string;
+  };
 }) {
   const message = query?.message
     ? "Message saved and published to listeners."
@@ -258,9 +359,13 @@ function StatusMessage({
       ? "Session is now live."
       : query?.ended
         ? "Session ended."
-        : query?.error
-          ? "Please check the session details and try again."
-          : "";
+        : query?.deleted
+          ? "Message deleted."
+          : query?.cleared
+            ? "Test messages cleared for this session."
+            : query?.error
+              ? "Please check the session details and try again."
+              : "";
 
   if (!message) return null;
 

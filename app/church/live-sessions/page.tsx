@@ -58,6 +58,12 @@ export default async function ChurchLiveSessionsPage({
             Create a sermon session, choose the spoken language, highlight
             listener languages, and share the public listener link.
           </p>
+          <Link
+            href="/church/live-sessions/test-guide"
+            className="mt-5 inline-flex min-h-11 items-center justify-center rounded-md border border-emerald-300/22 px-4 text-sm font-semibold text-emerald-50 transition hover:bg-white/8"
+          >
+            Open testing guide
+          </Link>
         </div>
 
         <StatusMessage params={params} />

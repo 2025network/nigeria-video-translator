@@ -6,6 +6,8 @@ import { getCurrentChurchView } from "@/lib/currentChurch";
 import { translateForListenerLanguage } from "@/lib/liveSessionTranslation";
 import {
   addTranscriptMessage,
+  clearTranscriptMessages,
+  deleteTranscriptMessage,
   endSermonSession,
   getSermonSessionForChurch,
   startSermonSession,
@@ -93,6 +95,45 @@ export async function addTranscriptMessageToAllAction(formData: FormData) {
 
   revalidateSessionPaths(sessionId, church.slug);
   redirect(`/church/live-sessions/${sessionId}?message=all`);
+}
+
+export async function deleteTranscriptMessageAction(formData: FormData) {
+  const church = await getCurrentChurchView();
+  const sessionId = String(formData.get("sessionId") ?? "");
+  const messageId = String(formData.get("messageId") ?? "");
+
+  if (!sessionId || !messageId) {
+    redirect(`/church/live-sessions/${sessionId || ""}?error=message`);
+  }
+
+  const session = await getSermonSessionForChurch(sessionId, church.id);
+
+  if (!session) {
+    redirect("/church/live-sessions?error=session");
+  }
+
+  await deleteTranscriptMessage(messageId, sessionId);
+  revalidateSessionPaths(sessionId, church.slug);
+  redirect(`/church/live-sessions/${sessionId}?deleted=1`);
+}
+
+export async function clearTranscriptMessagesAction(formData: FormData) {
+  const church = await getCurrentChurchView();
+  const sessionId = String(formData.get("sessionId") ?? "");
+
+  if (!sessionId) {
+    redirect("/church/live-sessions?error=session");
+  }
+
+  const session = await getSermonSessionForChurch(sessionId, church.id);
+
+  if (!session) {
+    redirect("/church/live-sessions?error=session");
+  }
+
+  await clearTranscriptMessages(sessionId);
+  revalidateSessionPaths(sessionId, church.slug);
+  redirect(`/church/live-sessions/${sessionId}?cleared=1`);
 }
 
 function revalidateSessionPaths(sessionId: string, churchSlug: string) {

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Languages, Radio } from "lucide-react";
+import { CopyEmbedButton } from "@/app/admin/churches/CopyEmbedButton";
+import { getSiteUrl } from "@/lib/demoChurches";
 import {
   getSermonSessionById,
   getTranscriptMessagesForSession,
@@ -53,6 +55,11 @@ export default async function PublicListenerPage({
       ? requestedLanguage
       : languages[0] ?? "English";
   const messages = await getTranscriptMessagesForSession(session.id, selectedLanguage);
+  const lastUpdatedAt = messages.at(-1)?.createdAt ?? null;
+  const languageSpecificUrl = `${getSiteUrl()}/listen/${session.id}?lang=${encodeURIComponent(selectedLanguage)}`;
+  const whatsappShareUrl = `https://wa.me/?text=${encodeURIComponent(
+    `${session.church.churchName} live sermon translation: ${languageSpecificUrl}`,
+  )}`;
 
   return (
     <main className="min-h-screen bg-[#06110d] text-white">
@@ -74,6 +81,19 @@ export default async function PublicListenerPage({
               <span className="rounded-full border border-emerald-300/20 px-3 py-1 text-sm font-semibold text-emerald-50/72">
                 Source: {session.sourceLanguage}
               </span>
+            </div>
+            <div className="mt-6 rounded-lg border border-emerald-300/16 bg-white/[0.055] p-4">
+              <p className="text-sm font-semibold text-emerald-100">
+                {session.status === "LIVE"
+                  ? "Live translation is active. Keep this page open for updates."
+                  : session.status === "ENDED"
+                    ? "This live session has ended. You can still review published updates."
+                    : "Waiting for sermon to start. Please keep this page open."}
+              </p>
+              <p className="mt-2 text-sm text-emerald-50/62">
+                Updates: {messages.length} · Last updated:{" "}
+                {lastUpdatedAt ? lastUpdatedAt.toLocaleTimeString() : "No updates yet"}
+              </p>
             </div>
           </div>
 
@@ -102,6 +122,24 @@ export default async function PublicListenerPage({
             >
               Refresh updates
             </Link>
+            <div className="mt-3 flex flex-col gap-2">
+              <CopyEmbedButton
+                embedCode={getSessionSharePath(session.id)}
+                label="Copy listener link"
+                copiedLabel="Listener link copied"
+              />
+              <CopyEmbedButton
+                embedCode={languageSpecificUrl}
+                label="Copy language link"
+                copiedLabel="Language link copied"
+              />
+              <Link
+                href={whatsappShareUrl}
+                className="inline-flex min-h-10 items-center justify-center rounded-md border border-emerald-300/22 px-4 text-sm font-semibold text-emerald-50 transition hover:bg-white/8"
+              >
+                Share on WhatsApp
+              </Link>
+            </div>
           </form>
         </div>
       </section>
@@ -113,6 +151,11 @@ export default async function PublicListenerPage({
             <Detail label="Status" value={session.status} />
             <Detail label="Selected language" value={selectedLanguage} />
             <Detail label="Stream URL" value={session.streamUrl ?? session.church.youtubeLiveUrl} />
+            <Detail label="Update count" value={String(messages.length)} />
+            <Detail
+              label="Last updated"
+              value={lastUpdatedAt ? lastUpdatedAt.toLocaleString() : "No updates yet"}
+            />
           </Panel>
 
           <Panel title="Available languages">
@@ -176,7 +219,7 @@ export default async function PublicListenerPage({
                 ) : (
                   <div>
                     <p className="mt-4 text-2xl leading-9 text-emerald-50">
-                      No {selectedLanguage} updates yet.
+                      No translated updates yet. Please keep this page open.
                     </p>
                     <p className="mt-4 leading-7 text-emerald-50/66">
                       The church team can publish manual sermon updates from the
@@ -256,4 +299,8 @@ function StatusBadge({ status }: { status: string }) {
         : "bg-amber-300/18 text-amber-100";
 
   return <span className={`rounded-full px-3 py-1 text-sm font-bold ${tone}`}>{status}</span>;
+}
+
+function getSessionSharePath(sessionId: string) {
+  return `${getSiteUrl()}/listen/${sessionId}`;
 }

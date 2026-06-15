@@ -54,6 +54,32 @@ export async function getTranscriptMessagesForSession(
   });
 }
 
+export async function getTranscriptMessageStats(sessionId: string) {
+  const [messageCount, lastMessage] = await Promise.all([
+    prisma.sermonTranscriptMessage.count({
+      where: { sessionId },
+    }),
+    prisma.sermonTranscriptMessage.findFirst({
+      where: { sessionId },
+      orderBy: { createdAt: "desc" },
+      select: { createdAt: true },
+    }),
+  ]);
+
+  return {
+    messageCount,
+    lastTranscriptAt: lastMessage?.createdAt ?? null,
+  };
+}
+
+export async function getSessionErrorLogs(sessionId: string) {
+  return prisma.liveSessionErrorLog.findMany({
+    where: { sessionId },
+    orderBy: { createdAt: "desc" },
+    take: 8,
+  });
+}
+
 export async function getLatestListenableSessionForChurch(churchId: string) {
   return prisma.sermonSession.findFirst({
     where: {
@@ -129,6 +155,35 @@ export async function addTranscriptMessage(input: {
 }) {
   return prisma.sermonTranscriptMessage.create({
     data: input,
+  });
+}
+
+export async function deleteTranscriptMessage(id: string, sessionId: string) {
+  return prisma.sermonTranscriptMessage.deleteMany({
+    where: { id, sessionId },
+  });
+}
+
+export async function clearTranscriptMessages(sessionId: string) {
+  return prisma.sermonTranscriptMessage.deleteMany({
+    where: { sessionId },
+  });
+}
+
+export async function logLiveSessionError(input: {
+  sessionId: string;
+  message: string;
+  context?: unknown;
+}) {
+  return prisma.liveSessionErrorLog.create({
+    data: {
+      sessionId: input.sessionId,
+      message: input.message,
+      context:
+        typeof input.context === "undefined"
+          ? null
+          : JSON.stringify(input.context).slice(0, 3000),
+    },
   });
 }
 
