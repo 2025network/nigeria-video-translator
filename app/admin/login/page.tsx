@@ -76,7 +76,7 @@ export default async function AdminLoginPage({ searchParams }: LoginPageProps) {
           </button>
         </form>
         <p className="mt-4 text-xs leading-5 text-emerald-50/55">
-          Demo credentials are created by the Prisma seed script.
+          Admin credentials are created by the Prisma seed script or your production environment variables.
         </p>
       </section>
     </main>

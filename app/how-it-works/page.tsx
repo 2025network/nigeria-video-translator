@@ -8,7 +8,7 @@ const widgetSteps = [
   "Copy the iframe embed or floating button script",
   "Paste it into a website, WordPress block, or app WebView",
   "Members open the widget and choose their language",
-  "Demo subtitles appear now; real AI translation can be connected later",
+  "Live translation updates appear on the listener page",
 ];
 
 export const metadata = {
@@ -33,7 +33,7 @@ export default function HowItWorksPage() {
               languages, and embed codes from the church area.
             </p>
             <p className="mt-5 rounded-md border border-emerald-300/18 bg-emerald-300/10 p-4 text-sm font-semibold leading-6 text-emerald-50">
-              Demo translation is active. Real AI translation can be connected later.
+              SermonBridge is ready for live translation when server-side AI configuration is available.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
@@ -47,7 +47,7 @@ export default function HowItWorksPage() {
                 href="/embed/christ-embassy-lagos/live"
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-emerald-200/20 px-6 py-3 font-semibold text-emerald-50 transition hover:bg-white/8 focus-visible:focus-ring"
               >
-                View Live Demo
+                View Live Preview
                 <ArrowRight className="h-5 w-5" />
               </Link>
             </div>

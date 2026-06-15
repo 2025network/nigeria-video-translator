@@ -28,7 +28,7 @@ export default async function ChurchesAdminPage() {
               Church embed widgets
             </h1>
             <p className="mt-4 leading-7 text-emerald-50/72">
-              Demo admin workspace for generating live translation widgets that churches can embed on their existing websites, WordPress pages, or mobile app WebViews.
+              Manage live translation widgets that churches can embed on their existing websites, WordPress pages, or mobile app WebViews.
             </p>
           </div>
           <Link

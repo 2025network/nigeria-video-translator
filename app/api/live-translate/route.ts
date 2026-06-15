@@ -58,7 +58,10 @@ export async function POST(request: Request) {
 
   if (!process.env.OPENAI_API_KEY) {
     return NextResponse.json(
-      { error: "OpenAI API key is not configured on the server." },
+      {
+        error: "Translation is being prepared. Please keep this page open.",
+        code: "openai_not_configured",
+      },
       { status: 503 },
     );
   }
@@ -109,7 +112,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(
-      { error: "Live translation failed. Please try again.", details: message },
+      { error: "Translation is being prepared. Please keep this page open." },
       { status: 502 },
     );
   }

@@ -68,7 +68,7 @@ export default async function ResultPage({ params }: ResultPageProps) {
       </div>
 
       <section className="section-shell pb-16">
-        {result.demoModeActive ? <DemoModeBanner quotaUnavailable={result.quotaUnavailable} /> : null}
+        {result.demoModeActive ? <AiUnavailableBanner quotaUnavailable={result.quotaUnavailable} /> : null}
 
         <div className="mb-8 flex flex-col justify-between gap-5 md:flex-row md:items-end">
           <div>
@@ -93,7 +93,6 @@ export default async function ResultPage({ params }: ResultPageProps) {
             originalVideo={result.originalVideo}
             translatedVideo={result.translatedVideo}
             language={result.language}
-            demoModeActive={result.demoModeActive}
           />
 
           <div className="grid gap-4">
@@ -130,7 +129,7 @@ export default async function ResultPage({ params }: ResultPageProps) {
               {result.voiceOverUrl ? (
                 <div className="grid gap-3">
                   {result.demoModeActive ? (
-                    <p className="text-sm font-semibold text-emerald-200">Demo Voice-over</p>
+                    <p className="text-sm font-semibold text-emerald-200">Generated Voice-over</p>
                   ) : null}
                   <audio controls src={result.voiceOverUrl} className="w-full" />
                   <a
@@ -156,8 +155,8 @@ export default async function ResultPage({ params }: ResultPageProps) {
         </div>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
-          <TextPanel title={result.demoModeActive ? "Demo Transcript" : "Original transcript"} content={result.transcript} />
-          <TextPanel title={result.demoModeActive ? "Demo Translation" : "Translated transcript"} content={result.translation} />
+          <TextPanel title={result.demoModeActive ? "Generated transcript" : "Original transcript"} content={result.transcript} />
+          <TextPanel title={result.demoModeActive ? "Translation pending" : "Translated transcript"} content={result.translation} />
           <TextPanel title="First 200 characters sent to TTS" content={result.ttsInputPreview} />
         </div>
       </section>
@@ -165,17 +164,17 @@ export default async function ResultPage({ params }: ResultPageProps) {
   );
 }
 
-function DemoModeBanner({ quotaUnavailable }: { quotaUnavailable: boolean }) {
+function AiUnavailableBanner({ quotaUnavailable }: { quotaUnavailable: boolean }) {
   return (
     <div className="mb-6 rounded-lg border border-amber-300/30 bg-amber-300/10 p-5 text-amber-50">
       <p className="text-sm font-semibold uppercase tracking-[0.16em] text-amber-200">
-        Demo Mode
+        AI configuration needed
       </p>
       <h2 className="mt-2 text-2xl font-semibold">
-        Real AI translation is temporarily unavailable. Demo translation is being shown.
+        Live AI translation is temporarily unavailable.
       </h2>
       <p className="mt-3 leading-7 text-amber-50/78">
-        Uploads, FFmpeg processing, subtitles, demo voice-over, and demo translated video generation continue to work. When OpenAI credits are available again, the app will automatically switch back to real mode.
+        Uploads, FFmpeg processing, subtitles, voice-over files, and translated video generation continue to work. When OpenAI access is available, SermonBridge will use live AI translation automatically.
         {quotaUnavailable ? " OpenAI quota is currently unavailable." : ""}
       </p>
     </div>
@@ -323,7 +322,7 @@ async function resolveVideoDiagnostic({
 
 function formatMode(value: string) {
   if (value === "real") return "Real";
-  if (value === "mock") return "Mock";
+  if (value === "mock") return "Configuration required";
 
   return "Unknown";
 }

@@ -134,10 +134,10 @@ export default async function ChurchLiveSessionDetailPage({
               copiedLabel="Listener link copied"
             />
             <Link
-              href="/church/live-sessions/test-guide"
+              href="/church/live-sessions/setup-guide"
               className="inline-flex min-h-11 items-center justify-center rounded-md border border-emerald-300/26 px-4 text-sm font-semibold text-emerald-100 transition hover:bg-white/8"
             >
-              Testing guide
+              Setup guide
             </Link>
           </div>
         </div>
@@ -150,10 +150,18 @@ export default async function ChurchLiveSessionDetailPage({
               <p className="text-sm font-semibold uppercase tracking-[0.16em] text-emerald-300">
                 Session health
               </p>
-              <h2 className="mt-2 text-2xl font-semibold">Pilot readiness panel</h2>
+              <h2 className="mt-2 text-2xl font-semibold">Live readiness panel</h2>
+              <p className="mt-2 text-sm leading-6 text-emerald-50/62">
+                Resolve any warnings before opening the listener link to the congregation.
+              </p>
             </div>
             <StatusBadge status={session.status} />
           </div>
+          <ProductionWarnings
+            openAiConfigured={openAiConfigured}
+            sessionStatus={session.status}
+            listenerLanguageCount={listenerLanguages.length}
+          />
           <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             <Info label="Listener link" value={listenUrl} />
             <Info label="Transcript messages" value={String(stats.messageCount)} />
@@ -190,7 +198,7 @@ export default async function ChurchLiveSessionDetailPage({
               <li>Use a laptop close to the speaker or connect church mixer output to laptop audio input.</li>
               <li>Use stable internet.</li>
               <li>Start session before microphone capture.</li>
-              <li>Keep manual update as fallback.</li>
+              <li>Keep manual update ready as a backup publishing method.</li>
             </ul>
           </section>
         </div>
@@ -206,8 +214,8 @@ export default async function ChurchLiveSessionDetailPage({
               </div>
               <h2 className="mt-4 text-2xl font-semibold">Add sermon update</h2>
               <p className="mt-2 text-sm leading-6 text-emerald-50/66">
-                Type the sermon text manually for now. SermonBridge will store
-                the original text and a translated/placeholder listener update.
+                Type sermon text manually when the media team needs to publish
+                an update directly to listeners.
               </p>
             </div>
 
@@ -274,7 +282,7 @@ export default async function ChurchLiveSessionDetailPage({
                       className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-red-300/24 px-4 text-sm font-semibold text-red-100 transition hover:bg-red-950/24"
                     >
                       <Trash2 className="h-4 w-4" />
-                      Clear test messages
+                      Clear session messages
                     </button>
                   </form>
                 ) : null}
@@ -362,7 +370,7 @@ function StatusMessage({
         : query?.deleted
           ? "Message deleted."
           : query?.cleared
-            ? "Test messages cleared for this session."
+            ? "Session messages cleared."
             : query?.error
               ? "Please check the session details and try again."
               : "";
@@ -372,6 +380,47 @@ function StatusMessage({
   return (
     <div className="mb-6 rounded-lg border border-emerald-300/24 bg-emerald-300/10 p-4 text-sm font-semibold text-emerald-50">
       {message}
+    </div>
+  );
+}
+
+function ProductionWarnings({
+  openAiConfigured,
+  sessionStatus,
+  listenerLanguageCount,
+}: {
+  openAiConfigured: boolean;
+  sessionStatus: string;
+  listenerLanguageCount: number;
+}) {
+  const warnings = [
+    !openAiConfigured
+      ? "OPENAI_API_KEY is missing. Microphone transcription and automated translation need server configuration."
+      : "",
+    sessionStatus !== "LIVE"
+      ? "Session is not LIVE. Start the session before microphone capture."
+      : "",
+    listenerLanguageCount === 0
+      ? "No listener languages are selected. Add at least one listener language."
+      : "",
+  ].filter(Boolean);
+
+  if (!warnings.length) {
+    return (
+      <div className="mt-5 rounded-md border border-emerald-300/18 bg-emerald-300/10 p-4 text-sm font-semibold text-emerald-50">
+        Production checks look ready for live translation.
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-5 rounded-md border border-amber-300/28 bg-amber-300/10 p-4">
+      <p className="text-sm font-semibold text-amber-100">Production warning</p>
+      <ul className="mt-2 grid gap-2 text-sm leading-6 text-amber-50/90">
+        {warnings.map((warning) => (
+          <li key={warning}>{warning}</li>
+        ))}
+      </ul>
     </div>
   );
 }

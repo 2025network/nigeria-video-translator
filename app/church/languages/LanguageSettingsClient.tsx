@@ -43,7 +43,7 @@ export function LanguageSettingsClient({
         </div>
       </section>
       <p className="rounded-md border border-amber-300/30 bg-amber-300/10 p-4 text-sm text-amber-50 lg:col-span-2">
-        Demo settings are shown for the church owner workflow. Saving these preferences to church records can be connected next.
+        All languages are available by default. Churches can highlight preferred listener languages for each live session.
       </p>
     </div>
   );

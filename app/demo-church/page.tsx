@@ -2,10 +2,10 @@ import Script from "next/script";
 import { Radio, Tv, Users } from "lucide-react";
 
 export const metadata = {
-  title: "Demo Church",
+  title: "Church Livestream Preview",
 };
 
-export default function DemoChurchPage() {
+export default function ChurchLivestreamPreviewPage() {
   return (
     <main className="min-h-screen bg-[#06110d] text-white">
       <section className="border-b border-emerald-300/14 bg-[#081812]">
@@ -18,7 +18,7 @@ export default function DemoChurchPage() {
             Sunday Service Live
           </h1>
           <p className="mt-4 max-w-2xl leading-7 text-emerald-50/72">
-            This page demonstrates how SermonBridge can sit beside or below an
+            This page shows how SermonBridge can sit beside or below an
             existing church livestream.
           </p>
         </div>
@@ -34,7 +34,7 @@ export default function DemoChurchPage() {
             <div className="flex aspect-video items-center justify-center rounded-md border border-emerald-300/14 bg-black/50 p-6 text-center">
               <div>
                 <Tv className="mx-auto h-12 w-12 text-emerald-300" />
-                <p className="mt-4 text-lg font-semibold">Livestream placeholder</p>
+                <p className="mt-4 text-lg font-semibold">Livestream preview area</p>
                 <p className="mt-2 max-w-md text-sm leading-6 text-emerald-50/64">
                   A real church page would place its YouTube Live player here.
                 </p>

@@ -56,7 +56,7 @@ export function LiveMicCapture({ sessionId, sessionStatus }: LiveMicCaptureProps
         }
       };
       recorder.onerror = () => {
-        setError("Microphone recording failed. Please restart capture.");
+        setError("Microphone recording failed. Check permission, then restart capture.");
       };
       recorder.onstop = () => {
         setRecordingState("Stopped");
@@ -70,7 +70,7 @@ export function LiveMicCapture({ sessionId, sessionStatus }: LiveMicCaptureProps
       setError(
         captureError instanceof Error
           ? captureError.message
-          : "Microphone permission was denied or unavailable.",
+          : "Microphone permission was blocked or unavailable.",
       );
     }
   }
@@ -182,7 +182,7 @@ export function LiveMicCapture({ sessionId, sessionStatus }: LiveMicCaptureProps
       ) : null}
 
       <div className="mt-4 rounded-md border border-emerald-300/12 bg-[#07140f] p-4 text-sm leading-6 text-emerald-50/68">
-        <p className="font-semibold text-emerald-100">Manual fallback</p>
+        <p className="font-semibold text-emerald-100">Manual update backup</p>
         <p className="mt-1">
           If microphone transcription is unavailable, use the manual sermon
           update form below to publish text to one language or all listener

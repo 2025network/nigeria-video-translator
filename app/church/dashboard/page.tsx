@@ -36,7 +36,7 @@ export default async function ChurchDashboardPage() {
       </section>
       <section className="section-shell pb-16">
         <div className="mb-6 rounded-lg border border-amber-300/30 bg-amber-300/10 p-4 text-amber-50">
-          Demo translation is active. Real AI translation can be connected later.
+          Live translation requires server-side OpenAI configuration. Manual updates remain available from live sessions.
         </div>
         <div className="mb-8 max-w-3xl">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-emerald-300">

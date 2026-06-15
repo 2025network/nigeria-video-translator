@@ -4,7 +4,7 @@ import { translateTranscript } from "./translation";
 export type LiveSessionTranslationResult = {
   language: string;
   translatedText: string;
-  mode: "real" | "demo" | "placeholder";
+  mode: "real" | "pending";
 };
 
 export async function translateForListenerLanguage(
@@ -14,8 +14,16 @@ export async function translateForListenerLanguage(
   if (language === "English") {
     return {
       language,
-      translatedText: `[English original] ${sourceText}`,
-      mode: "placeholder",
+      translatedText: sourceText,
+      mode: "real",
+    };
+  }
+
+  if (!process.env.OPENAI_API_KEY) {
+    return {
+      language,
+      translatedText: "Translation is being prepared. Please keep this page open.",
+      mode: "pending",
     };
   }
 
@@ -27,14 +35,14 @@ export async function translateForListenerLanguage(
       translatedText:
         result.mode === "real"
           ? result.text
-          : `[Demo translation to ${language}] ${result.text}`,
-      mode: result.mode === "real" ? "real" : "demo",
+          : "Translation is being prepared. Please keep this page open.",
+      mode: result.mode === "real" ? "real" : "pending",
     };
   }
 
   return {
     language,
-    translatedText: `[Placeholder translation to ${language}] ${sourceText}`,
-    mode: "placeholder",
+    translatedText: "Language support coming soon.",
+    mode: "pending",
   };
 }

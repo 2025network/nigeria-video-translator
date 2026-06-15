@@ -21,7 +21,7 @@ OPENAI_TTS_MODEL="gpt-4o-mini-tts"
 FFMPEG_PATH=""
 ```
 
-`OPENAI_API_KEY` is optional. Without it, SermonBridge remains usable in demo/manual mode, and microphone transcription will show clear configuration guidance.
+`OPENAI_API_KEY` is optional for manual operation. Without it, SermonBridge keeps church management, listener pages, embeds, and manual live updates available, while microphone transcription shows clear configuration guidance.
 
 ## Cookie And Security Setup
 
@@ -42,7 +42,7 @@ npm run prisma:push
 npm run prisma:seed
 ```
 
-For Hostinger/VPS production, SQLite can work for small pilot testing if the database file is stored on persistent disk. For a larger deployment, use a managed database such as MySQL and update the Prisma datasource/provider before migrating.
+For Hostinger/VPS production, SQLite can work for early live usage if the database file is stored on persistent disk. For a larger deployment, use a managed database such as MySQL and update the Prisma datasource/provider before migrating.
 
 Recommended production setup:
 
@@ -80,7 +80,7 @@ When the key is configured and quota is available:
 - Live transcript text can be translated.
 - Diagnostics can run OpenAI connectivity checks.
 
-When quota is unavailable, demo/manual mode continues to work.
+When quota is unavailable, manual live updates continue to work.
 
 ## Create The First Admin
 

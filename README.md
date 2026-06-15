@@ -5,9 +5,9 @@ A Next.js App Router platform for live church translation widgets and secondary 
 The project has two surfaces:
 
 - Live church translation widgets that churches can paste into existing websites, WordPress pages, YouTube Live companion pages, and mobile app WebViews.
-- A secondary recorded sermon upload, transcript, subtitle, voice-over, and translated-video demo.
+- A secondary recorded sermon upload, transcript, subtitle, voice-over, and translated-video workflow.
 
-OpenAI is optional. When OpenAI is unavailable, demo mode keeps uploads, subtitles, demo voice-over, translated video generation, and live widget previews working.
+OpenAI is optional for manual operation. When OpenAI is unavailable, SermonBridge keeps uploads, subtitles, voice-over artifacts, translated video generation, live widget previews, and manual live updates working.
 
 ## Tech Stack
 
@@ -133,7 +133,7 @@ OPENAI_API_KEY=
 - `DATABASE_URL` should use SQLite locally and MySQL in production.
 - `ADMIN_EMAIL` and `ADMIN_PASSWORD` are used by the seed script to create the first admin account.
 - `NEXT_PUBLIC_SITE_URL` is required for production embed codes so churches receive public iframe URLs instead of localhost URLs.
-- `OPENAI_API_KEY` is optional. Leave it empty if OpenAI quota is unavailable. Demo mode will continue to work.
+- `OPENAI_API_KEY` is optional for manual operation. Leave it empty if OpenAI quota is unavailable; manual live updates and church management will continue to work.
 
 ## Production MySQL Note For Hostinger
 
@@ -169,11 +169,11 @@ Important: set a strong `ADMIN_PASSWORD` before `npx prisma db seed`. Do not see
 - Test `/admin`
 - Test `/embed/grace-city/live`
 - Copy an iframe from `/admin/churches` and paste it into a test page
-- Confirm demo mode works if OpenAI quota is unavailable
+- Confirm manual live updates work if OpenAI quota is unavailable
 
 ## Generated Files
 
-Uploads and generated artifacts are stored under `public` in development/demo mode:
+Uploads and generated artifacts are stored under `public` in local development:
 
 ```text
 public/uploads

@@ -68,4 +68,4 @@ Only run this if `OPENAI_API_KEY` is configured and quota is available.
 5. Speak a short test sentence.
 6. Confirm transcript messages appear on the session page and listener page.
 
-If microphone transcription fails, check `/church/live-sessions/test-guide`, server logs, `OPENAI_API_KEY`, quota, and the session health panel.
+If microphone transcription fails, check `/church/live-sessions/setup-guide`, server logs, `OPENAI_API_KEY`, quota, and the session health panel.

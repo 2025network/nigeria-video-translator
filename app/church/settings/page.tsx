@@ -23,7 +23,7 @@ export default async function ChurchSettingsPage() {
           </p>
           <h1 className="mt-3 text-4xl font-semibold">{church.churchName}</h1>
           <p className="mt-4 text-emerald-50/72">
-            Demo settings UI for stream and default language configuration.
+            Manage stream and default language configuration for your church.
           </p>
         </div>
         <form className="grid gap-4 rounded-lg border border-emerald-300/16 bg-white/[0.045] p-5 lg:grid-cols-2">
@@ -42,7 +42,7 @@ export default async function ChurchSettingsPage() {
             </select>
           </label>
           <p className="rounded-md border border-amber-300/30 bg-amber-300/10 p-4 text-sm text-amber-50 lg:col-span-2">
-            Demo translation is active. Real AI translation can be connected later.
+            Live translation requires server-side OpenAI configuration. Manual updates remain available from live sessions.
           </p>
         </form>
       </section>

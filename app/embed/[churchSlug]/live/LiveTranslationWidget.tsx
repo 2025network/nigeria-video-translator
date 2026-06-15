@@ -155,7 +155,7 @@ export function LiveTranslationWidget({
         const data = (await response.json()) as LiveTranslateResponse;
 
         if (!response.ok) {
-          throw new Error(data.error ?? "Live translation failed.");
+          throw new Error(data.error ?? "Translation is being prepared. Please keep this page open.");
         }
 
         setTranslatedText(data.translation ?? "");
@@ -166,7 +166,7 @@ export function LiveTranslationWidget({
         setTranslationError(
           translationRequestError instanceof Error
             ? translationRequestError.message
-            : "Live translation failed.",
+            : "Translation is being prepared. Please keep this page open.",
         );
       } finally {
         if (!controller.signal.aborted) {
@@ -315,7 +315,7 @@ export function LiveTranslationWidget({
                 />
               ) : (
                 <div className="flex h-full items-center justify-center p-6 text-center text-emerald-50/68">
-                  This church widget is inactive in the demo admin.
+                  This church widget is currently inactive.
                 </div>
               )}
             </div>
@@ -402,7 +402,7 @@ export function LiveTranslationWidget({
                 <h2 className="font-semibold text-white">Translated audio</h2>
               </div>
               <div className="rounded-md border border-dashed border-emerald-300/22 bg-[#07140f] p-4 text-sm leading-6 text-emerald-50/68">
-                Demo audio channel placeholder for {language}. Real-time AI voice will be added later.
+                Translated audio for {language} is being prepared.
               </div>
             </section>
           </aside>
@@ -412,7 +412,7 @@ export function LiveTranslationWidget({
           <div>
             <p className="text-sm font-semibold text-white">Share this translation room</p>
             <p className="mt-1 text-sm text-emerald-50/68">
-              Members can scan the QR placeholder when the church publishes the widget link.
+              Members can scan the QR access point when the church publishes the widget link.
             </p>
           </div>
           <div className="flex min-h-24 min-w-24 items-center justify-center rounded-md border border-dashed border-emerald-300/28 bg-[#07140f] text-emerald-200">

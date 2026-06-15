@@ -81,6 +81,9 @@ export default async function PublicListenerPage({
               <span className="rounded-full border border-emerald-300/20 px-3 py-1 text-sm font-semibold text-emerald-50/72">
                 Source: {session.sourceLanguage}
               </span>
+              <span className="rounded-full border border-emerald-300/20 px-3 py-1 text-sm font-semibold text-emerald-50/72">
+                Listening in {selectedLanguage}
+              </span>
             </div>
             <div className="mt-6 rounded-lg border border-emerald-300/16 bg-white/[0.055] p-4">
               <p className="text-sm font-semibold text-emerald-100">
@@ -88,10 +91,10 @@ export default async function PublicListenerPage({
                   ? "Live translation is active. Keep this page open for updates."
                   : session.status === "ENDED"
                     ? "This live session has ended. You can still review published updates."
-                    : "Waiting for sermon to start. Please keep this page open."}
+                    : "Service not started yet. Please keep this page open."}
               </p>
               <p className="mt-2 text-sm text-emerald-50/62">
-                Updates: {messages.length} · Last updated:{" "}
+                Automatic refresh is on. Updates: {messages.length} · Last updated:{" "}
                 {lastUpdatedAt ? lastUpdatedAt.toLocaleTimeString() : "No updates yet"}
               </p>
             </div>
@@ -149,7 +152,7 @@ export default async function PublicListenerPage({
           <Panel title="Session details">
             <Detail label="Church" value={session.church.churchName} />
             <Detail label="Status" value={session.status} />
-            <Detail label="Selected language" value={selectedLanguage} />
+            <Detail label="Listening in" value={selectedLanguage} />
             <Detail label="Stream URL" value={session.streamUrl ?? session.church.youtubeLiveUrl} />
             <Detail label="Update count" value={String(messages.length)} />
             <Detail
@@ -219,12 +222,10 @@ export default async function PublicListenerPage({
                 ) : (
                   <div>
                     <p className="mt-4 text-2xl leading-9 text-emerald-50">
-                      No translated updates yet. Please keep this page open.
+                      Translation is being prepared. Please keep this page open.
                     </p>
                     <p className="mt-4 leading-7 text-emerald-50/66">
-                      The church team can publish manual sermon updates from the
-                      live session control page. Real-time automation will
-                      connect here later.
+                      Waiting for sermon audio and the next live translation update.
                     </p>
                   </div>
                 )}
@@ -252,13 +253,13 @@ export default async function PublicListenerPage({
                   </div>
                 ) : (
                   <p className="mt-4 leading-7 text-emerald-50/66">
-                    No translated updates were published for {selectedLanguage}.
+                    Translation is being prepared. Please keep this page open.
                   </p>
                 )}
               </div>
             ) : (
               <p className="text-2xl font-semibold text-emerald-50">
-                Waiting for sermon to start
+                Service not started yet
               </p>
             )}
           </div>

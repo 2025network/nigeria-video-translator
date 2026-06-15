@@ -5,7 +5,7 @@ const navItems = [
   { label: "Home", href: "/" },
   { label: "Churches", href: "/churches" },
   { label: "How It Works", href: "/how-it-works" },
-  { label: "Live Demo", href: "/embed/christ-embassy-lagos/live" },
+  { label: "Live Preview", href: "/embed/christ-embassy-lagos/live" },
   { label: "Onboarding", href: "/church-onboarding" },
   { label: "Church Login", href: "/church/login" },
   { label: "Admin", href: "/admin" },

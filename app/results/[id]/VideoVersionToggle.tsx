@@ -7,7 +7,6 @@ type VideoVersionToggleProps = {
   originalVideo: VideoFileDiagnostic;
   translatedVideo: VideoFileDiagnostic;
   language: string;
-  demoModeActive: boolean;
 };
 
 type VideoFileDiagnostic = {
@@ -22,7 +21,6 @@ export function VideoVersionToggle({
   originalVideo,
   translatedVideo,
   language,
-  demoModeActive,
 }: VideoVersionToggleProps) {
   const [version, setVersion] = useState<"original" | "translated">("original");
   const canShowTranslated = translatedVideo.exists && Boolean(translatedVideo.url);
@@ -44,9 +42,7 @@ export function VideoVersionToggle({
           </p>
           <h2 className="mt-1 text-xl font-semibold">
             {version === "translated"
-              ? demoModeActive
-                ? "Demo Translated Video"
-                : "Translated Video"
+              ? "Translated Video"
               : "Original Video"}
           </h2>
           <p className="mt-1 text-sm text-emerald-50/68">
@@ -126,7 +122,7 @@ export function VideoVersionToggle({
           diagnostic={originalVideo}
         />
         <VideoDiagnosticCard
-          title={demoModeActive ? "Demo Translated Video" : "Translated Video"}
+          title="Translated Video"
           description={`Plays a generated second video using the ${language} translated voice-over instead of the original audio.`}
           linkLabel="Open Translated Video"
           diagnostic={translatedVideo}

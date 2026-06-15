@@ -33,7 +33,7 @@ export default function AboutPage() {
             WordPress page, YouTube Live page, or mobile app WebView.
           </p>
           <p className="mt-5 rounded-md border border-emerald-300/18 bg-emerald-300/10 p-4 text-sm font-semibold leading-6 text-emerald-50">
-            Demo translation is active. Real AI translation can be connected later.
+            SermonBridge is prepared for live translation with server-side AI configuration.
           </p>
         </div>
 
@@ -85,7 +85,7 @@ export default function AboutPage() {
             className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-emerald-200/20 px-6 py-3 font-semibold text-emerald-50 transition hover:bg-white/8 focus-visible:focus-ring"
           >
             <MonitorSmartphone className="h-5 w-5" />
-            View Live Demo
+            View Live Preview
           </Link>
         </div>
       </section>

@@ -45,7 +45,7 @@ export default function Home() {
           <div className="max-w-3xl">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-300/25 bg-emerald-300/10 px-4 py-2 text-sm font-medium text-emerald-100">
               <Radio className="h-4 w-4" />
-              Demo translation is active. Real AI translation can be connected later.
+              Live Translation for church websites, streams, and mobile apps.
             </div>
             <h1 className="text-5xl font-semibold leading-tight tracking-normal text-white sm:text-6xl lg:text-7xl">
               SermonBridge
@@ -67,7 +67,7 @@ export default function Home() {
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-emerald-200/20 px-6 py-3 font-semibold text-emerald-50 transition hover:bg-white/8 focus-visible:focus-ring"
               >
                 <MonitorSmartphone className="h-5 w-5" />
-                View Live Demo
+                View Live Preview
               </Link>
             </div>
           </div>
@@ -87,7 +87,7 @@ export default function Home() {
               </div>
               <div className="mt-5 aspect-video rounded-md border border-emerald-300/14 bg-black/50" />
               <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                {["Country: Nigeria", "Language: Yoruba", "Mode: Demo", "Widget: iframe"].map(
+                {["Country: Nigeria", "Language: Yoruba", "Mode: Live Translation", "Widget: iframe"].map(
                   (item) => (
                     <div
                       key={item}
@@ -164,7 +164,7 @@ export default function Home() {
       <HomeSection
         eyebrow="Supported language structure"
         title="Enable languages by country"
-        description="Churches can enable Nigerian languages, regional African language sets, and global languages from one catalog. Real AI translation can be connected later."
+        description="Churches can enable Nigerian languages, regional African language sets, and global languages from one catalog."
         icon={<Languages className="h-8 w-8 text-emerald-300" />}
       >
         <div className="grid gap-4 md:grid-cols-4">

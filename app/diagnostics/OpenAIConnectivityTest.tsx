@@ -44,7 +44,7 @@ export function OpenAIConnectivityTest() {
             OpenAI connectivity
           </p>
           <p className="mt-2 text-sm leading-6 text-emerald-50/68">
-            Run this only when you want to test the API key with real text and TTS requests.
+            Run this only when you want to check the API key with real text and TTS requests.
           </p>
         </div>
         <button
@@ -54,7 +54,7 @@ export function OpenAIConnectivityTest() {
           className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-emerald-400 px-4 text-sm font-semibold text-[#04120c] transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-70"
         >
           {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <PlayCircle className="h-4 w-4" />}
-          {isLoading ? "Testing..." : "Run OpenAI Connectivity Test"}
+          {isLoading ? "Checking..." : "Run OpenAI Connectivity Check"}
         </button>
       </div>
 
@@ -68,17 +68,17 @@ export function OpenAIConnectivityTest() {
         <div className="mt-4 grid gap-3">
           {result.quotaUnavailable ? (
             <p className="rounded-md border border-amber-300/30 bg-amber-300/10 p-3 text-sm font-semibold leading-6 text-amber-100">
-              Demo Mode: Real AI translation is temporarily unavailable. Demo translation is being shown.
+              OpenAI quota is unavailable. Live translation will resume when API access is restored.
             </p>
           ) : null}
           <ResultRow label="API connection" value={result.apiConnectionSuccess ? "Success" : "Failure"} />
           <ResultRow label="API key detected" value={result.apiKeyDetected ? "Yes" : "No"} />
           <ResultRow label="API quota unavailable" value={result.quotaUnavailable ? "Yes" : "No"} />
-          <ResultRow label="Demo mode active" value={result.demoModeActive ? "Yes" : "No"} />
-          <ResultRow label="Translation mode" value={result.translation.success ? "Real" : "Mock"} />
+          <ResultRow label="Live AI unavailable" value={result.demoModeActive ? "Yes" : "No"} />
+          <ResultRow label="Translation mode" value={result.translation.success ? "Real" : "Configuration required"} />
           <ResultRow label="Translation error code" value={result.translation.errorCode ?? "None"} />
           <ResultRow label="Translation error message" value={result.translation.errorMessage ?? "No translation API error."} />
-          <ResultRow label="TTS mode" value={result.tts.success ? "Real" : "Mock"} />
+          <ResultRow label="TTS mode" value={result.tts.success ? "Real" : "Configuration required"} />
           <ResultRow label="TTS error code" value={result.tts.errorCode ?? "None"} />
           <ResultRow label="TTS error message" value={result.tts.errorMessage ?? "No TTS API error."} />
         </div>
