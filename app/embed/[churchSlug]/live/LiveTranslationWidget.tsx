@@ -15,13 +15,7 @@ import { getYouTubeEmbedUrl } from "@/lib/demoChurches";
 import { defaultListenerLanguages, isListenerLanguage } from "@/lib/listenerLanguages";
 
 type LiveStatus = "Waiting" | "Listening" | "Translating" | "Live";
-type ListenerLanguage =
-  | "Yoruba"
-  | "Igbo"
-  | "Hausa"
-  | "Nigerian Pidgin"
-  | "French"
-  | "Spanish";
+type ListenerLanguage = string;
 type ChurchWidgetView = {
   slug: string;
   churchName: string;
@@ -92,6 +86,7 @@ export function LiveTranslationWidget({
   const [isTranslating, setIsTranslating] = useState(false);
   const [translationError, setTranslationError] = useState("");
   const [error, setError] = useState("");
+  const [languageQuery, setLanguageQuery] = useState("");
   const recognitionRef = useRef<BrowserSpeechRecognition | null>(null);
   const manuallyStoppedRef = useRef(false);
   const trackedWidgetLoadRef = useRef(false);
@@ -110,6 +105,13 @@ export function LiveTranslationWidget({
   const enabledListenerLanguages = useMemo(
     () => getEnabledListenerLanguages(church.supportedLanguages),
     [church.supportedLanguages],
+  );
+  const visibleListenerLanguages = useMemo(
+    () =>
+      enabledListenerLanguages.filter((item) =>
+        item.toLowerCase().includes(languageQuery.trim().toLowerCase()),
+      ),
+    [enabledListenerLanguages, languageQuery],
   );
 
   useEffect(() => {
@@ -359,6 +361,12 @@ export function LiveTranslationWidget({
                 </label>
                 <label className="grid gap-2 text-sm font-semibold text-emerald-100">
                   Listener language
+                  <input
+                    value={languageQuery}
+                    onChange={(event) => setLanguageQuery(event.target.value)}
+                    placeholder="Search language"
+                    className="min-h-10 rounded-md border border-emerald-300/18 bg-[#07140f] px-3 text-white outline-none placeholder:text-emerald-50/35"
+                  />
                   <select
                     value={language}
                     onChange={(event) => {
@@ -373,7 +381,7 @@ export function LiveTranslationWidget({
                     }}
                     className="min-h-11 rounded-md border border-emerald-300/18 bg-[#07140f] px-3 text-white"
                   >
-                    {enabledListenerLanguages.map((item) => (
+                    {visibleListenerLanguages.map((item) => (
                       <option key={item}>{item}</option>
                     ))}
                   </select>

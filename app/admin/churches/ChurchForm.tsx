@@ -3,11 +3,12 @@
 import { useMemo, useState } from "react";
 import {
   getChurchEmbedCode,
-  nigeriaChurchLanguages,
   translationCountries,
   type ChurchStatus,
 } from "@/lib/demoChurches";
-import { defaultListenerLanguages, listenerLanguageOptions } from "@/lib/listenerLanguages";
+import { LanguageMultiSelect } from "@/app/components/LanguageMultiSelect";
+import { SearchableLanguageSelect } from "@/app/components/SearchableLanguageSelect";
+import { defaultListenerLanguages } from "@/lib/listenerLanguages";
 import { CopyEmbedButton } from "./CopyEmbedButton";
 
 type ChurchFormInitialValues = {
@@ -122,18 +123,12 @@ export function ChurchForm({
               required
             />
           </Field>
-          <Field label="Default spoken language">
-            <select
-              name="defaultSpokenLanguage"
-              value={defaultLanguage}
-              onChange={(event) => setDefaultLanguage(event.target.value)}
-              className="min-h-12 rounded-md border border-emerald-300/18 bg-[#07140f] px-4 text-white outline-none focus-visible:focus-ring"
-            >
-              {nigeriaChurchLanguages.map((language) => (
-                <option key={language}>{language}</option>
-              ))}
-            </select>
-          </Field>
+          <SearchableLanguageSelect
+            name="defaultSpokenLanguage"
+            label="Default spoken language"
+            value={defaultLanguage}
+            onChange={setDefaultLanguage}
+          />
         </div>
         <Field label="YouTube Live URL">
           <input
@@ -145,12 +140,11 @@ export function ChurchForm({
             required
           />
         </Field>
-        <CheckboxGroup
+        <LanguageMultiSelect
           label="Preferred listener languages to highlight"
           name="supportedLanguages"
-          values={[...listenerLanguageOptions]}
           selected={listenerLanguages}
-          onToggle={(value) => toggleValue(value, listenerLanguages, setListenerLanguages)}
+          onChange={setListenerLanguages}
         />
         <CheckboxGroup
           label="Enabled translation countries"
@@ -159,12 +153,11 @@ export function ChurchForm({
           selected={countries}
           onToggle={(value) => toggleValue(value, countries, setCountries)}
         />
-        <CheckboxGroup
+        <LanguageMultiSelect
           label="Additional languages to highlight"
           name="enabledLanguages"
-          values={nigeriaChurchLanguages}
           selected={languages}
-          onToggle={(value) => toggleValue(value, languages, setLanguages)}
+          onChange={setLanguages}
         />
         <Field label="Status">
           <select

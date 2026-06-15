@@ -9,11 +9,12 @@ import {
 } from "@/lib/sermonSessionRepository";
 import { getCurrentChurchView } from "@/lib/currentChurch";
 import { getBranchForChurch } from "@/lib/branchRepository";
+import { getLanguageName } from "@/lib/languageCatalog";
 
 export async function createSermonSessionAction(formData: FormData) {
   const church = await getCurrentChurchView();
   const title = String(formData.get("title") ?? "").trim();
-  const sourceLanguage = String(formData.get("sourceLanguage") ?? "English").trim();
+  const sourceLanguage = getLanguageName(String(formData.get("sourceLanguage") ?? "en").trim());
   const listenerLanguages = formData.getAll("listenerLanguages").map(String);
   const streamUrl = String(formData.get("streamUrl") ?? "").trim();
   const branchId = String(formData.get("branchId") ?? "").trim();

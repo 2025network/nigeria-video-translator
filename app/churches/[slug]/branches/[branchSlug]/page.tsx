@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Building2, Languages, MapPin, Play, UserRound } from "lucide-react";
 import { getPublicBranchBySlugs } from "@/lib/branchRepository";
 import { getBranchEmbedUrl } from "@/lib/demoChurches";
+import { languageNamesFromValues } from "@/lib/languageCatalog";
 import {
   getLatestListenableSessionForBranch,
   getSessionListenUrl,
@@ -52,7 +53,9 @@ export default async function PublicBranchProfilePage({
   const availableLanguages = Array.from(
     new Set([
       ...branch.church.languages.map((item) => item.language),
-      ...branch.church.supportedLanguages.split(",").map((item) => item.trim()).filter(Boolean),
+      ...languageNamesFromValues(
+        branch.church.supportedLanguages.split(",").map((item) => item.trim()).filter(Boolean),
+      ),
     ]),
   );
 

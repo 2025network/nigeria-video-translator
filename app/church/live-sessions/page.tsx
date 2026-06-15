@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CalendarClock, Languages, Play, Radio, Square } from "lucide-react";
 import { CopyEmbedButton } from "@/app/admin/churches/CopyEmbedButton";
+import { LanguageMultiSelect } from "@/app/components/LanguageMultiSelect";
+import { SearchableLanguageSelect } from "@/app/components/SearchableLanguageSelect";
 import { getBranchesForChurch } from "@/lib/branchRepository";
-import { catalogLanguages } from "@/lib/languageCatalog";
 import { getCurrentChurchView } from "@/lib/currentChurch";
 import {
   getSermonSessionsForChurch,
@@ -41,9 +42,7 @@ export default async function ChurchLiveSessionsPage({
     getBranchesForChurch(church.id),
   ]);
   const activeBranches = branches.filter((branch) => !branch.disabledAt);
-  const defaultListenerLanguages = church.supportedLanguages.length
-    ? church.supportedLanguages
-    : catalogLanguages;
+  const defaultListenerLanguages = church.supportedLanguages;
 
   return (
     <main className="min-h-screen bg-[#06110d] text-white">
@@ -87,18 +86,11 @@ export default async function ChurchLiveSessionsPage({
 
             <Field label="Sermon title" name="title" placeholder="Sunday Service" required />
 
-            <label className="grid gap-2 text-sm font-semibold text-emerald-100">
-              Source language
-              <select
-                name="sourceLanguage"
-                defaultValue={church.defaultSpokenLanguage || "English"}
-                className="min-h-12 rounded-md border border-emerald-300/18 bg-[#07140f] px-4 text-white outline-none focus-visible:focus-ring"
-              >
-                {catalogLanguages.map((language) => (
-                  <option key={language}>{language}</option>
-                ))}
-              </select>
-            </label>
+            <SearchableLanguageSelect
+              name="sourceLanguage"
+              label="Source language"
+              value={church.defaultSpokenLanguage || "English"}
+            />
 
             <Field
               label="Stream/watch URL optional"
@@ -123,32 +115,11 @@ export default async function ChurchLiveSessionsPage({
               </select>
             </label>
 
-            <fieldset className="grid gap-3">
-              <legend className="text-sm font-semibold text-emerald-100">
-                Listener languages
-              </legend>
-              <p className="text-sm leading-6 text-emerald-50/62">
-                All languages are available by default. Select languages to
-                highlight for this session.
-              </p>
-              <div className="grid max-h-80 gap-2 overflow-auto rounded-md border border-emerald-300/14 bg-[#07140f] p-3 sm:grid-cols-2">
-                {catalogLanguages.map((language) => (
-                  <label
-                    key={language}
-                    className="flex min-h-10 items-center gap-3 rounded-md px-2 text-sm text-emerald-50/78 transition hover:bg-white/6"
-                  >
-                    <input
-                      type="checkbox"
-                      name="listenerLanguages"
-                      value={language}
-                      defaultChecked={defaultListenerLanguages.includes(language)}
-                      className="h-4 w-4 accent-emerald-400"
-                    />
-                    {language}
-                  </label>
-                ))}
-              </div>
-            </fieldset>
+            <LanguageMultiSelect
+              label="Listener languages"
+              name="listenerLanguages"
+              selected={defaultListenerLanguages}
+            />
 
             <button
               type="submit"

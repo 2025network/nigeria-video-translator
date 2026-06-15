@@ -1,5 +1,6 @@
 import { prisma } from "./db";
 import type { ChurchStatus } from "./demoChurches";
+import { getLanguageName, languageNamesFromValues } from "./languageCatalog";
 import { parseListenerLanguages, serializeListenerLanguages } from "./listenerLanguages";
 import { hashPassword } from "./password";
 
@@ -106,10 +107,10 @@ export async function createChurch(input: ChurchFormInput) {
       country: input.country,
       city: input.city ?? "",
       youtubeLiveUrl: input.youtubeLiveUrl,
-      defaultSpokenLanguage: input.defaultSpokenLanguage,
+      defaultSpokenLanguage: getLanguageName(input.defaultSpokenLanguage),
       status: input.status,
       languages: {
-        create: input.enabledLanguages.map((language) => ({ language })),
+        create: languageNamesFromValues(input.enabledLanguages).map((language) => ({ language })),
       },
       countries: {
         create: input.enabledTranslationCountries.map((country) => ({ country })),
@@ -134,11 +135,11 @@ export async function updateChurch(id: string, input: ChurchFormInput) {
       country: input.country,
       city: input.city ?? "",
       youtubeLiveUrl: input.youtubeLiveUrl,
-      defaultSpokenLanguage: input.defaultSpokenLanguage,
+      defaultSpokenLanguage: getLanguageName(input.defaultSpokenLanguage),
       status: input.status,
       languages: {
         deleteMany: {},
-        create: input.enabledLanguages.map((language) => ({ language })),
+        create: languageNamesFromValues(input.enabledLanguages).map((language) => ({ language })),
       },
       countries: {
         deleteMany: {},

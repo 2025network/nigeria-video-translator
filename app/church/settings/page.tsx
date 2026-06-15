@@ -1,5 +1,5 @@
-﻿import { getCurrentChurchView } from "@/lib/currentChurch";
-import { catalogLanguages } from "@/lib/languageCatalog";
+import { SearchableLanguageSelect } from "@/app/components/SearchableLanguageSelect";
+import { getCurrentChurchView } from "@/lib/currentChurch";
 import { ChurchNav } from "../ChurchNav";
 
 export const metadata = {
@@ -29,18 +29,16 @@ export default async function ChurchSettingsPage() {
         <form className="grid gap-4 rounded-lg border border-emerald-300/16 bg-white/[0.045] p-5 lg:grid-cols-2">
           <Field label="Stream URL" defaultValue={church.youtubeLiveUrl} />
           <Field label="Church status" defaultValue={church.status} />
-          <label className="grid gap-2 text-sm font-semibold text-emerald-100">
-            Default spoken language
-            <select defaultValue={church.defaultSpokenLanguage} className="min-h-12 rounded-md border border-emerald-300/18 bg-[#07140f] px-4 text-white">
-              {catalogLanguages.map((language) => <option key={language}>{language}</option>)}
-            </select>
-          </label>
-          <label className="grid gap-2 text-sm font-semibold text-emerald-100">
-            Default listener language
-            <select defaultValue={church.enabledLanguages[0] ?? "English"} className="min-h-12 rounded-md border border-emerald-300/18 bg-[#07140f] px-4 text-white">
-              {catalogLanguages.map((language) => <option key={language}>{language}</option>)}
-            </select>
-          </label>
+          <SearchableLanguageSelect
+            name="defaultSpokenLanguage"
+            label="Default spoken language"
+            value={church.defaultSpokenLanguage}
+          />
+          <SearchableLanguageSelect
+            name="defaultListenerLanguage"
+            label="Default listener language"
+            value={church.enabledLanguages[0] ?? "English"}
+          />
           <p className="rounded-md border border-amber-300/30 bg-amber-300/10 p-4 text-sm text-amber-50 lg:col-span-2">
             Live translation requires server-side OpenAI configuration. Manual updates remain available from live sessions.
           </p>
@@ -58,4 +56,3 @@ function Field({ label, defaultValue }: { label: string; defaultValue: string })
     </label>
   );
 }
-

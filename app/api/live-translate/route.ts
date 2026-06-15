@@ -1,31 +1,6 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
-
-const liveTranslationLanguages = [
-  "Yoruba",
-  "Igbo",
-  "Hausa",
-  "Nigerian Pidgin",
-  "French",
-  "Spanish",
-] as const;
-
-type LiveTranslationLanguage = (typeof liveTranslationLanguages)[number];
-
-const languagePrompts: Record<LiveTranslationLanguage, string> = {
-  Yoruba:
-    "Translate into natural Yoruba suitable for a live church sermon listener. Preserve names, Bible references, locations, dates, and numbers.",
-  Igbo:
-    "Translate into natural Igbo suitable for a live church sermon listener. Preserve names, Bible references, locations, dates, and numbers.",
-  Hausa:
-    "Translate into natural Hausa suitable for a live church sermon listener. Preserve names, Bible references, locations, dates, and numbers.",
-  "Nigerian Pidgin":
-    "Translate into natural Nigerian Pidgin suitable for a live church sermon listener. Use everyday Nigerian Pidgin, not standard English. Preserve names, Bible references, locations, dates, and numbers.",
-  French:
-    "Translate into clear natural French suitable for a live church sermon listener. Preserve names, Bible references, locations, dates, and numbers.",
-  Spanish:
-    "Translate into clear natural Spanish suitable for a live church sermon listener. Preserve names, Bible references, locations, dates, and numbers.",
-};
+import { getLanguageName, normalizeLanguageValue } from "@/lib/languageCatalog";
 
 export async function POST(request: Request) {
   let payload: unknown;
@@ -40,18 +15,13 @@ export async function POST(request: Request) {
   }
 
   const transcript = readStringField(payload, "transcript").trim();
-  const targetLanguage = readStringField(payload, "targetLanguage");
+  const targetLanguage = getLanguageName(
+    normalizeLanguageValue(readStringField(payload, "targetLanguage")),
+  );
 
   if (!transcript) {
     return NextResponse.json(
       { error: "Transcript text is required." },
-      { status: 400 },
-    );
-  }
-
-  if (!isLiveTranslationLanguage(targetLanguage)) {
-    return NextResponse.json(
-      { error: "Unsupported target language." },
       { status: 400 },
     );
   }
@@ -77,8 +47,12 @@ export async function POST(request: Request) {
           role: "system",
           content: [
             "You are SermonBridge, a careful live sermon translation assistant.",
-            languagePrompts[targetLanguage],
+            `Translate into ${targetLanguage} for a live church sermon listener.`,
+            targetLanguage === "Nigerian Pidgin"
+              ? "Use everyday Nigerian Pidgin, not standard English."
+              : "",
             "Translate only the provided transcript.",
+            "Preserve names, Bible references, locations, dates, and numbers.",
             "Return only the translated text with no markdown, no explanation, and no extra labels.",
           ].join(" "),
         },
@@ -125,8 +99,4 @@ function readStringField(payload: unknown, field: string) {
 
   const value = (payload as Record<string, unknown>)[field];
   return typeof value === "string" ? value : "";
-}
-
-function isLiveTranslationLanguage(value: string): value is LiveTranslationLanguage {
-  return liveTranslationLanguages.includes(value as LiveTranslationLanguage);
 }

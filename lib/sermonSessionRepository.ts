@@ -1,5 +1,9 @@
 import { prisma } from "./db";
-import { catalogLanguages } from "./languageCatalog";
+import {
+  catalogLanguageCodes,
+  languageNamesFromValues,
+  normalizeLanguageList,
+} from "./languageCatalog";
 
 export const sermonSessionStatuses = ["READY", "LIVE", "ENDED"] as const;
 
@@ -249,9 +253,11 @@ export async function logLiveSessionError(input: {
 }
 
 export function serializeSessionLanguages(languages: string[]) {
-  const filtered = languages.filter((language) => catalogLanguages.includes(language));
+  const filtered = normalizeLanguageList(languages).filter((language) =>
+    catalogLanguageCodes.includes(language),
+  );
 
-  return Array.from(new Set(filtered.length ? filtered : catalogLanguages)).join(",");
+  return Array.from(new Set(filtered.length ? filtered : catalogLanguageCodes)).join(",");
 }
 
 export function parseSessionLanguages(value?: string | null) {
@@ -260,7 +266,7 @@ export function parseSessionLanguages(value?: string | null) {
     .map((language) => language.trim())
     .filter(Boolean);
 
-  return Array.from(new Set(parsed.length ? parsed : catalogLanguages));
+  return languageNamesFromValues(parsed.length ? parsed : catalogLanguageCodes);
 }
 
 export function getSessionListenUrl(sessionId: string) {

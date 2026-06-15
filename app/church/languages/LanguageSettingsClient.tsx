@@ -1,7 +1,8 @@
-﻿"use client";
+"use client";
 
-import { useMemo, useState } from "react";
-import { getLanguagesForCountries, languageCatalog } from "@/lib/languageCatalog";
+import { useState } from "react";
+import { LanguageMultiSelect } from "@/app/components/LanguageMultiSelect";
+import { languageRegions } from "@/lib/languageCatalog";
 
 export function LanguageSettingsClient({
   initialCountries,
@@ -10,37 +11,37 @@ export function LanguageSettingsClient({
   initialCountries: string[];
   initialLanguages: string[];
 }) {
-  const [countries, setCountries] = useState(initialCountries);
+  const [regions, setRegions] = useState(initialCountries);
   const [languages, setLanguages] = useState(initialLanguages);
-  const availableLanguages = useMemo(() => getLanguagesForCountries(countries), [countries]);
 
-  function toggle(value: string, values: string[], setValues: (next: string[]) => void) {
-    setValues(values.includes(value) ? values.filter((item) => item !== value) : [...values, value]);
+  function toggle(value: string) {
+    setRegions((current) =>
+      current.includes(value)
+        ? current.filter((item) => item !== value)
+        : [...current, value],
+    );
   }
 
   return (
     <div className="grid gap-5 lg:grid-cols-2">
       <section className="rounded-lg border border-emerald-300/16 bg-white/[0.045] p-5">
-        <h2 className="text-2xl font-semibold">Enabled countries</h2>
+        <h2 className="text-2xl font-semibold">Language groups</h2>
         <div className="mt-4 grid gap-2">
-          {languageCatalog.map((item) => (
-            <label key={item.country} className="flex min-h-11 items-center gap-3 rounded-md border border-emerald-300/14 bg-[#07140f] px-3 text-sm text-emerald-50/78">
-              <input type="checkbox" checked={countries.includes(item.country)} onChange={() => toggle(item.country, countries, setCountries)} className="h-4 w-4 accent-emerald-400" />
-              {item.country}
+          {languageRegions.map((region) => (
+            <label key={region} className="flex min-h-11 items-center gap-3 rounded-md border border-emerald-300/14 bg-[#07140f] px-3 text-sm text-emerald-50/78">
+              <input type="checkbox" checked={regions.includes(region)} onChange={() => toggle(region)} className="h-4 w-4 accent-emerald-400" />
+              {region}
             </label>
           ))}
         </div>
       </section>
       <section className="rounded-lg border border-emerald-300/16 bg-white/[0.045] p-5">
-        <h2 className="text-2xl font-semibold">Enabled languages</h2>
-        <div className="mt-4 grid gap-2 sm:grid-cols-2">
-          {availableLanguages.map((language) => (
-            <label key={language} className="flex min-h-11 items-center gap-3 rounded-md border border-emerald-300/14 bg-[#07140f] px-3 text-sm text-emerald-50/78">
-              <input type="checkbox" checked={languages.includes(language)} onChange={() => toggle(language, languages, setLanguages)} className="h-4 w-4 accent-emerald-400" />
-              {language}
-            </label>
-          ))}
-        </div>
+        <LanguageMultiSelect
+          label="Enabled languages"
+          name="enabledLanguages"
+          selected={languages}
+          onChange={setLanguages}
+        />
       </section>
       <p className="rounded-md border border-amber-300/30 bg-amber-300/10 p-4 text-sm text-amber-50 lg:col-span-2">
         All languages are available by default. Churches can highlight preferred listener languages for each live session.
@@ -48,4 +49,3 @@ export function LanguageSettingsClient({
     </div>
   );
 }
-

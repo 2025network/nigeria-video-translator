@@ -1,22 +1,19 @@
-export const defaultListenerLanguages = [
-  "Yoruba",
-  "Igbo",
-  "Hausa",
-  "Nigerian Pidgin",
-] as const;
+import {
+  catalogLanguageCodes,
+  languageCatalog,
+  languageNamesFromValues,
+  normalizeLanguageList,
+} from "./languageCatalog";
 
-export const listenerLanguageOptions = [
-  ...defaultListenerLanguages,
-  "French",
-  "Spanish",
-] as const;
-
-export type ListenerLanguage = (typeof listenerLanguageOptions)[number];
+export const defaultListenerLanguageCodes = ["yo", "ig", "ha", "pcm"] as const;
+export const defaultListenerLanguages = languageNamesFromValues([...defaultListenerLanguageCodes]);
+export const listenerLanguageOptions = languageCatalog.map((language) => language.name);
+export type ListenerLanguage = string;
 
 export function serializeListenerLanguages(languages: string[]) {
-  const filtered = languages.filter(isListenerLanguage);
+  const filtered = normalizeLanguageList(languages).filter(isListenerLanguage);
 
-  return (filtered.length ? filtered : [...defaultListenerLanguages]).join(",");
+  return (filtered.length ? filtered : [...defaultListenerLanguageCodes]).join(",");
 }
 
 export function parseListenerLanguages(value?: string | null) {
@@ -25,9 +22,9 @@ export function parseListenerLanguages(value?: string | null) {
     .map((language) => language.trim())
     .filter(isListenerLanguage);
 
-  return Array.from(new Set(parsed.length ? parsed : [...defaultListenerLanguages]));
+  return languageNamesFromValues(parsed.length ? parsed : [...defaultListenerLanguageCodes]);
 }
 
 export function isListenerLanguage(value: string): value is ListenerLanguage {
-  return listenerLanguageOptions.includes(value as ListenerLanguage);
+  return catalogLanguageCodes.includes(value) || listenerLanguageOptions.includes(value);
 }

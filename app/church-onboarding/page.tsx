@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, ClipboardList } from "lucide-react";
+import { LanguageMultiSelect } from "@/app/components/LanguageMultiSelect";
+import { popularLanguageCodes } from "@/lib/languageCatalog";
 import { submitOnboardingRequest } from "./actions";
 
 type OnboardingPageProps = {
@@ -60,6 +62,18 @@ export default async function ChurchOnboardingPage({
                   </p>
                 </div>
               ))}
+            </div>
+
+            <div className="mt-6 rounded-lg border border-emerald-300/16 bg-white/[0.045] p-5">
+              <LanguageMultiSelect
+                label="Browse supported languages"
+                name="languagePreview"
+                selected={popularLanguageCodes}
+              />
+              <p className="mt-3 text-sm leading-6 text-emerald-50/62">
+                This is a language coverage preview only. Churches can manage
+                preferred languages after onboarding.
+              </p>
             </div>
           </div>
 
