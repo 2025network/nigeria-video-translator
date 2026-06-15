@@ -49,7 +49,9 @@ export default async function EditChurchPage({ params }: EditChurchPageProps) {
             {church.name}
           </h1>
           <p className="mt-4 leading-7 text-emerald-50/72">
-            Update church details, enabled languages, widget status, and embed configuration.
+            Update church details, highlighted listener languages, widget
+            status, and embed configuration. All languages are available by
+            default.
           </p>
         </div>
 

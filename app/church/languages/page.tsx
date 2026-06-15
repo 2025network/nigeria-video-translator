@@ -23,7 +23,8 @@ export default async function ChurchLanguagesPage() {
           </p>
           <h1 className="mt-3 text-4xl font-semibold">Countries and languages</h1>
           <p className="mt-4 leading-7 text-emerald-50/72">
-            Choose the listener countries and languages your church wants to support.
+            All languages are available by default. Churches can later enable or
+            highlight preferred listener languages for their audience.
           </p>
         </div>
         <LanguageSettingsClient

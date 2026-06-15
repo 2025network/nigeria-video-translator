@@ -11,11 +11,12 @@ export type CreateOnboardingRequestInput = {
   phone: string;
   country: string;
   city: string;
+  websiteUrl: string;
   message?: string;
 };
 
 export async function createOnboardingRequest(input: CreateOnboardingRequestInput) {
-  return prisma.churchOnboardingRequest.create({
+  const request = await prisma.churchOnboardingRequest.create({
     data: {
       churchName: input.churchName,
       contactName: input.contactName,
@@ -23,9 +24,18 @@ export async function createOnboardingRequest(input: CreateOnboardingRequestInpu
       phone: input.phone,
       country: input.country,
       city: input.city,
+      websiteUrl: input.websiteUrl,
       message: input.message || null,
     },
   });
+
+  console.info("[onboarding] request created", {
+    churchName: request.churchName,
+    email: request.email,
+    requestId: request.id,
+  });
+
+  return request;
 }
 
 export async function getOnboardingRequests() {

@@ -78,6 +78,7 @@ model ChurchOnboardingRequest {
   phone       String
   country     String
   city        String
+  websiteUrl  String   @default("")
   message     String?
   status      String   @default("NEW")
   createdAt   DateTime @default(now())

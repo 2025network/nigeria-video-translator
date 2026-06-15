@@ -8,6 +8,8 @@ export const metadata = {
   title: "Admin Dashboard",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminDashboardPage() {
   const [churches, onboardingRequests] = await Promise.all([
     getChurches(),

@@ -114,11 +114,15 @@ export default async function ChurchDetailPage({ params }: ChurchDetailPageProps
             <Info label="Embed URL" value={embedUrl} />
             <Info label="Country" value={church.country} />
             <Info label="Status" value={church.status} />
-            <Info label="Listener languages" value={churchView.supportedLanguages.join(", ")} />
+            <Info label="Highlighted listener languages" value={churchView.supportedLanguages.join(", ")} />
             <Info label="Default spoken language" value={church.defaultSpokenLanguage} />
             <Info label="YouTube Live URL" value={church.youtubeLiveUrl} />
             <Info label="Enabled translation countries" value={churchView.enabledTranslationCountries.join(", ")} />
-            <Info label="Active languages" value={churchView.enabledLanguages.join(", ")} />
+            <Info label="Additional highlighted languages" value={churchView.enabledLanguages.join(", ")} />
+            <Info
+              label="Language policy"
+              value="All languages are available by default. Churches can later enable or highlight preferred listener languages."
+            />
           </section>
 
           <section className="grid gap-4 rounded-lg border border-emerald-300/16 bg-white/[0.045] p-5">

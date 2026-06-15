@@ -12,6 +12,8 @@ export const metadata: Metadata = {
   title: "Onboarding Requests",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function OnboardingRequestsPage() {
   const requests = await getOnboardingRequests();
 
@@ -109,6 +111,10 @@ export default async function OnboardingRequestsPage() {
                       icon={<Phone className="h-4 w-4" />}
                     />
                     <InfoCard label="Location" value={`${request.city}, ${request.country}`} />
+                    <InfoCard
+                      label="Website or livestream"
+                      value={request.websiteUrl || "Not provided"}
+                    />
                   </div>
 
                   {request.message ? (

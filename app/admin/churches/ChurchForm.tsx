@@ -146,7 +146,7 @@ export function ChurchForm({
           />
         </Field>
         <CheckboxGroup
-          label="Listener languages enabled for this church"
+          label="Preferred listener languages to highlight"
           name="supportedLanguages"
           values={[...listenerLanguageOptions]}
           selected={listenerLanguages}
@@ -160,7 +160,7 @@ export function ChurchForm({
           onToggle={(value) => toggleValue(value, countries, setCountries)}
         />
         <CheckboxGroup
-          label="Enabled languages"
+          label="Additional languages to highlight"
           name="enabledLanguages"
           values={nigeriaChurchLanguages}
           selected={languages}
@@ -189,6 +189,8 @@ export function ChurchForm({
         <h2 className="text-2xl font-semibold">Generated embed</h2>
         <p className="text-sm leading-6 text-emerald-50/68">
           This iframe updates with the slug and uses `NEXT_PUBLIC_SITE_URL` for production.
+          All languages are available by default; churches can later enable or
+          highlight preferred listener languages.
         </p>
         <pre className="max-h-64 overflow-auto rounded-md border border-emerald-300/14 bg-[#07140f] p-4 text-xs leading-6 text-emerald-50/78">
           {embedCode}

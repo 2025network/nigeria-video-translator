@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { FileCode2, Languages, Radio, Settings } from "lucide-react";
 import { getBranchesForChurch } from "@/lib/branchRepository";
 import { getCurrentChurchView } from "@/lib/currentChurch";
@@ -57,10 +57,12 @@ export default async function ChurchDashboardPage() {
         <div className="mt-4 grid gap-4 md:grid-cols-3">
           <Metric icon={<FileCode2 className="h-5 w-5" />} label="Stream URL" value={church.youtubeLiveUrl} />
           <Metric icon={<Settings className="h-5 w-5" />} label="Selected countries" value={church.enabledTranslationCountries.join(", ")} />
-          <Metric icon={<Languages className="h-5 w-5" />} label="Listener languages" value={church.supportedLanguages.join(", ")} />
+          <Metric icon={<Languages className="h-5 w-5" />} label="Highlighted listener languages" value={church.supportedLanguages.join(", ")} />
         </div>
 
         <div className="mt-4 rounded-lg border border-emerald-300/16 bg-emerald-300/10 p-4 text-sm leading-6 text-emerald-50/78">
+          All languages are available by default. Churches can later enable or
+          highlight preferred listener languages.{" "}
           Every viewer chooses their own listener language individually inside
           the live widget. Changing language in one browser does not change the
           language for the whole church, branch, or other viewers.
@@ -97,7 +99,9 @@ export default async function ChurchDashboardPage() {
         <section className="mt-6 rounded-lg border border-emerald-300/16 bg-white/[0.045] p-5">
           <h2 className="text-2xl font-semibold">Branches</h2>
           <p className="mt-2 text-sm leading-6 text-emerald-50/68">
-            Each branch has its own embed URL and live widget while using this church&apos;s enabled listener languages.
+            Each branch has its own embed URL and live widget. All languages are
+            available by default, and this church can highlight preferred
+            listener languages for its audience.
           </p>
           {branches.length === 0 ? (
             <p className="mt-4 rounded-md border border-dashed border-emerald-300/20 bg-[#07140f] p-4 text-sm text-emerald-50/68">
@@ -159,3 +163,5 @@ function EmptyChurchState() {
     </main>
   );
 }
+
+

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Building2, CheckCircle2, ClipboardList, Globe2 } from "lucide-react";
+import { ArrowRight, CheckCircle2, ClipboardList } from "lucide-react";
 import { submitOnboardingRequest } from "./actions";
 
 type OnboardingPageProps = {
@@ -43,7 +43,10 @@ export default async function ChurchOnboardingPage({
             <div className="mt-8 grid gap-4 sm:grid-cols-3">
               {[
                 ["Profile", "Set up your church and stream details."],
-                ["Languages", "Enable listener languages for your audience."],
+                [
+                  "Languages",
+                  "All supported languages are available by default.",
+                ],
                 ["Widget", "Receive iframe and floating widget code."],
               ].map(([title, description]) => (
                 <div
@@ -101,9 +104,21 @@ export default async function ChurchOnboardingPage({
                   <FormField label="Contact name" name="contactName" />
                   <FormField label="Email" name="email" type="email" />
                   <FormField label="Phone" name="phone" type="tel" />
-                  <FormField label="Country" name="country" icon={<Globe2 />} />
-                  <FormField label="City" name="city" icon={<Building2 />} />
+                  <FormField label="Country" name="country" />
+                  <FormField label="City" name="city" />
                 </div>
+
+                <FormField
+                  label="Website or livestream URL"
+                  name="websiteUrl"
+                  type="url"
+                  placeholder="https://yourchurch.org/live"
+                />
+
+                <p className="rounded-md border border-emerald-300/16 bg-emerald-300/10 px-4 py-3 text-sm font-semibold leading-6 text-emerald-50">
+                  All supported languages are available. You can manage
+                  languages later from your church dashboard.
+                </p>
 
                 <label className="grid gap-2 text-sm font-semibold text-emerald-50">
                   Message
@@ -111,7 +126,7 @@ export default async function ChurchOnboardingPage({
                     name="message"
                     rows={5}
                     className="min-h-32 rounded-md border border-emerald-300/18 bg-[#06150f] px-4 py-3 text-base font-normal text-white outline-none transition placeholder:text-emerald-50/35 focus:border-emerald-300"
-                    placeholder="Tell us about your livestream, languages, or website setup."
+                    placeholder="Tell us about your livestream, website, WordPress, or mobile app setup."
                   />
                 </label>
 
@@ -140,11 +155,12 @@ function FormField({
   label,
   name,
   type = "text",
+  placeholder,
 }: {
   label: string;
   name: string;
   type?: string;
-  icon?: React.ReactNode;
+  placeholder?: string;
 }) {
   return (
     <label className="grid gap-2 text-sm font-semibold text-emerald-50">
@@ -153,6 +169,7 @@ function FormField({
         required
         name={name}
         type={type}
+        placeholder={placeholder}
         className="h-12 rounded-md border border-emerald-300/18 bg-[#06150f] px-4 text-base font-normal text-white outline-none transition placeholder:text-emerald-50/35 focus:border-emerald-300"
       />
     </label>

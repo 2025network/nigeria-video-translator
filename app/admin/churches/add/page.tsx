@@ -31,7 +31,9 @@ export default function AddChurchPage() {
             Create a live translation widget
           </h1>
           <p className="mt-4 leading-7 text-emerald-50/72">
-            Configure a demo church profile, enabled languages, and iframe snippet for a website or WebView embed.
+            Configure a church profile, highlight preferred listener languages,
+            and prepare iframe or floating widget code for a website or WebView.
+            All languages are available by default.
           </p>
         </div>
 
