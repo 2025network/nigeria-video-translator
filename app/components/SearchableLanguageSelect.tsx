@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { getCountryByCodeOrName, getRecommendedLanguageCodes } from "@/lib/countryCatalog";
 import { getLanguageName, languageCatalog, normalizeLanguageValue } from "@/lib/languageCatalog";
 
 type SearchableLanguageSelectProps = {
@@ -9,6 +10,7 @@ type SearchableLanguageSelectProps = {
   value?: string;
   languages?: string[];
   onChange?: (value: string) => void;
+  recommendedCountry?: string;
 };
 
 export function SearchableLanguageSelect({
@@ -17,6 +19,7 @@ export function SearchableLanguageSelect({
   value,
   languages,
   onChange,
+  recommendedCountry,
 }: SearchableLanguageSelectProps) {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(normalizeLanguageValue(value ?? "en"));
@@ -35,6 +38,9 @@ export function SearchableLanguageSelect({
         .includes(normalizedQuery),
     );
   }, [languages, query]);
+  const recommendedCodes = recommendedCountry ? getRecommendedLanguageCodes(recommendedCountry) : [];
+  const recommended = availableLanguages.filter((language) => recommendedCodes.includes(language.code));
+  const countryName = recommendedCountry ? getCountryByCodeOrName(recommendedCountry)?.name ?? recommendedCountry : "";
 
   return (
     <label className="grid gap-2 text-sm font-semibold text-emerald-100">
@@ -54,12 +60,10 @@ export function SearchableLanguageSelect({
         }}
         className="min-h-12 rounded-md border border-emerald-300/18 bg-[#07140f] px-4 text-white outline-none focus-visible:focus-ring"
       >
-        {availableLanguages.map((language) => (
-          <option key={language.code} value={language.code}>
-            {language.name}
-            {language.nativeName ? ` (${language.nativeName})` : ""}
-          </option>
-        ))}
+        {recommended.length ? <optgroup label={`Recommended for ${countryName}`}>{recommended.map((language) => <option key={`recommended-${language.code}`} value={language.code}>{language.name}{language.nativeName ? ` (${language.nativeName})` : ""}</option>)}</optgroup> : null}
+        <optgroup label="All languages">
+          {availableLanguages.map((language) => <option key={language.code} value={language.code}>{language.name}{language.nativeName ? ` (${language.nativeName})` : ""}</option>)}
+        </optgroup>
       </select>
     </label>
   );

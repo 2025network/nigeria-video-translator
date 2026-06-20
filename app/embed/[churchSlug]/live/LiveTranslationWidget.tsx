@@ -11,7 +11,10 @@ import {
   Radio,
   Square,
 } from "lucide-react";
+import { BackButton } from "@/app/components/BackButton";
+import { countryCatalog, getRecommendedLanguageNames } from "@/lib/countryCatalog";
 import { getYouTubeEmbedUrl } from "@/lib/demoChurches";
+import { languageCatalog } from "@/lib/languageCatalog";
 import { defaultListenerLanguages, isListenerLanguage } from "@/lib/listenerLanguages";
 
 type LiveStatus = "Waiting" | "Listening" | "Translating" | "Live";
@@ -98,21 +101,12 @@ export function LiveTranslationWidget({
     typeof window !== "undefined" &&
     Boolean(window.SpeechRecognition || window.webkitSpeechRecognition);
 
-  const countryOptions = useMemo(
-    () => Array.from(new Set([...(church.enabledTranslationCountries.length ? church.enabledTranslationCountries : ["Nigeria"])])),
-    [church.enabledTranslationCountries],
-  );
-  const enabledListenerLanguages = useMemo(
-    () => getEnabledListenerLanguages(church.supportedLanguages),
-    [church.supportedLanguages],
-  );
-  const visibleListenerLanguages = useMemo(
-    () =>
-      enabledListenerLanguages.filter((item) =>
-        item.toLowerCase().includes(languageQuery.trim().toLowerCase()),
-      ),
-    [enabledListenerLanguages, languageQuery],
-  );
+  const enabledListenerLanguages = useMemo(() => getEnabledListenerLanguages(church.supportedLanguages), [church.supportedLanguages]);
+  const recommendedLanguages = useMemo(() => getRecommendedLanguageNames(country), [country]);
+  const allListenerLanguages = useMemo(() => Array.from(new Set([...enabledListenerLanguages, ...languageCatalog.map((item) => item.name)])), [enabledListenerLanguages]);
+  const search = languageQuery.trim().toLowerCase();
+  const visibleRecommendedLanguages = recommendedLanguages.filter((item) => item.toLowerCase().includes(search));
+  const visibleListenerLanguages = allListenerLanguages.filter((item) => item.toLowerCase().includes(search));
 
   useEffect(() => {
     if (!trackedWidgetLoadRef.current) {
@@ -282,6 +276,7 @@ export function LiveTranslationWidget({
   return (
     <main className="min-h-screen bg-[#06110d] p-3 text-white sm:p-4">
       <section className="mx-auto grid max-w-5xl gap-3">
+        <div><BackButton href="/" /></div>
         <header className="rounded-lg border border-emerald-300/16 bg-white/[0.055] p-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -351,11 +346,16 @@ export function LiveTranslationWidget({
                   Country
                   <select
                     value={country}
-                    onChange={(event) => setCountry(event.target.value)}
+                    onChange={(event) => {
+                      const nextCountry = event.target.value;
+                      setCountry(nextCountry);
+                      const firstRecommendation = getRecommendedLanguageNames(nextCountry)[0];
+                      if (firstRecommendation) setLanguage(firstRecommendation);
+                    }}
                     className="min-h-11 rounded-md border border-emerald-300/18 bg-[#07140f] px-3 text-white"
                   >
-                    {countryOptions.map((item) => (
-                      <option key={item}>{item}</option>
+                    {countryCatalog.map((item) => (
+                      <option key={item.code} value={item.name}>{item.name}</option>
                     ))}
                   </select>
                 </label>
@@ -381,9 +381,8 @@ export function LiveTranslationWidget({
                     }}
                     className="min-h-11 rounded-md border border-emerald-300/18 bg-[#07140f] px-3 text-white"
                   >
-                    {visibleListenerLanguages.map((item) => (
-                      <option key={item}>{item}</option>
-                    ))}
+                    {visibleRecommendedLanguages.length ? <optgroup label={`Recommended for ${country}`}>{visibleRecommendedLanguages.map((item) => <option key={`recommended-${item}`}>{item}</option>)}</optgroup> : null}
+                    <optgroup label="All languages">{visibleListenerLanguages.map((item) => <option key={item}>{item}</option>)}</optgroup>
                   </select>
                 </label>
               </div>

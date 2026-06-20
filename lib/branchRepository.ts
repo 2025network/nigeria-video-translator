@@ -1,4 +1,5 @@
 import { prisma } from "./db";
+import { getCountryByCodeOrName } from "./countryCatalog";
 
 export type BranchFormInput = {
   name: string;
@@ -120,12 +121,15 @@ export async function deleteBranch(branchId: string, churchId?: string) {
 }
 
 function normalizeBranchInput(input: BranchFormInput) {
+  const country = input.country
+    ? getCountryByCodeOrName(input.country)?.name ?? input.country
+    : "";
   return {
-    location: input.location || [input.city, input.state, input.country].filter(Boolean).join(", "),
+    location: [input.city, input.state, country].filter(Boolean).join(", ") || input.location,
     pastorName: input.pastorName || null,
     email: input.email || null,
     phone: input.phone || null,
-    country: input.country || "",
+    country,
     state: input.state || "",
     city: input.city || "",
     address: input.address || "",

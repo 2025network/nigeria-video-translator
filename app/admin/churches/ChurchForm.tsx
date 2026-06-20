@@ -3,11 +3,12 @@
 import { useMemo, useState } from "react";
 import {
   getChurchEmbedCode,
-  translationCountries,
   type ChurchStatus,
 } from "@/lib/demoChurches";
 import { LanguageMultiSelect } from "@/app/components/LanguageMultiSelect";
 import { SearchableLanguageSelect } from "@/app/components/SearchableLanguageSelect";
+import { SearchableCountrySelect } from "@/app/components/SearchableCountrySelect";
+import { CountryMultiSelect } from "@/app/components/CountryMultiSelect";
 import { defaultListenerLanguages } from "@/lib/listenerLanguages";
 import { CopyEmbedButton } from "./CopyEmbedButton";
 
@@ -56,14 +57,6 @@ export function ChurchForm({
 
   const cleanSlug = slug || slugify(name);
   const embedCode = useMemo(() => getChurchEmbedCode(cleanSlug || "church-slug"), [cleanSlug]);
-
-  function toggleValue(value: string, values: string[], setValues: (next: string[]) => void) {
-    setValues(
-      values.includes(value)
-        ? values.filter((item) => item !== value)
-        : [...values, value],
-    );
-  }
 
   return (
     <form action={action} className="grid gap-6 lg:grid-cols-[1fr_0.8fr]">
@@ -114,15 +107,7 @@ export function ChurchForm({
           </Field>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
-          <Field label="Country">
-            <input
-              name="country"
-              value={country}
-              onChange={(event) => setCountry(event.target.value)}
-              className="min-h-12 rounded-md border border-emerald-300/18 bg-[#07140f] px-4 text-white outline-none focus-visible:focus-ring"
-              required
-            />
-          </Field>
+          <SearchableCountrySelect name="country" value={country} onChange={setCountry} />
           <SearchableLanguageSelect
             name="defaultSpokenLanguage"
             label="Default spoken language"
@@ -145,19 +130,20 @@ export function ChurchForm({
           name="supportedLanguages"
           selected={listenerLanguages}
           onChange={setListenerLanguages}
+          recommendedCountry={country}
         />
-        <CheckboxGroup
+        <CountryMultiSelect
           label="Enabled translation countries"
           name="enabledTranslationCountries"
-          values={translationCountries}
           selected={countries}
-          onToggle={(value) => toggleValue(value, countries, setCountries)}
+          onChange={setCountries}
         />
         <LanguageMultiSelect
           label="Additional languages to highlight"
           name="enabledLanguages"
           selected={languages}
           onChange={setLanguages}
+          recommendedCountry={country}
         />
         <Field label="Status">
           <select
@@ -200,44 +186,6 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       {label}
       {children}
     </label>
-  );
-}
-
-function CheckboxGroup({
-  label,
-  name,
-  values,
-  selected,
-  onToggle,
-}: {
-  label: string;
-  name: string;
-  values: string[];
-  selected: string[];
-  onToggle: (value: string) => void;
-}) {
-  return (
-    <fieldset className="grid gap-3">
-      <legend className="text-sm font-semibold text-emerald-100">{label}</legend>
-      <div className="grid gap-2 sm:grid-cols-2">
-        {values.map((value) => (
-          <label
-            key={value}
-            className="flex min-h-11 items-center gap-3 rounded-md border border-emerald-300/14 bg-[#07140f] px-3 text-sm text-emerald-50/78"
-          >
-            <input
-              name={name}
-              type="checkbox"
-              value={value}
-              checked={selected.includes(value)}
-              onChange={() => onToggle(value)}
-              className="h-4 w-4 accent-emerald-400"
-            />
-            {value}
-          </label>
-        ))}
-      </div>
-    </fieldset>
   );
 }
 

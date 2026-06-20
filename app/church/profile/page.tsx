@@ -12,6 +12,7 @@ import {
   Video,
 } from "lucide-react";
 import { getCurrentChurchView } from "@/lib/currentChurch";
+import { SearchableCountrySelect } from "@/app/components/SearchableCountrySelect";
 import { ChurchNav } from "../ChurchNav";
 import { updateChurchProfileAction } from "./actions";
 
@@ -113,7 +114,7 @@ export default async function ChurchProfilePage({
             <section className="grid gap-4">
               <SectionHeading icon={<MapPin className="h-5 w-5" />} title="Location" />
               <div className="grid gap-4 md:grid-cols-2">
-                <Field label="Country" name="country" defaultValue={church.country} required />
+                <SearchableCountrySelect name="country" value={church.country} />
                 <Field label="City" name="city" defaultValue={church.city ?? ""} required />
               </div>
               <Field label="Address" name="address" defaultValue={church.address ?? ""} />

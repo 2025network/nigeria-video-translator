@@ -54,7 +54,8 @@ export default async function AdminLoginPage({ searchParams }: LoginPageProps) {
             <input
               name="email"
               type="email"
-              defaultValue="admin@sermonbridge.local"
+              defaultValue={process.env.ADMIN_EMAIL ?? ""}
+              placeholder="admin@example.com"
               className="min-h-12 rounded-md border border-emerald-300/18 bg-[#07140f] px-4 text-white outline-none focus-visible:focus-ring"
               required
             />

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, ClipboardList } from "lucide-react";
 import { LanguageMultiSelect } from "@/app/components/LanguageMultiSelect";
+import { SearchableCountrySelect } from "@/app/components/SearchableCountrySelect";
 import { popularLanguageCodes } from "@/lib/languageCatalog";
 import { submitOnboardingRequest } from "./actions";
 
@@ -118,7 +119,7 @@ export default async function ChurchOnboardingPage({
                   <FormField label="Contact name" name="contactName" />
                   <FormField label="Email" name="email" type="email" />
                   <FormField label="Phone" name="phone" type="tel" />
-                  <FormField label="Country" name="country" />
+                  <SearchableCountrySelect name="country" />
                   <FormField label="City" name="city" />
                 </div>
 

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CalendarClock, Languages, Play, Radio, Square } from "lucide-react";
 import { CopyEmbedButton } from "@/app/admin/churches/CopyEmbedButton";
-import { LanguageMultiSelect } from "@/app/components/LanguageMultiSelect";
+import { CountryLanguageMultiSelect } from "@/app/components/CountryLanguageMultiSelect";
 import { SearchableLanguageSelect } from "@/app/components/SearchableLanguageSelect";
 import { getBranchesForChurch } from "@/lib/branchRepository";
 import { getCurrentChurchView } from "@/lib/currentChurch";
@@ -90,6 +90,7 @@ export default async function ChurchLiveSessionsPage({
               name="sourceLanguage"
               label="Source language"
               value={church.defaultSpokenLanguage || "English"}
+              recommendedCountry={church.country}
             />
 
             <Field
@@ -115,11 +116,7 @@ export default async function ChurchLiveSessionsPage({
               </select>
             </label>
 
-            <LanguageMultiSelect
-              label="Listener languages"
-              name="listenerLanguages"
-              selected={defaultListenerLanguages}
-            />
+            <CountryLanguageMultiSelect initialCountry={church.country} languageName="listenerLanguages" selectedLanguages={defaultListenerLanguages} />
 
             <button
               type="submit"

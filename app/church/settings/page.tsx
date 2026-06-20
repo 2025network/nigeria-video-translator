@@ -33,11 +33,13 @@ export default async function ChurchSettingsPage() {
             name="defaultSpokenLanguage"
             label="Default spoken language"
             value={church.defaultSpokenLanguage}
+            recommendedCountry={church.country}
           />
           <SearchableLanguageSelect
             name="defaultListenerLanguage"
             label="Default listener language"
             value={church.enabledLanguages[0] ?? "English"}
+            recommendedCountry={church.country}
           />
           <p className="rounded-md border border-amber-300/30 bg-amber-300/10 p-4 text-sm text-amber-50 lg:col-span-2">
             Live translation requires server-side OpenAI configuration. Manual updates remain available from live sessions.

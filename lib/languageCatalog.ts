@@ -5,7 +5,8 @@ export type LanguageRegion =
   | "European Languages"
   | "Asian Languages"
   | "Middle East"
-  | "Americas";
+  | "Americas"
+  | "Oceania";
 
 export type LanguageCatalogEntry = {
   code: string;
@@ -22,6 +23,7 @@ export const languageRegions: LanguageRegion[] = [
   "Asian Languages",
   "Middle East",
   "Americas",
+  "Oceania",
 ];
 
 export const languageCatalog: LanguageCatalogEntry[] = [
@@ -48,6 +50,29 @@ export const languageCatalog: LanguageCatalogEntry[] = [
   { code: "igala", name: "Igala", region: "Nigerian Languages" },
   { code: "gwo", name: "Gbagyi", region: "Nigerian Languages" },
   { code: "ann", name: "Obolo", region: "Nigerian Languages" },
+  { code: "iso", name: "Isoko", region: "Nigerian Languages" },
+  { code: "esan", name: "Esan", region: "Nigerian Languages" },
+  { code: "jukun", name: "Jukun", region: "Nigerian Languages" },
+  { code: "berom", name: "Berom", region: "Nigerian Languages" },
+  { code: "its", name: "Itsekiri", region: "Nigerian Languages" },
+  { code: "ebira", name: "Ebira", region: "Nigerian Languages" },
+  { code: "ana", name: "Anaang / Annang", region: "Nigerian Languages" },
+  { code: "oro", name: "Oron", region: "Nigerian Languages" },
+  { code: "kal", name: "Kalabari", region: "Nigerian Languages" },
+  { code: "ogo", name: "Ogoni", region: "Nigerian Languages" },
+  { code: "bini", name: "Bini", region: "Nigerian Languages" },
+  { code: "ikw", name: "Ikwere", region: "Nigerian Languages" },
+  { code: "margi", name: "Margi", region: "Nigerian Languages" },
+  { code: "kilba", name: "Kilba", region: "Nigerian Languages" },
+  { code: "bachama", name: "Bachama", region: "Nigerian Languages" },
+  { code: "tangale", name: "Tangale", region: "Nigerian Languages" },
+  { code: "bura", name: "Bura", region: "Nigerian Languages" },
+  { code: "chamba", name: "Chamba", region: "Nigerian Languages" },
+  { code: "mumuye", name: "Mumuye", region: "Nigerian Languages" },
+  { code: "kuteb", name: "Kuteb", region: "Nigerian Languages" },
+  { code: "eggon", name: "Eggon", region: "Nigerian Languages" },
+  { code: "mada", name: "Mada", region: "Nigerian Languages" },
+  { code: "gwari", name: "Gwari / Gbagyi", region: "Nigerian Languages" },
   { code: "aka", name: "Akan", region: "African Languages" },
   { code: "tw", name: "Twi", region: "African Languages", nativeName: "Twi" },
   { code: "ee", name: "Ewe", region: "African Languages", nativeName: "Eʋegbe" },
@@ -56,6 +81,10 @@ export const languageCatalog: LanguageCatalogEntry[] = [
   { code: "xh", name: "Xhosa", region: "African Languages", nativeName: "isiXhosa" },
   { code: "st", name: "Sotho", region: "African Languages", nativeName: "Sesotho" },
   { code: "tn", name: "Tswana", region: "African Languages", nativeName: "Setswana" },
+  { code: "nso", name: "Northern Sotho", region: "African Languages" },
+  { code: "ts", name: "Tsonga", region: "African Languages" },
+  { code: "ss", name: "Swati", region: "African Languages" },
+  { code: "ve", name: "Venda", region: "African Languages" },
   { code: "af", name: "Afrikaans", region: "African Languages" },
   { code: "am", name: "Amharic", region: "African Languages", nativeName: "አማርኛ" },
   { code: "om", name: "Oromo", region: "African Languages", nativeName: "Afaan Oromoo" },
@@ -104,7 +133,10 @@ export const languageCatalog: LanguageCatalogEntry[] = [
   { code: "cy", name: "Welsh", region: "European Languages", nativeName: "Cymraeg" },
   { code: "ca", name: "Catalan", region: "European Languages", nativeName: "Català" },
   { code: "eu", name: "Basque", region: "European Languages", nativeName: "Euskara" },
+  { code: "gl", name: "Galician", region: "European Languages", nativeName: "Galego" },
   { code: "zh", name: "Chinese", region: "Asian Languages", nativeName: "中文" },
+  { code: "yue", name: "Cantonese", region: "Asian Languages", nativeName: "粵語" },
+  { code: "bo", name: "Tibetan", region: "Asian Languages", nativeName: "བོད་སྐད" },
   { code: "hi", name: "Hindi", region: "Asian Languages", nativeName: "हिन्दी" },
   { code: "bn", name: "Bengali", region: "Asian Languages", nativeName: "বাংলা" },
   { code: "ur", name: "Urdu", region: "Asian Languages", nativeName: "اردو" },
@@ -142,6 +174,8 @@ export const languageCatalog: LanguageCatalogEntry[] = [
   { code: "gn", name: "Guarani", region: "Americas", nativeName: "Avañe'ẽ" },
   { code: "nv", name: "Navajo", region: "Americas" },
   { code: "iu", name: "Inuktitut", region: "Americas" },
+  { code: "mi", name: "Māori", region: "Oceania", nativeName: "Te reo Māori" },
+  { code: "sm", name: "Samoan", region: "Oceania", nativeName: "Gagana Samoa" },
 ];
 
 export const popularLanguageCodes = ["en", "yo", "ig", "ha", "pcm", "fr", "es", "pt", "ar", "sw"];

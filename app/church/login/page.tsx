@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { LogIn } from "lucide-react";
 import { createChurchSession, loginChurch } from "@/lib/auth";
 
@@ -61,7 +62,7 @@ export default async function ChurchLoginPage({ searchParams }: ChurchLoginPageP
             <input
               name="email"
               type="email"
-              defaultValue="christ-embassy-lagos@sermonbridge.local"
+              placeholder="church@example.com"
               className="min-h-12 rounded-md border border-emerald-300/18 bg-[#07140f] px-4 text-white outline-none focus-visible:focus-ring"
               required
             />
@@ -82,12 +83,15 @@ export default async function ChurchLoginPage({ searchParams }: ChurchLoginPageP
             Sign in
           </button>
         </form>
-        <a
+        <Link
           href="/church/forgot-password"
           className="mt-4 inline-block text-sm font-semibold text-emerald-200 hover:underline"
         >
           Forgot Password?
-        </a>
+        </Link>
+        <Link href="/" className="ml-4 mt-4 inline-block text-sm font-semibold text-emerald-200 hover:underline">
+          Back to Home
+        </Link>
       </section>
     </main>
   );

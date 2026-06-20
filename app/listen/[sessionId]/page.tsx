@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Languages, Radio } from "lucide-react";
 import { CopyEmbedButton } from "@/app/admin/churches/CopyEmbedButton";
 import { SearchableLanguageSelect } from "@/app/components/SearchableLanguageSelect";
+import { SearchableCountrySelect } from "@/app/components/SearchableCountrySelect";
 import { getSiteUrl } from "@/lib/demoChurches";
 import { getLanguageName } from "@/lib/languageCatalog";
 import {
@@ -21,6 +22,7 @@ type ListenerPageProps = {
   searchParams?: Promise<{
     lang?: string;
     language?: string;
+    country?: string;
   }>;
 };
 
@@ -53,6 +55,7 @@ export default async function PublicListenerPage({
 
   const languages = parseSessionLanguages(session.listenerLanguages);
   const requestedLanguage = query?.lang ?? query?.language;
+  const selectedCountry = query?.country ?? session.church.country ?? "Nigeria";
   const requestedLanguageName = requestedLanguage ? getLanguageName(requestedLanguage) : "";
   const selectedLanguage =
     requestedLanguageName && languages.includes(requestedLanguageName)
@@ -60,7 +63,7 @@ export default async function PublicListenerPage({
       : languages[0] ?? "English";
   const messages = await getTranscriptMessagesForSession(session.id, selectedLanguage);
   const lastUpdatedAt = messages.at(-1)?.createdAt ?? null;
-  const languageSpecificUrl = `${getSiteUrl()}/listen/${session.id}?lang=${encodeURIComponent(selectedLanguage)}`;
+  const languageSpecificUrl = `${getSiteUrl()}/listen/${session.id}?lang=${encodeURIComponent(selectedLanguage)}&country=${encodeURIComponent(selectedCountry)}`;
   const whatsappShareUrl = `https://wa.me/?text=${encodeURIComponent(
     `${session.church.churchName} live sermon translation: ${languageSpecificUrl}`,
   )}`;
@@ -106,11 +109,14 @@ export default async function PublicListenerPage({
           </div>
 
           <form action={`/listen/${session.id}`} className="rounded-lg border border-emerald-300/16 bg-white/[0.055] p-5">
+            <SearchableCountrySelect name="country" value={selectedCountry} />
+            <div className="mt-3" />
             <SearchableLanguageSelect
               name="lang"
               label="Listener language"
               value={selectedLanguage}
               languages={languages}
+              recommendedCountry={selectedCountry}
             />
             <button
               type="submit"
@@ -119,7 +125,7 @@ export default async function PublicListenerPage({
               Change language
             </button>
             <Link
-              href={`/listen/${session.id}?lang=${encodeURIComponent(selectedLanguage)}`}
+              href={`/listen/${session.id}?lang=${encodeURIComponent(selectedLanguage)}&country=${encodeURIComponent(selectedCountry)}`}
               className="mt-2 inline-flex min-h-11 w-full items-center justify-center rounded-md border border-emerald-300/22 px-4 text-sm font-semibold text-emerald-50 transition hover:bg-white/8"
             >
               Refresh updates
@@ -165,7 +171,7 @@ export default async function PublicListenerPage({
               {languages.map((language) => (
                 <Link
                   key={language}
-                  href={`/listen/${session.id}?lang=${encodeURIComponent(language)}`}
+                  href={`/listen/${session.id}?lang=${encodeURIComponent(language)}&country=${encodeURIComponent(selectedCountry)}`}
                   className={`rounded-md border px-3 py-2 text-sm font-semibold transition ${
                     language === selectedLanguage
                       ? "border-emerald-300 bg-emerald-300 text-[#04120c]"

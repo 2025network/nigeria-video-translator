@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Building2, ExternalLink, PauseCircle, PlayCircle, PlusCircle, Search, Trash2 } from "lucide-react";
 import { CopyEmbedButton } from "@/app/admin/churches/CopyEmbedButton";
+import { SearchableCountrySelect } from "@/app/components/SearchableCountrySelect";
 import { getBranchesForChurch } from "@/lib/branchRepository";
 import { getCurrentChurchView } from "@/lib/currentChurch";
 import { getBranchEmbedUrl, getBranchWidgetEmbedCode } from "@/lib/demoChurches";
@@ -242,7 +243,7 @@ function BranchForm({
         <Field label="Pastor name" name="pastorName" defaultValue={values?.pastorName} />
         <Field label="Email" name="email" type="email" defaultValue={values?.email} />
         <Field label="Phone" name="phone" defaultValue={values?.phone} />
-        <Field label="Country" name="country" defaultValue={values?.country} />
+        <SearchableCountrySelect name="country" value={values?.country ?? "Nigeria"} />
         <Field label="State/Region" name="state" defaultValue={values?.state} />
         <Field label="City" name="city" defaultValue={values?.city} />
         <Field label="Address" name="address" defaultValue={values?.address} />

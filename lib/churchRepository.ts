@@ -1,4 +1,5 @@
 import { prisma } from "./db";
+import { getCountryByCodeOrName } from "./countryCatalog";
 import type { ChurchStatus } from "./demoChurches";
 import { getLanguageName, languageNamesFromValues } from "./languageCatalog";
 import { parseListenerLanguages, serializeListenerLanguages } from "./listenerLanguages";
@@ -104,7 +105,7 @@ export async function createChurch(input: ChurchFormInput) {
       passwordHash,
       plan: input.plan,
       supportedLanguages: serializeListenerLanguages(input.supportedLanguages),
-      country: input.country,
+      country: getCountryByCodeOrName(input.country)?.name ?? input.country,
       city: input.city ?? "",
       youtubeLiveUrl: input.youtubeLiveUrl,
       defaultSpokenLanguage: getLanguageName(input.defaultSpokenLanguage),
@@ -113,7 +114,7 @@ export async function createChurch(input: ChurchFormInput) {
         create: languageNamesFromValues(input.enabledLanguages).map((language) => ({ language })),
       },
       countries: {
-        create: input.enabledTranslationCountries.map((country) => ({ country })),
+        create: input.enabledTranslationCountries.map((country) => ({ country: getCountryByCodeOrName(country)?.name ?? country })),
       },
     },
   });
@@ -132,7 +133,7 @@ export async function updateChurch(id: string, input: ChurchFormInput) {
       plan: input.plan,
       supportedLanguages: serializeListenerLanguages(input.supportedLanguages),
       ...(input.password ? { passwordHash: await hashPassword(input.password) } : {}),
-      country: input.country,
+      country: getCountryByCodeOrName(input.country)?.name ?? input.country,
       city: input.city ?? "",
       youtubeLiveUrl: input.youtubeLiveUrl,
       defaultSpokenLanguage: getLanguageName(input.defaultSpokenLanguage),
@@ -143,7 +144,7 @@ export async function updateChurch(id: string, input: ChurchFormInput) {
       },
       countries: {
         deleteMany: {},
-        create: input.enabledTranslationCountries.map((country) => ({ country })),
+        create: input.enabledTranslationCountries.map((country) => ({ country: getCountryByCodeOrName(country)?.name ?? country })),
       },
     },
   });
@@ -164,7 +165,7 @@ export async function updateChurchProfile(id: string, input: ChurchProfileInput)
       facebookUrl: input.facebookUrl || null,
       youtubeUrl: input.youtubeUrl || null,
       instagramUrl: input.instagramUrl || null,
-      country: input.country,
+      country: getCountryByCodeOrName(input.country)?.name ?? input.country,
       city: input.city,
       address: input.address || null,
     },
