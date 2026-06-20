@@ -82,6 +82,12 @@ export default async function ChurchLoginPage({ searchParams }: ChurchLoginPageP
             Sign in
           </button>
         </form>
+        <a
+          href="/church/forgot-password"
+          className="mt-4 inline-block text-sm font-semibold text-emerald-200 hover:underline"
+        >
+          Forgot Password?
+        </a>
       </section>
     </main>
   );

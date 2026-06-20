@@ -75,6 +75,12 @@ export default async function AdminLoginPage({ searchParams }: LoginPageProps) {
             Sign in
           </button>
         </form>
+        <a
+          href="/admin/forgot-password"
+          className="mt-4 inline-block text-sm font-semibold text-emerald-200 hover:underline"
+        >
+          Forgot Password?
+        </a>
         <p className="mt-4 text-xs leading-5 text-emerald-50/55">
           Admin credentials are created by the Prisma seed script or your production environment variables.
         </p>
