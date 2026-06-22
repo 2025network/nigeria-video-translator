@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Download, Globe2, Languages, Users } from "lucide-react";
+import { ArrowLeft, Download, Globe2, Languages, Monitor, Users } from "lucide-react";
+import { CopyEmbedButton } from "@/app/admin/churches/CopyEmbedButton";
 import { getCurrentChurchView } from "@/lib/currentChurch";
+import { getSiteUrl } from "@/lib/demoChurches";
 import { getSessionAnalytics } from "@/lib/listenerAnalyticsRepository";
 import { ChurchNav } from "../../../ChurchNav";
 
@@ -26,6 +28,11 @@ export default async function SessionAnalyticsPage({ params }: SessionAnalyticsP
 
   const maxLanguageCount = Math.max(1, ...analytics.languages.map((item) => item.count));
   const maxTimelineCount = Math.max(1, ...analytics.timeline.map((item) => item.count));
+  const maxDisplayLanguageCount = Math.max(
+    1,
+    ...analytics.displayLanguages.map((item) => item.count),
+  );
+  const displayUrl = `${getSiteUrl()}/display/${sessionId}`;
 
   return (
     <main className="min-h-screen bg-[#06110d] text-white">
@@ -54,6 +61,11 @@ export default async function SessionAnalyticsPage({ params }: SessionAnalyticsP
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
+            <Link href={`/display/${sessionId}`} target="_blank" className="inline-flex min-h-11 items-center gap-2 rounded-md border border-emerald-300/24 px-4 text-sm font-semibold text-emerald-50 hover:bg-white/8">
+              <Monitor className="h-4 w-4" />
+              Open Display Mode
+            </Link>
+            <CopyEmbedButton embedCode={displayUrl} label="Copy Display Link" copiedLabel="Display link copied" />
             <Link href={`/api/church/live-sessions/${sessionId}/analytics/export?type=listeners`} className="inline-flex min-h-11 items-center gap-2 rounded-md border border-emerald-300/24 px-4 text-sm font-semibold text-emerald-50 hover:bg-white/8">
               <Download className="h-4 w-4" />
               Export listeners CSV
@@ -65,10 +77,12 @@ export default async function SessionAnalyticsPage({ params }: SessionAnalyticsP
           </div>
         </div>
 
-        <div className="mb-6 grid gap-4 md:grid-cols-3">
+        <div className="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
           <Metric icon={<Users className="h-5 w-5" />} label="Total listeners" value={String(analytics.totalListeners)} />
           <Metric icon={<Languages className="h-5 w-5" />} label="Languages used" value={String(analytics.languages.length)} />
           <Metric icon={<Globe2 className="h-5 w-5" />} label="Countries" value={String(analytics.countries.length)} />
+          <Metric icon={<Monitor className="h-5 w-5" />} label="Display views" value={String(analytics.displayViews)} />
+          <Metric icon={<Monitor className="h-5 w-5" />} label="Kiosk views" value={String(analytics.kioskDisplayViews)} />
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
@@ -125,6 +139,18 @@ export default async function SessionAnalyticsPage({ params }: SessionAnalyticsP
               </div>
             ) : (
               <Empty>No recent listeners yet.</Empty>
+            )}
+          </Panel>
+
+          <Panel title="Display language activity">
+            {analytics.displayLanguages.length ? (
+              <div className="grid gap-3">
+                {analytics.displayLanguages.map((row) => (
+                  <Bar key={row.languageCode} label={row.language} value={row.count} max={maxDisplayLanguageCount} />
+                ))}
+              </div>
+            ) : (
+              <Empty>No Smart Display language activity has been recorded yet.</Empty>
             )}
           </Panel>
         </div>

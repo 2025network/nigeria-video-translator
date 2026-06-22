@@ -78,12 +78,27 @@ model SermonSession {
   transcriptMessages SermonTranscriptMessage[]
   errorLogs         LiveSessionErrorLog[]
   listenerSessions  ListenerSession[]
+  displayUsageEvents DisplayUsageEvent[]
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
   @@index([churchId, status, createdAt])
   @@index([branchId, status, createdAt])
   @@index([status, startedAt])
+}
+
+model DisplayUsageEvent {
+  id           String        @id @default(cuid())
+  sessionId    String
+  session      SermonSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  eventType    String
+  languageCode String
+  kioskMode    Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+
+  @@index([sessionId, eventType, createdAt])
+  @@index([sessionId, languageCode])
+  @@index([sessionId, kioskMode])
 }
 
 model ListenerSession {
@@ -111,6 +126,7 @@ model SermonTranscriptMessage {
   audioUrl       String?
   audioStatus    String?
   audioError     String?
+  isApproved     Boolean       @default(true)
   createdAt      DateTime      @default(now())
 
   @@index([sessionId, language, createdAt])

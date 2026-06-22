@@ -91,7 +91,16 @@ export async function getSessionAnalytics(sessionId: string, churchId: string) {
 
   if (!session) return null;
 
-  const [totalListeners, languageRows, countryRows, recentListeners, timelineRows] =
+  const [
+    totalListeners,
+    languageRows,
+    countryRows,
+    recentListeners,
+    timelineRows,
+    displayViews,
+    kioskDisplayViews,
+    displayLanguageRows,
+  ] =
     await Promise.all([
       prisma.listenerSession.count({ where: { sessionId } }),
       prisma.listenerSession.groupBy({
@@ -116,6 +125,25 @@ export async function getSessionAnalytics(sessionId: string, churchId: string) {
         orderBy: { createdAt: "asc" },
         select: { createdAt: true },
       }),
+      prisma.displayUsageEvent.count({
+        where: { sessionId, eventType: "display_viewed" },
+      }),
+      prisma.displayUsageEvent.count({
+        where: {
+          sessionId,
+          eventType: "display_viewed",
+          kioskMode: true,
+        },
+      }),
+      prisma.displayUsageEvent.groupBy({
+        by: ["languageCode"],
+        where: {
+          sessionId,
+          eventType: { in: ["display_viewed", "language_changed"] },
+        },
+        _count: { _all: true },
+        orderBy: { _count: { languageCode: "desc" } },
+      }),
     ]);
 
   return {
@@ -135,6 +163,13 @@ export async function getSessionAnalytics(sessionId: string, churchId: string) {
       language: getLanguageName(listener.languageCode),
     })),
     timeline: buildDailyTimeline(timelineRows.map((row) => row.createdAt)),
+    displayViews,
+    kioskDisplayViews,
+    displayLanguages: displayLanguageRows.map((row) => ({
+      language: getLanguageName(row.languageCode),
+      languageCode: row.languageCode,
+      count: row._count._all,
+    })),
   };
 }
 

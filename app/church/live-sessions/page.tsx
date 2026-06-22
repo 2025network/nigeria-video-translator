@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CalendarClock, Languages, Play, Radio, Square } from "lucide-react";
+import { CalendarClock, Languages, Monitor, Play, Radio, Square } from "lucide-react";
 import { CopyEmbedButton } from "@/app/admin/churches/CopyEmbedButton";
 import { CountryLanguageMultiSelect } from "@/app/components/CountryLanguageMultiSelect";
 import { SearchableLanguageSelect } from "@/app/components/SearchableLanguageSelect";
 import { getBranchesForChurch } from "@/lib/branchRepository";
 import { getCurrentChurchView } from "@/lib/currentChurch";
+import { getSiteUrl } from "@/lib/demoChurches";
 import {
   getSermonSessionsForChurch,
   getSessionListenUrl,
@@ -139,6 +140,7 @@ export default async function ChurchLiveSessionsPage({
             ) : (
               sessions.map((session) => {
                 const listenUrl = getSessionListenUrl(session.id);
+                const displayUrl = `${getSiteUrl()}/display/${session.id}`;
                 const listenerLanguages = parseSessionLanguages(session.listenerLanguages);
 
                 return (
@@ -233,6 +235,19 @@ export default async function ChurchLiveSessionsPage({
                       >
                         Analytics
                       </Link>
+                      <Link
+                        href={`/display/${session.id}`}
+                        target="_blank"
+                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-emerald-300/26 px-4 text-sm font-semibold text-emerald-100 transition hover:bg-white/8"
+                      >
+                        <Monitor className="h-4 w-4" />
+                        Open Display Mode
+                      </Link>
+                      <CopyEmbedButton
+                        embedCode={displayUrl}
+                        label="Copy Display Link"
+                        copiedLabel="Display link copied"
+                      />
                       <CopyEmbedButton
                         embedCode={listenUrl}
                         label="Copy listener link"

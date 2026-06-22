@@ -8,8 +8,9 @@ import { BackButton } from "./BackButton";
 export function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isEmbedRoute = pathname.startsWith("/embed/");
+  const isDisplayRoute = pathname.startsWith("/display/");
 
-  if (isEmbedRoute) {
+  if (isEmbedRoute || isDisplayRoute) {
     return <>{children}</>;
   }
 
