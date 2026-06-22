@@ -5,7 +5,8 @@ import { CopyEmbedButton } from "@/app/admin/churches/CopyEmbedButton";
 import { CountryLanguageMultiSelect } from "@/app/components/CountryLanguageMultiSelect";
 import { SearchableLanguageSelect } from "@/app/components/SearchableLanguageSelect";
 import { getBranchesForChurch } from "@/lib/branchRepository";
-import { getCurrentChurchView } from "@/lib/currentChurch";
+import { requireChurchPermission } from "@/lib/currentChurch";
+import { hasChurchPermission } from "@/lib/churchPermissions";
 import { getSiteUrl } from "@/lib/demoChurches";
 import {
   getSermonSessionsForChurch,
@@ -38,12 +39,19 @@ export const dynamic = "force-dynamic";
 export default async function ChurchLiveSessionsPage({
   searchParams,
 }: LiveSessionsPageProps) {
-  const [church, params] = await Promise.all([getCurrentChurchView(), searchParams]);
+  const [{ church, actor }, params] = await Promise.all([
+    requireChurchPermission("sessions:view"),
+    searchParams,
+  ]);
+  const branchScope = actor.role === "BRANCH_MANAGER" ? actor.branchId : undefined;
   const [sessions, branches] = await Promise.all([
-    getSermonSessionsForChurch(church.id),
+    getSermonSessionsForChurch(church.id, branchScope),
     getBranchesForChurch(church.id),
   ]);
-  const activeBranches = branches.filter((branch) => !branch.disabledAt);
+  const activeBranches = branches.filter(
+    (branch) => !branch.disabledAt && (!branchScope || branch.id === branchScope),
+  );
+  const canManageSessions = hasChurchPermission(actor, "sessions:manage");
   const defaultListenerLanguages = church.supportedLanguages;
 
   return (
@@ -74,8 +82,8 @@ export default async function ChurchLiveSessionsPage({
 
         <StatusMessage params={params} />
 
-        <div className="grid gap-6 xl:grid-cols-[0.82fr_1.18fr]">
-          <form
+        <div className={`grid gap-6 ${canManageSessions ? "xl:grid-cols-[0.82fr_1.18fr]" : ""}`}>
+          {canManageSessions ? <form
             action={createSermonSessionAction}
             className="grid h-fit gap-5 rounded-lg border border-emerald-300/16 bg-white/[0.045] p-5"
           >
@@ -127,7 +135,7 @@ export default async function ChurchLiveSessionsPage({
               <Play className="h-5 w-5" />
               Start session setup
             </button>
-          </form>
+          </form> : null}
 
           <section className="grid gap-4">
             {sessions.length === 0 ? (
@@ -165,7 +173,7 @@ export default async function ChurchLiveSessionsPage({
                       </div>
 
                       <div className="flex flex-wrap gap-2">
-                        {session.status !== "LIVE" && session.status !== "ENDED" ? (
+                        {canManageSessions && session.status !== "LIVE" && session.status !== "ENDED" ? (
                           <form action={startSermonSessionAction}>
                             <input type="hidden" name="sessionId" value={session.id} />
                             <button
@@ -177,7 +185,7 @@ export default async function ChurchLiveSessionsPage({
                             </button>
                           </form>
                         ) : null}
-                        {session.status === "LIVE" ? (
+                        {canManageSessions && session.status === "LIVE" ? (
                           <form action={endSermonSessionAction}>
                             <input type="hidden" name="sessionId" value={session.id} />
                             <button

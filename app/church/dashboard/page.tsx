@@ -1,7 +1,9 @@
 ﻿import Link from "next/link";
 import { Building2, FileCode2, Languages, Radio, Settings, Users } from "lucide-react";
 import { getBranchesForChurch } from "@/lib/branchRepository";
-import { getCurrentChurchView } from "@/lib/currentChurch";
+import { getCurrentChurchContext } from "@/lib/currentChurch";
+import { hasChurchPermission } from "@/lib/churchPermissions";
+import { getChurchTeamDashboardStats } from "@/lib/churchTeamRepository";
 import {
   getBranchEmbedUrl,
   getBranchWidgetEmbedCode,
@@ -19,22 +21,39 @@ export const metadata = {
 };
 
 export default async function ChurchDashboardPage() {
-  const church = await getCurrentChurchView();
+  const { church, actor } = await getCurrentChurchContext();
 
   if (!church) {
     return <EmptyChurchState />;
   }
 
-  const embedCode = getChurchEmbedCode(church.slug);
-  const scriptCode = getFloatingWidgetScriptCode(church.slug);
-  const widgetUrl = getChurchEmbedUrl(church.slug);
-  const publicPageUrl = `/churches/${church.slug}`;
-  const [branches, stats] = await Promise.all([
+  const branchScope = actor.role === "BRANCH_MANAGER" ? actor.branchId : undefined;
+  const [allBranches, stats, analytics, teamStats] = await Promise.all([
     getBranchesForChurch(church.id),
-    getChurchSessionStats(church.id),
+    getChurchSessionStats(church.id, branchScope),
+    getChurchAnalyticsSummary(church.id, branchScope),
+    getChurchTeamDashboardStats(church.id, branchScope),
   ]);
-  const analytics = await getChurchAnalyticsSummary(church.id);
+  const branches = branchScope
+    ? allBranches.filter((branch) => branch.id === branchScope)
+    : allBranches;
+  const managedBranch = branchScope ? branches[0] : null;
+  const embedCode = managedBranch
+    ? getBranchWidgetEmbedCode(church.slug, managedBranch.slug)
+    : getChurchEmbedCode(church.slug);
+  const scriptCode = managedBranch
+    ? getBranchWidgetEmbedCode(church.slug, managedBranch.slug)
+    : getFloatingWidgetScriptCode(church.slug);
+  const widgetUrl = managedBranch
+    ? getBranchEmbedUrl(church.slug, managedBranch.slug)
+    : getChurchEmbedUrl(church.slug);
+  const publicPageUrl = managedBranch
+    ? `/churches/${church.slug}/branches/${managedBranch.slug}`
+    : `/churches/${church.slug}`;
   const activeBranches = branches.filter((branch) => !branch.disabledAt);
+  const canViewSessions = hasChurchPermission(actor, "sessions:view");
+  const canViewBranches = hasChurchPermission(actor, "branches:view");
+  const canManageTeam = hasChurchPermission(actor, "team:manage");
 
   return (
     <main className="min-h-screen bg-[#06110d] text-white">
@@ -59,23 +78,14 @@ export default async function ChurchDashboardPage() {
           >
             View Public Page
           </Link>
-          <Link
-            href="/church/live-sessions"
-            className="ml-0 mt-3 inline-flex min-h-11 items-center justify-center rounded-md bg-emerald-400 px-4 text-sm font-semibold text-[#04120c] transition hover:bg-emerald-300 sm:ml-3"
-          >
-            Manage Live Sessions
-          </Link>
-          <Link
-            href="/church/branches"
-            className="ml-0 mt-3 inline-flex min-h-11 items-center justify-center rounded-md border border-emerald-300/22 px-4 text-sm font-semibold text-emerald-50 transition hover:bg-white/8 sm:ml-3"
-          >
-            Manage Branches
-          </Link>
+          {canViewSessions ? <Link href="/church/live-sessions" className="ml-0 mt-3 inline-flex min-h-11 items-center justify-center rounded-md bg-emerald-400 px-4 text-sm font-semibold text-[#04120c] transition hover:bg-emerald-300 sm:ml-3">Live Sessions</Link> : null}
+          {canViewBranches ? <Link href="/church/branches" className="ml-0 mt-3 inline-flex min-h-11 items-center justify-center rounded-md border border-emerald-300/22 px-4 text-sm font-semibold text-emerald-50 transition hover:bg-white/8 sm:ml-3">Branches</Link> : null}
+          {canManageTeam ? <Link href="/church/team" className="ml-0 mt-3 inline-flex min-h-11 items-center justify-center rounded-md border border-emerald-300/22 px-4 text-sm font-semibold text-emerald-50 transition hover:bg-white/8 sm:ml-3">Manage Team</Link> : null}
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <Metric icon={<FileCode2 className="h-5 w-5" />} label="Church slug" value={church.slug} />
-          <Metric icon={<FileCode2 className="h-5 w-5" />} label="Church email" value={church.email} />
+          {actor.role !== "BRANCH_MANAGER" ? <Metric icon={<FileCode2 className="h-5 w-5" />} label="Church email" value={church.email} /> : null}
           <Metric icon={<Radio className="h-5 w-5" />} label="Widget status" value={church.status} />
           <Metric icon={<FileCode2 className="h-5 w-5" />} label="Embed URL" value={widgetUrl} />
           <Metric icon={<Settings className="h-5 w-5" />} label="Access" value="Full platform access" />
@@ -87,6 +97,8 @@ export default async function ChurchDashboardPage() {
           <Metric icon={<Radio className="h-5 w-5" />} label="Sessions this month" value={String(analytics.sessionsThisMonth)} />
           <Metric icon={<Languages className="h-5 w-5" />} label="Top language" value={analytics.mostPopularLanguage} />
           <Metric icon={<Building2 className="h-5 w-5" />} label="Top branch" value={analytics.mostPopularBranch} />
+          <Metric icon={<Users className="h-5 w-5" />} label="Team members" value={String(teamStats.teamCount)} />
+          <Metric icon={<Users className="h-5 w-5" />} label="Active team members" value={String(teamStats.activeTeamCount)} />
         </div>
 
         <div className="mt-4 grid gap-4 md:grid-cols-3">
@@ -102,6 +114,24 @@ export default async function ChurchDashboardPage() {
           the live widget. Changing language in one browser does not change the
           language for the whole church, branch, or other viewers.
         </div>
+
+        <section className="mt-6 rounded-lg border border-emerald-300/16 bg-white/[0.045] p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div><h2 className="text-2xl font-semibold">Recent team actions</h2><p className="mt-2 text-sm text-emerald-50/64">Security and live-service activity for this church{branchScope ? " branch" : ""}.</p></div>
+            {canManageTeam ? <Link href="/church/team" className="text-sm font-semibold text-emerald-200 hover:underline">Open team management</Link> : null}
+          </div>
+          {teamStats.recentActivities.length ? (
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
+              {teamStats.recentActivities.map((activity) => (
+                <article key={activity.id} className="rounded-md border border-emerald-300/12 bg-[#07140f] p-4">
+                  <p className="text-sm font-semibold text-emerald-50">{formatActivity(activity.action)}</p>
+                  <p className="mt-1 text-xs text-emerald-50/55">{activity.teamMember?.name ?? church.churchName}{activity.branch?.name ? ` - ${activity.branch.name}` : ""}</p>
+                  <p className="mt-2 text-xs text-emerald-50/45">{activity.createdAt.toLocaleString()}</p>
+                </article>
+              ))}
+            </div>
+          ) : <p className="mt-4 rounded-md border border-dashed border-emerald-300/20 bg-[#07140f] p-4 text-sm text-emerald-50/64">No team activity has been recorded yet.</p>}
+        </section>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
           <section className="grid h-fit gap-4 rounded-lg border border-emerald-300/16 bg-white/[0.045] p-5">
@@ -138,12 +168,12 @@ export default async function ChurchDashboardPage() {
             available by default, and this church can highlight preferred
             listener languages for its audience.
           </p>
-          <Link
+          {canViewBranches ? <Link
             href="/church/branches"
             className="mt-4 inline-flex min-h-10 items-center justify-center rounded-md bg-emerald-400 px-4 text-sm font-semibold text-[#04120c] transition hover:bg-emerald-300"
           >
             Open branch management
-          </Link>
+          </Link> : null}
           {branches.length === 0 ? (
             <p className="mt-4 rounded-md border border-dashed border-emerald-300/20 bg-[#07140f] p-4 text-sm text-emerald-50/68">
               No branches have been added yet.
@@ -183,6 +213,10 @@ export default async function ChurchDashboardPage() {
       </section>
     </main>
   );
+}
+
+function formatActivity(action: string) {
+  return action.toLowerCase().replaceAll("_", " ").replace(/^./, (value) => value.toUpperCase());
 }
 
 function Metric({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {

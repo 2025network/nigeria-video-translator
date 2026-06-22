@@ -11,7 +11,7 @@ import {
   UserRound,
   Video,
 } from "lucide-react";
-import { getCurrentChurchView } from "@/lib/currentChurch";
+import { requireChurchPermission } from "@/lib/currentChurch";
 import { SearchableCountrySelect } from "@/app/components/SearchableCountrySelect";
 import { ChurchNav } from "../ChurchNav";
 import { updateChurchProfileAction } from "./actions";
@@ -30,7 +30,10 @@ export const metadata: Metadata = {
 export default async function ChurchProfilePage({
   searchParams,
 }: ChurchProfilePageProps) {
-  const [church, params] = await Promise.all([getCurrentChurchView(), searchParams]);
+  const [{ church }, params] = await Promise.all([
+    requireChurchPermission("church:manage"),
+    searchParams,
+  ]);
   const saved = params?.saved === "1";
   const missing = params?.error === "missing";
 

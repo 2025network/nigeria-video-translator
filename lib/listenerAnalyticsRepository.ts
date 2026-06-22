@@ -21,37 +21,44 @@ export async function recordListenerSession(input: {
   });
 }
 
-export async function getChurchAnalyticsSummary(churchId: string) {
+export async function getChurchAnalyticsSummary(
+  churchId: string,
+  branchId?: string | null,
+) {
   const monthStart = new Date();
   monthStart.setDate(1);
   monthStart.setHours(0, 0, 0, 0);
 
+  const sessionScope = { churchId, ...(branchId ? { branchId } : {}) };
+  const branchSessionScope = branchId
+    ? sessionScope
+    : { churchId, branchId: { not: null } };
   const [totalListeners, activeListeners, sessionsThisMonth, languageRows, branchRows] =
     await Promise.all([
       prisma.listenerSession.count({
-        where: { session: { churchId } },
+        where: { session: sessionScope },
       }),
       prisma.listenerSession.findMany({
         where: {
-          session: { churchId },
+          session: sessionScope,
           createdAt: { gte: new Date(Date.now() - 15 * 60 * 1000) },
         },
         select: { visitorId: true },
         distinct: ["visitorId"],
       }),
       prisma.sermonSession.count({
-        where: { churchId, createdAt: { gte: monthStart } },
+        where: { ...sessionScope, createdAt: { gte: monthStart } },
       }),
       prisma.listenerSession.groupBy({
         by: ["languageCode"],
-        where: { session: { churchId } },
+        where: { session: sessionScope },
         _count: { _all: true },
         orderBy: { _count: { languageCode: "desc" } },
         take: 1,
       }),
       prisma.listenerSession.groupBy({
         by: ["sessionId"],
-        where: { session: { churchId, branchId: { not: null } } },
+        where: { session: branchSessionScope },
         _count: { _all: true },
         orderBy: { _count: { sessionId: "desc" } },
         take: 20,

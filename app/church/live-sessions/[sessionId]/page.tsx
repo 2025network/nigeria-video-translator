@@ -3,7 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Captions, Languages, Monitor, Play, Radio, Square, Trash2 } from "lucide-react";
 import { CopyEmbedButton } from "@/app/admin/churches/CopyEmbedButton";
-import { getCurrentChurchView } from "@/lib/currentChurch";
+import { requireChurchPermission } from "@/lib/currentChurch";
+import { canAccessChurchBranch, hasChurchPermission } from "@/lib/churchPermissions";
 import { getSiteUrl } from "@/lib/demoChurches";
 import { normalizeLanguageValue } from "@/lib/languageCatalog";
 import {
@@ -51,14 +52,15 @@ export default async function ChurchLiveSessionDetailPage({
   params,
   searchParams,
 }: SessionDetailPageProps) {
-  const [{ sessionId }, query, church] = await Promise.all([
+  const [{ sessionId }, query, context] = await Promise.all([
     params,
     searchParams,
-    getCurrentChurchView(),
+    requireChurchPermission("sessions:view"),
   ]);
+  const { church, actor } = context;
   const session = await getSermonSessionForChurch(sessionId, church.id);
 
-  if (!session) {
+  if (!session || !canAccessChurchBranch(actor, session.branchId)) {
     notFound();
   }
 
@@ -78,6 +80,9 @@ export default async function ChurchLiveSessionDetailPage({
   const cleanOverlayUrl = `${overlayUrl}&clean=true`;
   const transcriptionModel = process.env.OPENAI_TRANSCRIPTION_MODEL || "whisper-1";
   const openAiConfigured = Boolean(process.env.OPENAI_API_KEY);
+  const canManageSessions = hasChurchPermission(actor, "sessions:manage");
+  const canManageTranslations = hasChurchPermission(actor, "translations:manage");
+  const canViewAnalytics = hasChurchPermission(actor, "analytics:view");
 
   return (
     <main className="min-h-screen bg-[#06110d] text-white">
@@ -109,7 +114,7 @@ export default async function ChurchLiveSessionDetailPage({
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            {session.status !== "LIVE" && session.status !== "ENDED" ? (
+            {canManageSessions && session.status !== "LIVE" && session.status !== "ENDED" ? (
               <form action={startSessionFromDetailAction}>
                 <input type="hidden" name="sessionId" value={session.id} />
                 <button
@@ -121,7 +126,7 @@ export default async function ChurchLiveSessionDetailPage({
                 </button>
               </form>
             ) : null}
-            {session.status === "LIVE" ? (
+            {canManageSessions && session.status === "LIVE" ? (
               <form action={endSessionFromDetailAction}>
                 <input type="hidden" name="sessionId" value={session.id} />
                 <button
@@ -139,12 +144,12 @@ export default async function ChurchLiveSessionDetailPage({
             >
               View listener link
             </Link>
-            <Link
+            {canViewAnalytics ? <Link
               href={`/church/live-sessions/${session.id}/analytics`}
               className="inline-flex min-h-11 items-center justify-center rounded-md border border-emerald-300/26 px-4 text-sm font-semibold text-emerald-100 transition hover:bg-white/8"
             >
               Analytics
-            </Link>
+            </Link> : null}
             <Link
               href={`/display/${session.id}`}
               target="_blank"
@@ -237,7 +242,7 @@ export default async function ChurchLiveSessionDetailPage({
           </div>
         </section>
 
-        <div className="mb-6 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+        {canManageSessions ? <div className="mb-6 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
           <LiveMicCapture sessionId={session.id} sessionStatus={session.status} />
           <section className="rounded-lg border border-emerald-300/16 bg-emerald-300/10 p-5">
             <h2 className="text-2xl font-semibold">Best audio setup</h2>
@@ -249,18 +254,18 @@ export default async function ChurchLiveSessionDetailPage({
               <li>Keep manual update ready as a backup publishing method.</li>
             </ul>
           </section>
-        </div>
+        </div> : null}
 
-        <div className="mb-6">
+        {canManageSessions ? <div className="mb-6">
           <SpeakerOutputMode
             sessionId={session.id}
             languages={listenerLanguages}
             initialMessages={messages.map(toSpeakerOutputMessage)}
           />
-        </div>
+        </div> : null}
 
-        <div className="grid gap-6 xl:grid-cols-[0.82fr_1.18fr]">
-          <form
+        <div className={`grid gap-6 ${canManageTranslations ? "xl:grid-cols-[0.82fr_1.18fr]" : ""}`}>
+          {canManageTranslations ? <form
             action={addTranscriptMessageAction}
             className="grid h-fit gap-5 rounded-lg border border-emerald-300/16 bg-white/[0.045] p-5"
           >
@@ -316,7 +321,7 @@ export default async function ChurchLiveSessionDetailPage({
               <Languages className="h-5 w-5" />
               Save to all listener languages
             </button>
-          </form>
+          </form> : null}
 
           <section className="grid gap-4">
             <div className="grid gap-3 md:grid-cols-2">
@@ -330,7 +335,7 @@ export default async function ChurchLiveSessionDetailPage({
             <section className="rounded-lg border border-emerald-300/16 bg-white/[0.045] p-5">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="text-2xl font-semibold">Messages sent</h2>
-                {messages.length ? (
+                {canManageTranslations && messages.length ? (
                   <form action={clearTranscriptMessagesAction}>
                     <input type="hidden" name="sessionId" value={session.id} />
                     <button
@@ -376,7 +381,7 @@ export default async function ChurchLiveSessionDetailPage({
                           {message.audioError}
                         </p>
                       ) : null}
-                      <form action={deleteTranscriptMessageAction} className="mt-4">
+                      {canManageTranslations ? <form action={deleteTranscriptMessageAction} className="mt-4">
                         <input type="hidden" name="sessionId" value={session.id} />
                         <input type="hidden" name="messageId" value={message.id} />
                         <button
@@ -386,7 +391,7 @@ export default async function ChurchLiveSessionDetailPage({
                           <Trash2 className="h-3.5 w-3.5" />
                           Delete message
                         </button>
-                      </form>
+                      </form> : null}
                     </article>
                   ))}
                 </div>

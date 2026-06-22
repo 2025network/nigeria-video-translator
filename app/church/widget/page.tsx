@@ -1,5 +1,6 @@
 ﻿import { getCurrentChurchView } from "@/lib/currentChurch";
 import { getChurchEmbedCode, getChurchEmbedUrl, getFloatingWidgetScriptCode } from "@/lib/demoChurches";
+import { requireChurchPermission } from "@/lib/currentChurch";
 import { ChurchNav } from "../ChurchNav";
 import { CopyEmbedButton } from "../../admin/churches/CopyEmbedButton";
 
@@ -8,6 +9,7 @@ export const metadata = {
 };
 
 export default async function ChurchWidgetPage() {
+  await requireChurchPermission("church:manage");
   const church = await getCurrentChurchView();
 
   if (!church) {

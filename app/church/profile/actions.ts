@@ -3,10 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { updateChurchProfile } from "@/lib/churchRepository";
-import { getCurrentChurchView } from "@/lib/currentChurch";
+import { requireChurchPermission } from "@/lib/currentChurch";
 
 export async function updateChurchProfileAction(formData: FormData) {
-  const church = await getCurrentChurchView();
+  const { church } = await requireChurchPermission("church:manage");
   const churchName = readField(formData, "churchName");
   const country = readField(formData, "country");
   const city = readField(formData, "city");

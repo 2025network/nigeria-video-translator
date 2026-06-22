@@ -5,20 +5,26 @@ import { redirect } from "next/navigation";
 import {
   createSermonSession,
   endSermonSession,
+  getSermonSessionForChurch,
   startSermonSession,
 } from "@/lib/sermonSessionRepository";
-import { getCurrentChurchView } from "@/lib/currentChurch";
 import { getBranchForChurch } from "@/lib/branchRepository";
 import { getLanguageName } from "@/lib/languageCatalog";
 import { sendLiveSessionStartedNotification } from "@/lib/emailNotifications";
+import { canAccessChurchBranch } from "@/lib/churchPermissions";
+import { logChurchTeamActivity } from "@/lib/churchTeamRepository";
+import { requireChurchPermission } from "@/lib/currentChurch";
 
 export async function createSermonSessionAction(formData: FormData) {
-  const church = await getCurrentChurchView();
+  const { church, actor } = await requireChurchPermission("sessions:manage");
   const title = String(formData.get("title") ?? "").trim();
   const sourceLanguage = getLanguageName(String(formData.get("sourceLanguage") ?? "en").trim());
   const listenerLanguages = formData.getAll("listenerLanguages").map(String);
   const streamUrl = String(formData.get("streamUrl") ?? "").trim();
-  const branchId = String(formData.get("branchId") ?? "").trim();
+  const requestedBranchId = String(formData.get("branchId") ?? "").trim();
+  const branchId = actor.role === "BRANCH_MANAGER"
+    ? actor.branchId ?? ""
+    : requestedBranchId;
 
   if (!title || !sourceLanguage) {
     redirect("/church/live-sessions?error=missing");
@@ -32,12 +38,23 @@ export async function createSermonSessionAction(formData: FormData) {
     }
   }
 
-  await createSermonSession(church.id, {
+  if (!canAccessChurchBranch(actor, branchId || null)) {
+    redirect("/church/live-sessions?error=branch");
+  }
+
+  const session = await createSermonSession(church.id, {
     title,
     sourceLanguage,
     listenerLanguages,
     streamUrl,
     branchId,
+  });
+  await logChurchTeamActivity({
+    churchId: church.id,
+    teamMemberId: actor.teamMemberId,
+    branchId: session.branchId,
+    action: "SESSION_CREATED",
+    metadata: { sessionId: session.id, title: session.title },
   });
 
   revalidatePath("/church/live-sessions");
@@ -47,14 +64,27 @@ export async function createSermonSessionAction(formData: FormData) {
 }
 
 export async function startSermonSessionAction(formData: FormData) {
-  const church = await getCurrentChurchView();
+  const { church, actor } = await requireChurchPermission("sessions:manage");
   const sessionId = String(formData.get("sessionId") ?? "");
 
   if (!sessionId) {
     redirect("/church/live-sessions?error=session");
   }
 
+  const session = await getSermonSessionForChurch(sessionId, church.id);
+
+  if (!session || !canAccessChurchBranch(actor, session.branchId)) {
+    redirect("/church/live-sessions?error=session");
+  }
+
   await startSermonSession(sessionId, church.id);
+  await logChurchTeamActivity({
+    churchId: church.id,
+    teamMemberId: actor.teamMemberId,
+    branchId: session.branchId,
+    action: "SESSION_STARTED",
+    metadata: { sessionId, title: session.title },
+  });
   const emailDelivery = await sendLiveSessionStartedNotification(
     sessionId,
     church.id,
@@ -70,14 +100,27 @@ export async function startSermonSessionAction(formData: FormData) {
 }
 
 export async function endSermonSessionAction(formData: FormData) {
-  const church = await getCurrentChurchView();
+  const { church, actor } = await requireChurchPermission("sessions:manage");
   const sessionId = String(formData.get("sessionId") ?? "");
 
   if (!sessionId) {
     redirect("/church/live-sessions?error=session");
   }
 
+  const session = await getSermonSessionForChurch(sessionId, church.id);
+
+  if (!session || !canAccessChurchBranch(actor, session.branchId)) {
+    redirect("/church/live-sessions?error=session");
+  }
+
   await endSermonSession(sessionId, church.id);
+  await logChurchTeamActivity({
+    churchId: church.id,
+    teamMemberId: actor.teamMemberId,
+    branchId: session.branchId,
+    action: "SESSION_ENDED",
+    metadata: { sessionId, title: session.title },
+  });
 
   revalidatePath("/church/live-sessions");
   revalidatePath(`/listen/${sessionId}`);

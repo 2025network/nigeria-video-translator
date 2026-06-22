@@ -1,22 +1,30 @@
 ﻿import Link from "next/link";
-import { BarChart3, Building2, FileCode2, Gauge, Languages, Radio, Settings, UserRound } from "lucide-react";
+import { BarChart3, Building2, FileCode2, Gauge, Languages, Radio, Settings, UserCog, UserRound } from "lucide-react";
+import { getCurrentChurchContext } from "@/lib/currentChurch";
+import { hasChurchPermission, type ChurchPermission } from "@/lib/churchPermissions";
 
-const churchLinks = [
-  { label: "Dashboard", href: "/church/dashboard", icon: Gauge },
-  { label: "Live Sessions", href: "/church/live-sessions", icon: Radio },
-  { label: "Branches", href: "/church/branches", icon: Building2 },
-  { label: "Profile", href: "/church/profile", icon: UserRound },
-  { label: "Settings", href: "/church/settings", icon: Settings },
-  { label: "Widget", href: "/church/widget", icon: FileCode2 },
-  { label: "Languages", href: "/church/languages", icon: Languages },
-  { label: "Usage", href: "/church/usage", icon: BarChart3 },
+const churchLinks: Array<{ label: string; href: string; icon: typeof Gauge; permission: ChurchPermission }> = [
+  { label: "Dashboard", href: "/church/dashboard", icon: Gauge, permission: "dashboard:view" },
+  { label: "Live Sessions", href: "/church/live-sessions", icon: Radio, permission: "sessions:view" },
+  { label: "Branches", href: "/church/branches", icon: Building2, permission: "branches:view" },
+  { label: "Profile", href: "/church/profile", icon: UserRound, permission: "church:manage" },
+  { label: "Settings", href: "/church/settings", icon: Settings, permission: "church:manage" },
+  { label: "Widget", href: "/church/widget", icon: FileCode2, permission: "church:manage" },
+  { label: "Languages", href: "/church/languages", icon: Languages, permission: "languages:manage" },
+  { label: "Usage", href: "/church/usage", icon: BarChart3, permission: "analytics:view" },
+  { label: "Team", href: "/church/team", icon: UserCog, permission: "team:manage" },
 ];
 
-export function ChurchNav() {
+export async function ChurchNav() {
+  const { actor } = await getCurrentChurchContext();
+  const availableLinks = churchLinks.filter((item) =>
+    hasChurchPermission(actor, item.permission),
+  );
+
   return (
     <nav className="rounded-lg border border-emerald-300/16 bg-white/[0.045] p-3">
       <div className="flex flex-wrap items-center gap-2">
-        {churchLinks.map((item) => {
+        {availableLinks.map((item) => {
           const Icon = item.icon;
 
           return (
@@ -30,7 +38,10 @@ export function ChurchNav() {
             </Link>
           );
         })}
-        <form action="/church/logout" method="post" className="ml-auto">
+        <span className="ml-auto hidden text-xs font-semibold text-emerald-50/55 lg:inline">
+          {actor.name} - {actor.role.replaceAll("_", " ")}
+        </span>
+        <form action="/church/logout" method="post" className="lg:ml-0">
           <button
             type="submit"
             className="inline-flex min-h-10 items-center justify-center rounded-md border border-emerald-300/20 px-3 text-sm font-semibold text-emerald-100 transition hover:bg-white/8"

@@ -4,7 +4,8 @@ import { Building2, ExternalLink, PauseCircle, PlayCircle, PlusCircle, Search, T
 import { CopyEmbedButton } from "@/app/admin/churches/CopyEmbedButton";
 import { SearchableCountrySelect } from "@/app/components/SearchableCountrySelect";
 import { getBranchesForChurch } from "@/lib/branchRepository";
-import { getCurrentChurchView } from "@/lib/currentChurch";
+import { hasChurchPermission } from "@/lib/churchPermissions";
+import { requireChurchPermission } from "@/lib/currentChurch";
 import { getBranchEmbedUrl, getBranchWidgetEmbedCode } from "@/lib/demoChurches";
 import { getBranchAnalytics } from "@/lib/listenerAnalyticsRepository";
 import { ChurchNav } from "../ChurchNav";
@@ -35,11 +36,18 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function ChurchBranchesPage({ searchParams }: BranchesPageProps) {
-  const [church, params] = await Promise.all([getCurrentChurchView(), searchParams]);
-  const [branches, branchAnalytics] = await Promise.all([
+  const [{ church, actor }, params] = await Promise.all([
+    requireChurchPermission("branches:view"),
+    searchParams,
+  ]);
+  const [allBranches, branchAnalytics] = await Promise.all([
     getBranchesForChurch(church.id),
     getBranchAnalytics(church.id),
   ]);
+  const branches = actor.role === "BRANCH_MANAGER"
+    ? allBranches.filter((branch) => branch.id === actor.branchId)
+    : allBranches;
+  const canCreateBranches = hasChurchPermission(actor, "branches:create");
   const analyticsByBranch = new Map(branchAnalytics.map((item) => [item.branchId, item]));
   const query = (params?.q ?? "").trim().toLowerCase();
   const visibleBranches = query
@@ -100,13 +108,13 @@ export default async function ChurchBranchesPage({ searchParams }: BranchesPageP
           </button>
         </form>
 
-        <section className="mb-6 rounded-lg border border-emerald-300/16 bg-white/[0.045] p-5">
+        {canCreateBranches ? <section className="mb-6 rounded-lg border border-emerald-300/16 bg-white/[0.045] p-5">
           <div className="mb-5 flex items-center gap-3">
             <PlusCircle className="h-6 w-6 text-emerald-300" />
             <h2 className="text-2xl font-semibold">Add branch</h2>
           </div>
           <BranchForm action={createChurchBranchAction} submitLabel="Add branch" />
-        </section>
+        </section> : null}
 
         {visibleBranches.length === 0 ? (
           <section className="rounded-lg border border-dashed border-emerald-300/24 bg-white/[0.035] p-10 text-center">

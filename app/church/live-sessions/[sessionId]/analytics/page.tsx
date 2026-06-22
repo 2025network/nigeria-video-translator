@@ -3,7 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Download, Globe2, Languages, Monitor, Users } from "lucide-react";
 import { CopyEmbedButton } from "@/app/admin/churches/CopyEmbedButton";
-import { getCurrentChurchView } from "@/lib/currentChurch";
+import { requireChurchPermission } from "@/lib/currentChurch";
+import { canAccessChurchBranch } from "@/lib/churchPermissions";
 import { getSiteUrl } from "@/lib/demoChurches";
 import { getSessionAnalytics } from "@/lib/listenerAnalyticsRepository";
 import { ChurchNav } from "../../../ChurchNav";
@@ -19,10 +20,13 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function SessionAnalyticsPage({ params }: SessionAnalyticsPageProps) {
-  const [{ sessionId }, church] = await Promise.all([params, getCurrentChurchView()]);
+  const [{ sessionId }, { church, actor }] = await Promise.all([
+    params,
+    requireChurchPermission("analytics:view"),
+  ]);
   const analytics = await getSessionAnalytics(sessionId, church.id);
 
-  if (!analytics) {
+  if (!analytics || !canAccessChurchBranch(actor, analytics.session.branchId)) {
     notFound();
   }
 

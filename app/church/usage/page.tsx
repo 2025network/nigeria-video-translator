@@ -1,5 +1,5 @@
 import { BarChart3, Languages, Radio, Users } from "lucide-react";
-import { getCurrentChurchView } from "@/lib/currentChurch";
+import { requireChurchPermission } from "@/lib/currentChurch";
 import { getWidgetUsageStats } from "@/lib/widgetUsageRepository";
 import { ChurchNav } from "../ChurchNav";
 
@@ -8,8 +8,9 @@ export const metadata = {
 };
 
 export default async function ChurchUsagePage() {
-  const church = await getCurrentChurchView();
-  const stats = await getWidgetUsageStats(church.id);
+  const { church, actor } = await requireChurchPermission("analytics:view");
+  const branchScope = actor.role === "BRANCH_MANAGER" ? actor.branchId : undefined;
+  const stats = await getWidgetUsageStats(church.id, branchScope);
 
   return (
     <main className="min-h-screen bg-[#06110d] text-white">

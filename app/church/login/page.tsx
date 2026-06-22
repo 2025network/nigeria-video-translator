@@ -33,7 +33,7 @@ export default async function ChurchLoginPage({ searchParams }: ChurchLoginPageP
       redirect("/church/login?error=invalid");
     }
 
-    await createChurchSession(result.churchId);
+    await createChurchSession(result.churchId, result.teamMemberId);
     redirect(nextPath.startsWith("/church") ? nextPath : "/church/dashboard");
   }
 
@@ -43,15 +43,15 @@ export default async function ChurchLoginPage({ searchParams }: ChurchLoginPageP
         <div className="flex h-12 w-12 items-center justify-center rounded-md bg-emerald-400 text-[#04120c]">
           <LogIn className="h-6 w-6" />
         </div>
-        <h1 className="mt-5 text-3xl font-semibold">Church owner login</h1>
+        <h1 className="mt-5 text-3xl font-semibold">Church team login</h1>
         <p className="mt-2 text-sm leading-6 text-emerald-50/68">
-          Sign in with your church email and password to manage your profile,
-          stream URL, listener languages, iframe embed, and floating widget button.
+          Church owners and team members use the same secure login. Available
+          tools are based on each team member&apos;s assigned role and branch.
         </p>
         {params.error ? (
           <p className="mt-4 rounded-md border border-red-300/24 bg-red-950/24 p-3 text-sm text-red-100">
             {params.error === "disabled"
-              ? "This church account is disabled. Please contact the SermonBridge admin."
+              ? "This church or team account is inactive. Please contact the church owner or SermonBridge admin."
               : "Invalid church email or password."}
           </p>
         ) : null}

@@ -1,5 +1,5 @@
 import { SearchableLanguageSelect } from "@/app/components/SearchableLanguageSelect";
-import { getCurrentChurchView } from "@/lib/currentChurch";
+import { requireChurchPermission } from "@/lib/currentChurch";
 import { ChurchNav } from "../ChurchNav";
 
 export const metadata = {
@@ -7,7 +7,7 @@ export const metadata = {
 };
 
 export default async function ChurchSettingsPage() {
-  const church = await getCurrentChurchView();
+  const { church } = await requireChurchPermission("church:manage");
 
   if (!church) return null;
 

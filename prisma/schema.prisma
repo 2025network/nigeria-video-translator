@@ -58,6 +58,9 @@ model Church {
   branches               ChurchBranch[]
   usageEvents            WidgetUsageEvent[]
   sermonSessions         SermonSession[]
+  teamMembers            ChurchTeamMember[]
+  authSessions           ChurchAuthSession[]
+  teamActivities         ChurchTeamActivity[]
   createdAt              DateTime         @default(now())
   updatedAt              DateTime         @updatedAt
 }
@@ -179,8 +182,62 @@ model ChurchBranch {
   disabledAt DateTime?
   usageEvents WidgetUsageEvent[]
   sermonSessions SermonSession[]
+  teamMembers ChurchTeamMember[]
+  teamActivities ChurchTeamActivity[]
 
   @@unique([churchId, slug])
+}
+
+model ChurchTeamMember {
+  id           String               @id @default(cuid())
+  churchId     String
+  church       Church               @relation(fields: [churchId], references: [id], onDelete: Cascade)
+  branchId     String?
+  branch       ChurchBranch?        @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  name         String
+  email        String               @unique
+  passwordHash String
+  role         String
+  isActive     Boolean              @default(true)
+  authSessions ChurchAuthSession[]
+  activities   ChurchTeamActivity[]
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  @@index([churchId, isActive])
+  @@index([churchId, role])
+  @@index([branchId])
+}
+
+model ChurchAuthSession {
+  id           String            @id @default(cuid())
+  tokenHash    String            @unique
+  churchId     String
+  church       Church            @relation(fields: [churchId], references: [id], onDelete: Cascade)
+  teamMemberId String?
+  teamMember   ChurchTeamMember? @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
+  expiresAt    DateTime
+  createdAt    DateTime          @default(now())
+
+  @@index([churchId, expiresAt])
+  @@index([teamMemberId, expiresAt])
+}
+
+model ChurchTeamActivity {
+  id           String            @id @default(cuid())
+  churchId     String
+  church       Church            @relation(fields: [churchId], references: [id], onDelete: Cascade)
+  teamMemberId String?
+  teamMember   ChurchTeamMember? @relation(fields: [teamMemberId], references: [id], onDelete: SetNull)
+  branchId     String?
+  branch       ChurchBranch?     @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  action       String
+  metadata     String?
+  createdAt    DateTime          @default(now())
+
+  @@index([churchId, createdAt])
+  @@index([teamMemberId, createdAt])
+  @@index([branchId, createdAt])
 }
 
 model WidgetUsageEvent {

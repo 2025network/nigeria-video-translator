@@ -43,25 +43,29 @@ export async function createWidgetUsageEvent(input: {
   });
 }
 
-export async function getWidgetUsageStats(churchId: string) {
+export async function getWidgetUsageStats(
+  churchId: string,
+  branchId?: string | null,
+) {
+  const scope = { churchId, ...(branchId ? { branchId } : {}) };
+  const branchScope = branchId
+    ? scope
+    : { churchId, branchId: { not: null } };
   const [eventCounts, branchCounts, languageCounts, branchTotals] = await Promise.all([
     prisma.widgetUsageEvent.groupBy({
       by: ["eventType"],
-      where: { churchId },
+      where: scope,
       _count: { _all: true },
     }),
     prisma.widgetUsageEvent.groupBy({
       by: ["branchId", "branchSlug", "eventType"],
-      where: {
-        churchId,
-        branchId: { not: null },
-      },
+      where: branchScope,
       _count: { _all: true },
     }),
     prisma.widgetUsageEvent.groupBy({
       by: ["selectedLanguage"],
       where: {
-        churchId,
+        ...scope,
         selectedLanguage: { not: null },
       },
       _count: { _all: true },
@@ -73,10 +77,7 @@ export async function getWidgetUsageStats(churchId: string) {
     }),
     prisma.widgetUsageEvent.groupBy({
       by: ["branchId", "branchSlug"],
-      where: {
-        churchId,
-        branchId: { not: null },
-      },
+      where: branchScope,
       _count: { _all: true },
       orderBy: {
         _count: {

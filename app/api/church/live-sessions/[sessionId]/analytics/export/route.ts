@@ -1,7 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { cookies } from "next/headers";
-import { churchSessionCookie } from "@/lib/auth";
-import { prisma } from "@/lib/db";
+import { canAccessChurchBranch, hasChurchPermission } from "@/lib/churchPermissions";
+import { getOptionalChurchContext } from "@/lib/currentChurch";
 import { getSessionAnalytics } from "@/lib/listenerAnalyticsRepository";
 
 type ExportRouteContext = {
@@ -10,15 +9,19 @@ type ExportRouteContext = {
 
 export async function GET(request: NextRequest, { params }: ExportRouteContext) {
   const { sessionId } = await params;
-  const churchId = await getAuthenticatedChurchId();
+  const context = await getOptionalChurchContext();
 
-  if (!churchId) {
+  if (!context) {
     return NextResponse.json({ error: "Church login is required." }, { status: 401 });
   }
 
-  const analytics = await getSessionAnalytics(sessionId, churchId);
+  if (!hasChurchPermission(context.actor, "analytics:view")) {
+    return NextResponse.json({ error: "This role cannot export analytics." }, { status: 403 });
+  }
 
-  if (!analytics) {
+  const analytics = await getSessionAnalytics(sessionId, context.church.id);
+
+  if (!analytics || !canAccessChurchBranch(context.actor, analytics.session.branchId)) {
     return NextResponse.json({ error: "Session not found." }, { status: 404 });
   }
 
@@ -47,22 +50,6 @@ export async function GET(request: NextRequest, { params }: ExportRouteContext) 
       "Content-Disposition": `attachment; filename="sermonbridge-${type}-${sessionId}.csv"`,
     },
   });
-}
-
-async function getAuthenticatedChurchId() {
-  const cookieStore = await cookies();
-  const churchId = cookieStore.get(churchSessionCookie)?.value;
-
-  if (!churchId) return null;
-
-  const church = await prisma.church.findUnique({
-    where: { id: churchId },
-    select: { id: true, status: true },
-  });
-
-  if (!church || church.status !== "Active") return null;
-
-  return church.id;
 }
 
 function toCsv(headers: string[], rows: Array<Array<string | number>>) {

@@ -25,9 +25,12 @@ export type SermonSessionWithChurch = Awaited<
   ReturnType<typeof getSermonSessionById>
 >;
 
-export async function getSermonSessionsForChurch(churchId: string) {
+export async function getSermonSessionsForChurch(
+  churchId: string,
+  branchId?: string | null,
+) {
   return prisma.sermonSession.findMany({
-    where: { churchId },
+    where: { churchId, ...(branchId ? { branchId } : {}) },
     include: { branch: true },
     orderBy: { createdAt: "desc" },
   });
@@ -160,12 +163,18 @@ export async function createSermonSession(
   });
 }
 
-export async function getChurchSessionStats(churchId: string) {
+export async function getChurchSessionStats(
+  churchId: string,
+  branchId?: string | null,
+) {
   const [totalLiveSessions, totalListeners] = await Promise.all([
-    prisma.sermonSession.count({ where: { churchId } }),
+    prisma.sermonSession.count({
+      where: { churchId, ...(branchId ? { branchId } : {}) },
+    }),
     prisma.widgetUsageEvent.count({
       where: {
         churchId,
+        ...(branchId ? { branchId } : {}),
         eventType: { in: ["widget_loaded", "live_started"] },
       },
     }),

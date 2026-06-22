@@ -1,5 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { resetPasswordWithToken } from "@/lib/passwordReset";
+import { prisma } from "@/lib/db";
+import { logChurchTeamActivity } from "@/lib/churchTeamRepository";
 
 export async function POST(request: NextRequest) {
   const formData = await request.formData();
@@ -9,6 +11,20 @@ export async function POST(request: NextRequest) {
   if (password.length < 8 || password !== confirmPassword) return redirectWithError(request, token, "password");
   const result = await resetPasswordWithToken({ token, password, accountType: "church" });
   if (!result.ok) return redirectWithError(request, token, result.reason);
+  const church = await prisma.church.findUnique({
+    where: { email: result.email },
+    select: { id: true },
+  });
+  if (church) {
+    await prisma.churchAuthSession.deleteMany({
+      where: { churchId: church.id, teamMemberId: null },
+    });
+    await logChurchTeamActivity({
+      churchId: church.id,
+      action: "PASSWORD_RESET",
+      metadata: { accountType: "church-owner" },
+    });
+  }
   return NextResponse.redirect(new URL("/church/reset-password?success=1", request.url), 303);
 }
 function redirectWithError(request: NextRequest, token: string, error: string) { const target = new URL("/church/reset-password", request.url); target.searchParams.set("token", token); target.searchParams.set("error", error); return NextResponse.redirect(target, 303); }

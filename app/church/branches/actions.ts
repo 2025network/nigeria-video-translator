@@ -10,20 +10,28 @@ import {
   updateBranch,
   type BranchFormInput,
 } from "@/lib/branchRepository";
-import { getCurrentChurchView } from "@/lib/currentChurch";
+import { logChurchTeamActivity } from "@/lib/churchTeamRepository";
+import { requireChurchPermission } from "@/lib/currentChurch";
 
 export async function createChurchBranchAction(formData: FormData) {
-  const church = await getCurrentChurchView();
-  await createBranch(church.id, parseBranchForm(formData));
+  const { church, actor } = await requireChurchPermission("branches:create");
+  const branch = await createBranch(church.id, parseBranchForm(formData));
+  await logChurchTeamActivity({
+    churchId: church.id,
+    teamMemberId: actor.teamMemberId,
+    branchId: branch.id,
+    action: "BRANCH_CREATED",
+    metadata: { branchName: branch.name },
+  });
   revalidateBranchPaths(church.slug);
   redirect("/church/branches?created=1");
 }
 
 export async function updateChurchBranchAction(formData: FormData) {
-  const church = await getCurrentChurchView();
   const branchId = String(formData.get("branchId") ?? "");
 
   if (!branchId) redirect("/church/branches?error=branch");
+  const { church } = await requireChurchPermission("branches:manage", branchId);
 
   await updateBranch(branchId, church.id, parseBranchForm(formData));
   revalidateBranchPaths(church.slug);
@@ -31,10 +39,10 @@ export async function updateChurchBranchAction(formData: FormData) {
 }
 
 export async function activateChurchBranchAction(formData: FormData) {
-  const church = await getCurrentChurchView();
   const branchId = String(formData.get("branchId") ?? "");
 
   if (!branchId) redirect("/church/branches?error=branch");
+  const { church } = await requireChurchPermission("branches:manage", branchId);
 
   await activateBranch(branchId, church.id);
   revalidateBranchPaths(church.slug);
@@ -42,10 +50,10 @@ export async function activateChurchBranchAction(formData: FormData) {
 }
 
 export async function deactivateChurchBranchAction(formData: FormData) {
-  const church = await getCurrentChurchView();
   const branchId = String(formData.get("branchId") ?? "");
 
   if (!branchId) redirect("/church/branches?error=branch");
+  const { church } = await requireChurchPermission("branches:manage", branchId);
 
   await disableBranch(branchId, church.id);
   revalidateBranchPaths(church.slug);
@@ -53,10 +61,10 @@ export async function deactivateChurchBranchAction(formData: FormData) {
 }
 
 export async function deleteChurchBranchAction(formData: FormData) {
-  const church = await getCurrentChurchView();
   const branchId = String(formData.get("branchId") ?? "");
 
   if (!branchId) redirect("/church/branches?error=branch");
+  const { church } = await requireChurchPermission("branches:manage", branchId);
 
   await deleteBranch(branchId, church.id);
   revalidateBranchPaths(church.slug);

@@ -1,5 +1,6 @@
 ﻿import { getCurrentChurchView } from "@/lib/currentChurch";
 import { ChurchNav } from "../ChurchNav";
+import { requireChurchPermission } from "@/lib/currentChurch";
 import { LanguageSettingsClient } from "./LanguageSettingsClient";
 
 export const metadata = {
@@ -7,6 +8,7 @@ export const metadata = {
 };
 
 export default async function ChurchLanguagesPage() {
+  await requireChurchPermission("languages:manage");
   const church = await getCurrentChurchView();
 
   if (!church) return null;
