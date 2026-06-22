@@ -1,5 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
 import { prisma } from "./db";
+import { isSmtpConfigured } from "./emailService";
 import { hashPassword } from "./password";
 
 export type PasswordResetAccountType = "admin" | "church";
@@ -91,7 +92,7 @@ export function buildPasswordResetUrl(
 }
 
 export function shouldShowDevelopmentResetLink() {
-  return !process.env.SMTP_HOST;
+  return process.env.NODE_ENV !== "production" && !isSmtpConfigured();
 }
 
 function hashResetToken(token: string) {

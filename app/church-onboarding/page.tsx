@@ -10,6 +10,7 @@ type OnboardingPageProps = {
   searchParams?: Promise<{
     submitted?: string;
     error?: string;
+    emailDelivery?: string;
   }>;
 };
 
@@ -88,6 +89,11 @@ export default async function ChurchOnboardingPage({
                 <p className="mt-3 leading-7 text-emerald-50/72">
                   Thank you. Your church onboarding request has been saved, and
                   the SermonBridge team can review it from the admin dashboard.
+                </p>
+                <p className="mt-3 text-sm leading-6 text-emerald-50/68">
+                  {params?.emailDelivery === "sent"
+                    ? "A confirmation email has been sent to the address provided."
+                    : "Your request is safely recorded. The SermonBridge team will contact you after review."}
                 </p>
                 <Link
                   href="/"

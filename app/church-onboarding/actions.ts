@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createOnboardingRequest } from "@/lib/onboardingRepository";
 import { getCountryByCodeOrName } from "@/lib/countryCatalog";
+import { sendEmail } from "@/lib/emailService";
+import { churchOnboardingReceivedEmail } from "@/lib/emailTemplates";
 
 export async function submitOnboardingRequest(formData: FormData) {
   const churchName = String(formData.get("churchName") ?? "").trim();
@@ -38,8 +40,15 @@ export async function submitOnboardingRequest(formData: FormData) {
     websiteUrl,
     message,
   });
+  const template = churchOnboardingReceivedEmail({ churchName, contactName });
+  const delivery = await sendEmail(
+    { to: email, ...template },
+    "church-onboarding-received",
+  );
 
   revalidatePath("/admin");
   revalidatePath("/admin/onboarding-requests");
-  redirect("/church-onboarding?submitted=1");
+  redirect(
+    `/church-onboarding?submitted=1&emailDelivery=${delivery.ok ? "sent" : "warning"}`,
+  );
 }

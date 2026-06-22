@@ -18,6 +18,8 @@ type OnboardingRequestsPageProps = {
     churchName?: string;
     email?: string;
     password?: string;
+    emailSent?: string;
+    emailWarning?: string;
   }>;
 };
 
@@ -36,23 +38,25 @@ export default async function OnboardingRequestsPage({
   const statusError = params?.statusError;
   const statusUpdated = params?.statusUpdated === "1";
   const churchLoginUrl = getChurchLoginUrl();
-  const createdCredentials =
-    params?.approved === "1" && params.churchId && params.email && params.password
+  const createdChurch =
+    params?.approved === "1" && params.churchId && params.email
       ? {
           churchId: params.churchId,
           churchName: params.churchName ?? "Created church",
           email: params.email,
           password: params.password,
           loginUrl: churchLoginUrl,
+          emailSent: params.emailSent === "1",
+          emailWarning: params.emailWarning,
         }
       : null;
-  const credentialsText = createdCredentials
+  const credentialsText = createdChurch?.password
     ? [
         "SermonBridge church login credentials",
-        `Church: ${createdCredentials.churchName}`,
-        `Login URL: ${createdCredentials.loginUrl}`,
-        `Email: ${createdCredentials.email}`,
-        `Temporary password: ${createdCredentials.password}`,
+        `Church: ${createdChurch.churchName}`,
+        `Login URL: ${createdChurch.loginUrl}`,
+        `Email: ${createdChurch.email}`,
+        `Temporary password: ${createdChurch.password}`,
       ].join("\n")
     : "";
 
@@ -83,7 +87,7 @@ export default async function OnboardingRequestsPage({
             </Link>
           </div>
 
-          {createdCredentials ? (
+          {createdChurch ? (
             <div className="mt-6 rounded-lg border border-emerald-300/24 bg-emerald-300/10 p-5">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
@@ -96,22 +100,30 @@ export default async function OnboardingRequestsPage({
                         Church created successfully
                       </p>
                       <h2 className="mt-1 text-2xl font-semibold">
-                        {createdCredentials.churchName}
+                        {createdChurch.churchName}
                       </h2>
                     </div>
                   </div>
                   <p className="mt-4 max-w-2xl text-sm leading-6 text-emerald-50/70">
-                    Share these credentials with the church. The temporary
-                    password is shown only on this approval result screen.
+                    {createdChurch.emailSent
+                      ? "Login details and the temporary password were emailed to the church."
+                      : "The church account was created, but email delivery needs attention."}
                   </p>
+                  {createdChurch.emailWarning ? (
+                    <p className="mt-3 rounded-md border border-amber-300/28 bg-amber-300/10 p-3 text-sm font-semibold text-amber-50">
+                      Email was not delivered ({createdChurch.emailWarning}). The temporary password is shown below once so the admin can contact the church safely.
+                    </p>
+                  ) : null}
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  <CopyEmbedButton
-                    embedCode={credentialsText}
-                    label="Copy credentials"
-                    copiedLabel="Credentials copied"
-                  />
+                  {createdChurch.password ? (
+                    <CopyEmbedButton
+                      embedCode={credentialsText}
+                      label="Copy credentials"
+                      copiedLabel="Credentials copied"
+                    />
+                  ) : null}
                   <Link
                     href="/admin/onboarding-requests"
                     className="inline-flex min-h-10 items-center justify-center rounded-md border border-emerald-300/26 px-4 text-sm font-semibold text-emerald-100 transition hover:bg-white/8"
@@ -119,7 +131,7 @@ export default async function OnboardingRequestsPage({
                     Back to onboarding requests
                   </Link>
                   <Link
-                    href={`/admin/churches/${createdCredentials.churchId}`}
+                    href={`/admin/churches/${createdChurch.churchId}`}
                     className="inline-flex min-h-10 items-center justify-center rounded-md bg-emerald-400 px-4 text-sm font-semibold text-[#04120c] transition hover:bg-emerald-300"
                   >
                     View church
@@ -128,13 +140,19 @@ export default async function OnboardingRequestsPage({
               </div>
 
               <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                <Credential label="Church name" value={createdCredentials.churchName} />
-                <Credential label="Church login email" value={createdCredentials.email} />
+                <Credential label="Church name" value={createdChurch.churchName} />
+                <Credential label="Church login email" value={createdChurch.email} />
+                {createdChurch.password ? (
+                  <Credential
+                    label="Generated temporary password"
+                    value={createdChurch.password}
+                  />
+                ) : null}
+                <Credential label="Church login URL" value={createdChurch.loginUrl} />
                 <Credential
-                  label="Generated temporary password"
-                  value={createdCredentials.password}
+                  label="Email delivery"
+                  value={createdChurch.emailSent ? "Sent" : "Needs attention"}
                 />
-                <Credential label="Church login URL" value={createdCredentials.loginUrl} />
               </div>
             </div>
           ) : null}

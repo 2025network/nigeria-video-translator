@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getCurrentChurchView } from "@/lib/currentChurch";
 import { createLiveTranscriptMessage } from "@/lib/liveSessionTranslation";
+import { sendLiveSessionStartedNotification } from "@/lib/emailNotifications";
 import {
   clearTranscriptMessages,
   deleteTranscriptMessage,
@@ -20,8 +21,14 @@ export async function startSessionFromDetailAction(formData: FormData) {
   if (!sessionId) redirect("/church/live-sessions?error=session");
 
   await startSermonSession(sessionId, church.id);
+  const emailDelivery = await sendLiveSessionStartedNotification(
+    sessionId,
+    church.id,
+  );
   revalidateSessionPaths(sessionId, church.slug);
-  redirect(`/church/live-sessions/${sessionId}?started=1`);
+  redirect(
+    `/church/live-sessions/${sessionId}?started=1${emailDelivery.ok ? "" : "&emailWarning=1"}`,
+  );
 }
 
 export async function endSessionFromDetailAction(formData: FormData) {

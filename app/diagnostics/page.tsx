@@ -1,5 +1,6 @@
 ﻿import type React from "react";
 import { CheckCircle2, Server, Settings, XCircle } from "lucide-react";
+import Link from "next/link";
 import packageJson from "../../package.json";
 import { resolveFfmpegDiagnostics } from "@/lib/ffmpeg";
 import { OpenAIConnectivityTest } from "./OpenAIConnectivityTest";
@@ -76,6 +77,12 @@ export default function DiagnosticsPage() {
               ok={ffmpegDetected}
               detail={`Static path installed: ${ffmpegDiagnostics.ffmpegStaticInstalled ? "Yes" : "No"}`}
             />
+            <Link
+              href="/diagnostics/email"
+              className="inline-flex min-h-11 items-center justify-center rounded-md border border-emerald-300/22 px-4 text-sm font-semibold text-emerald-100 transition hover:bg-white/8"
+            >
+              Open Email Diagnostics
+            </Link>
           </Panel>
         </div>
       </section>

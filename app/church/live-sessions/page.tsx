@@ -25,6 +25,7 @@ type LiveSessionsPageProps = {
     started?: string;
     ended?: string;
     error?: string;
+    emailWarning?: string;
   }>;
 };
 
@@ -268,9 +269,12 @@ export default async function ChurchLiveSessionsPage({
 function StatusMessage({
   params,
 }: {
-  params?: { created?: string; started?: string; ended?: string; error?: string };
+  params?: { created?: string; started?: string; ended?: string; error?: string; emailWarning?: string };
 }) {
-  const message = params?.created
+  const emailWarning = params?.emailWarning === "1";
+  const message = emailWarning
+    ? "Session is live, but the notification email was not sent. Check Email Diagnostics before relying on email delivery."
+    : params?.created
     ? "Session created. Start it when the sermon is ready."
     : params?.started
       ? "Session is now live."
@@ -283,7 +287,7 @@ function StatusMessage({
   if (!message) return null;
 
   return (
-    <div className="mb-6 rounded-lg border border-emerald-300/24 bg-emerald-300/10 p-4 text-sm font-semibold text-emerald-50">
+    <div className={`mb-6 rounded-lg border p-4 text-sm font-semibold ${emailWarning ? "border-amber-300/28 bg-amber-300/10 text-amber-50" : "border-emerald-300/24 bg-emerald-300/10 text-emerald-50"}`}>
       {message}
     </div>
   );

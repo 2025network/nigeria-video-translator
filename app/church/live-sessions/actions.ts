@@ -10,6 +10,7 @@ import {
 import { getCurrentChurchView } from "@/lib/currentChurch";
 import { getBranchForChurch } from "@/lib/branchRepository";
 import { getLanguageName } from "@/lib/languageCatalog";
+import { sendLiveSessionStartedNotification } from "@/lib/emailNotifications";
 
 export async function createSermonSessionAction(formData: FormData) {
   const church = await getCurrentChurchView();
@@ -54,12 +55,18 @@ export async function startSermonSessionAction(formData: FormData) {
   }
 
   await startSermonSession(sessionId, church.id);
+  const emailDelivery = await sendLiveSessionStartedNotification(
+    sessionId,
+    church.id,
+  );
 
   revalidatePath("/church/live-sessions");
   revalidatePath(`/listen/${sessionId}`);
   revalidatePath(`/churches/${church.slug}`);
   revalidatePath("/churches");
-  redirect("/church/live-sessions?started=1");
+  redirect(
+    `/church/live-sessions?started=1${emailDelivery.ok ? "" : "&emailWarning=1"}`,
+  );
 }
 
 export async function endSermonSessionAction(formData: FormData) {

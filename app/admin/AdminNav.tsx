@@ -4,6 +4,7 @@ import {
   FileCode2,
   Gauge,
   Inbox,
+  MailCheck,
   PlusCircle,
   Settings,
   UploadCloud,
@@ -17,6 +18,7 @@ const adminLinks = [
   { label: "Embed Guide", href: "/admin/embed-guide", icon: FileCode2 },
   { label: "Upload Tool", href: "/upload", icon: UploadCloud },
   { label: "Diagnostics", href: "/diagnostics", icon: Settings },
+  { label: "Email", href: "/diagnostics/email", icon: MailCheck },
 ];
 
 export function AdminNav() {

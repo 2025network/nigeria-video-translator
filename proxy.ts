@@ -6,8 +6,20 @@ const churchSessionCookie = "sermonbridge_church_session";
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const isProtectedAdmin = pathname.startsWith("/admin") && pathname !== "/admin/login";
-  const isProtectedChurch = pathname.startsWith("/church") && pathname !== "/church/login";
+  const publicAdminPaths = [
+    "/admin/login",
+    "/admin/forgot-password",
+    "/admin/reset-password",
+  ];
+  const publicChurchPaths = [
+    "/church/login",
+    "/church/forgot-password",
+    "/church/reset-password",
+  ];
+  const isProtectedAdmin =
+    pathname.startsWith("/admin") && !matchesPublicPath(pathname, publicAdminPaths);
+  const isProtectedChurch =
+    pathname.startsWith("/church") && !matchesPublicPath(pathname, publicChurchPaths);
 
   if (!isProtectedAdmin && !isProtectedChurch) {
     return NextResponse.next();
@@ -26,6 +38,13 @@ export function proxy(request: NextRequest) {
   loginUrl.searchParams.set("next", pathname);
 
   return NextResponse.redirect(loginUrl);
+}
+
+function matchesPublicPath(pathname: string, publicPaths: string[]) {
+  return publicPaths.some(
+    (publicPath) =>
+      pathname === publicPath || pathname.startsWith(`${publicPath}/`),
+  );
 }
 
 export const config = {
