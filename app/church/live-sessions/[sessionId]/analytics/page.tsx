@@ -32,6 +32,10 @@ export default async function SessionAnalyticsPage({ params }: SessionAnalyticsP
     1,
     ...analytics.displayLanguages.map((item) => item.count),
   );
+  const maxOverlayLanguageCount = Math.max(
+    1,
+    ...analytics.overlayLanguages.map((item) => item.count),
+  );
   const displayUrl = `${getSiteUrl()}/display/${sessionId}`;
 
   return (
@@ -77,12 +81,14 @@ export default async function SessionAnalyticsPage({ params }: SessionAnalyticsP
           </div>
         </div>
 
-        <div className="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+        <div className="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <Metric icon={<Users className="h-5 w-5" />} label="Total listeners" value={String(analytics.totalListeners)} />
           <Metric icon={<Languages className="h-5 w-5" />} label="Languages used" value={String(analytics.languages.length)} />
           <Metric icon={<Globe2 className="h-5 w-5" />} label="Countries" value={String(analytics.countries.length)} />
           <Metric icon={<Monitor className="h-5 w-5" />} label="Display views" value={String(analytics.displayViews)} />
           <Metric icon={<Monitor className="h-5 w-5" />} label="Kiosk views" value={String(analytics.kioskDisplayViews)} />
+          <Metric icon={<Monitor className="h-5 w-5" />} label="Overlay views" value={String(analytics.overlayViews)} />
+          <Metric icon={<Monitor className="h-5 w-5" />} label="Clean overlay views" value={String(analytics.cleanOverlayViews)} />
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
@@ -151,6 +157,18 @@ export default async function SessionAnalyticsPage({ params }: SessionAnalyticsP
               </div>
             ) : (
               <Empty>No Smart Display language activity has been recorded yet.</Empty>
+            )}
+          </Panel>
+
+          <Panel title="Overlay language activity">
+            {analytics.overlayLanguages.length ? (
+              <div className="grid gap-3">
+                {analytics.overlayLanguages.map((row) => (
+                  <Bar key={row.languageCode} label={row.language} value={row.count} max={maxOverlayLanguageCount} />
+                ))}
+              </div>
+            ) : (
+              <Empty>No livestream overlay language activity has been recorded yet.</Empty>
             )}
           </Panel>
         </div>

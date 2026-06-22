@@ -28,6 +28,17 @@ const guideSections = [
     ],
   },
   {
+    title: "Use SermonBridge with OBS / YouTube / Facebook Live",
+    items: [
+      "Add a Browser Source in OBS and paste the clean overlay URL from the church session page.",
+      "Set the Browser Source width to 1920 and height to 1080.",
+      "Enable transparent background in the browser source settings.",
+      "Place the SermonBridge overlay above the camera or video source.",
+      "Confirm subtitles appear inside the video safe area.",
+      "Start the YouTube, Facebook, StreamYard, or other livestream normally.",
+    ],
+  },
+  {
     title: "Use Chrome or Edge",
     items: [
       "Open the church session control page in Chrome or Microsoft Edge.",

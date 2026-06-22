@@ -45,3 +45,18 @@ textarea {
   outline-offset: 3px;
 }
 
+@keyframes sermonbridge-overlay-fade {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sermonbridge-overlay-enter {
+  animation: sermonbridge-overlay-fade 360ms ease-out;
+}
+

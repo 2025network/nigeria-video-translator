@@ -100,6 +100,9 @@ export async function getSessionAnalytics(sessionId: string, churchId: string) {
     displayViews,
     kioskDisplayViews,
     displayLanguageRows,
+    overlayViews,
+    cleanOverlayViews,
+    overlayLanguageRows,
   ] =
     await Promise.all([
       prisma.listenerSession.count({ where: { sessionId } }),
@@ -144,6 +147,25 @@ export async function getSessionAnalytics(sessionId: string, churchId: string) {
         _count: { _all: true },
         orderBy: { _count: { languageCode: "desc" } },
       }),
+      prisma.overlayUsageEvent.count({
+        where: { sessionId, eventType: "overlay_viewed" },
+      }),
+      prisma.overlayUsageEvent.count({
+        where: {
+          sessionId,
+          eventType: "overlay_viewed",
+          cleanMode: true,
+        },
+      }),
+      prisma.overlayUsageEvent.groupBy({
+        by: ["languageCode"],
+        where: {
+          sessionId,
+          eventType: { in: ["overlay_viewed", "language_changed"] },
+        },
+        _count: { _all: true },
+        orderBy: { _count: { languageCode: "desc" } },
+      }),
     ]);
 
   return {
@@ -166,6 +188,13 @@ export async function getSessionAnalytics(sessionId: string, churchId: string) {
     displayViews,
     kioskDisplayViews,
     displayLanguages: displayLanguageRows.map((row) => ({
+      language: getLanguageName(row.languageCode),
+      languageCode: row.languageCode,
+      count: row._count._all,
+    })),
+    overlayViews,
+    cleanOverlayViews,
+    overlayLanguages: overlayLanguageRows.map((row) => ({
       language: getLanguageName(row.languageCode),
       languageCode: row.languageCode,
       count: row._count._all,

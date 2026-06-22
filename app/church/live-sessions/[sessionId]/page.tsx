@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Languages, Monitor, Play, Radio, Square, Trash2 } from "lucide-react";
+import { ArrowLeft, Captions, Languages, Monitor, Play, Radio, Square, Trash2 } from "lucide-react";
 import { CopyEmbedButton } from "@/app/admin/churches/CopyEmbedButton";
 import { getCurrentChurchView } from "@/lib/currentChurch";
 import { getSiteUrl } from "@/lib/demoChurches";
+import { normalizeLanguageValue } from "@/lib/languageCatalog";
 import {
   getSessionErrorLogs,
   getSermonSessionForChurch,
@@ -68,6 +69,12 @@ export default async function ChurchLiveSessionDetailPage({
   ]);
   const listenUrl = getSessionListenUrl(session.id);
   const displayUrl = `${getSiteUrl()}/display/${session.id}`;
+  const overlayLanguageCode = normalizeLanguageValue(
+    listenerLanguages[0] ?? "en",
+  );
+  const overlayPath = `/overlay/${session.id}?lang=${encodeURIComponent(overlayLanguageCode)}&position=bottom&size=large&theme=outline`;
+  const overlayUrl = `${getSiteUrl()}${overlayPath}`;
+  const cleanOverlayUrl = `${overlayUrl}&clean=true`;
   const transcriptionModel = process.env.OPENAI_TRANSCRIPTION_MODEL || "whisper-1";
   const openAiConfigured = Boolean(process.env.OPENAI_API_KEY);
 
@@ -149,6 +156,24 @@ export default async function ChurchLiveSessionDetailPage({
               embedCode={displayUrl}
               label="Copy Display Link"
               copiedLabel="Display link copied"
+            />
+            <Link
+              href={overlayPath}
+              target="_blank"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-emerald-300/26 px-4 text-sm font-semibold text-emerald-100 transition hover:bg-white/8"
+            >
+              <Captions className="h-4 w-4" />
+              Open Overlay
+            </Link>
+            <CopyEmbedButton
+              embedCode={overlayUrl}
+              label="Copy OBS Overlay Link"
+              copiedLabel="OBS overlay link copied"
+            />
+            <CopyEmbedButton
+              embedCode={cleanOverlayUrl}
+              label="Copy Clean Overlay Link"
+              copiedLabel="Clean overlay link copied"
             />
             <CopyEmbedButton
               embedCode={listenUrl}
