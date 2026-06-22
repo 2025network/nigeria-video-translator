@@ -75,6 +75,7 @@ export async function POST(request: NextRequest, { params }: TranscribeRouteCont
       sessionId,
       message: transcription.message,
       context: { code: transcription.code, stage: "transcription" },
+      severity: transcription.code === "missing_api_key" ? "CRITICAL" : "ERROR",
     });
 
     return NextResponse.json(

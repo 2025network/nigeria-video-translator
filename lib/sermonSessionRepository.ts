@@ -212,6 +212,7 @@ export async function addTranscriptMessage(input: {
   audioUrl?: string | null;
   audioStatus?: string | null;
   audioError?: string | null;
+  audioGeneratedAt?: Date | null;
 }) {
   return prisma.sermonTranscriptMessage.create({
     data: input,
@@ -224,6 +225,7 @@ export async function updateTranscriptMessageAudio(
     audioUrl?: string | null;
     audioStatus: string;
     audioError?: string | null;
+    audioGeneratedAt?: Date | null;
   },
 ) {
   return prisma.sermonTranscriptMessage.update({
@@ -248,11 +250,13 @@ export async function logLiveSessionError(input: {
   sessionId: string;
   message: string;
   context?: unknown;
+  severity?: "INFO" | "WARNING" | "ERROR" | "CRITICAL";
 }) {
   return prisma.liveSessionErrorLog.create({
     data: {
       sessionId: input.sessionId,
       message: input.message,
+      severity: input.severity ?? "ERROR",
       context:
         typeof input.context === "undefined"
           ? null

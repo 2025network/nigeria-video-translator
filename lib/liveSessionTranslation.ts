@@ -3,6 +3,7 @@ import { isSupportedLanguage } from "./languages";
 import { generateLiveTextToSpeech } from "./liveTextToSpeech";
 import {
   addTranscriptMessage,
+  logLiveSessionError,
   updateTranscriptMessageAudio,
 } from "./sermonSessionRepository";
 import { translateTranscript } from "./translation";
@@ -101,6 +102,19 @@ export async function createLiveTranscriptMessage(input: {
     audioError: null,
   });
 
+  if (translation.mode === "pending") {
+    await logLiveSessionError({
+      sessionId: input.sessionId,
+      message: `Translation is not available for ${input.language}.`,
+      context: {
+        stage: "translation",
+        language: input.language,
+        messageId: message.id,
+      },
+      severity: "WARNING",
+    });
+  }
+
   const audio = await generateLiveTextToSpeech({
     sessionId: input.sessionId,
     messageId: message.id,
@@ -113,12 +127,26 @@ export async function createLiveTranscriptMessage(input: {
       audioUrl: audio.audioUrl,
       audioStatus: audio.audioStatus,
       audioError: null,
+      audioGeneratedAt: new Date(),
     });
   }
+
+  await logLiveSessionError({
+    sessionId: input.sessionId,
+    message: `Speaker audio generation failed for ${input.language}.`,
+    context: {
+      stage: "tts",
+      language: input.language,
+      messageId: message.id,
+      error: audio.audioError,
+    },
+    severity: "WARNING",
+  });
 
   return updateTranscriptMessageAudio(message.id, {
     audioUrl: null,
     audioStatus: audio.audioStatus,
     audioError: audio.audioError,
+    audioGeneratedAt: null,
   });
 }

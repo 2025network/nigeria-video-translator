@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CalendarClock, Languages, Monitor, Play, Radio, Square } from "lucide-react";
+import { CalendarClock, HeartPulse, Languages, Monitor, Play, Radio, Square } from "lucide-react";
 import { CopyEmbedButton } from "@/app/admin/churches/CopyEmbedButton";
 import { CountryLanguageMultiSelect } from "@/app/components/CountryLanguageMultiSelect";
 import { SearchableLanguageSelect } from "@/app/components/SearchableLanguageSelect";
 import { getBranchesForChurch } from "@/lib/branchRepository";
 import { requireChurchPermission } from "@/lib/currentChurch";
-import { hasChurchPermission } from "@/lib/churchPermissions";
+import { canViewSessionHealth, hasChurchPermission } from "@/lib/churchPermissions";
 import { getSiteUrl } from "@/lib/demoChurches";
 import {
   getSermonSessionsForChurch,
@@ -52,6 +52,7 @@ export default async function ChurchLiveSessionsPage({
     (branch) => !branch.disabledAt && (!branchScope || branch.id === branchScope),
   );
   const canManageSessions = hasChurchPermission(actor, "sessions:manage");
+  const canViewHealth = canViewSessionHealth(actor);
   const defaultListenerLanguages = church.supportedLanguages;
 
   return (
@@ -244,6 +245,13 @@ export default async function ChurchLiveSessionsPage({
                       >
                         Analytics
                       </Link>
+                      {canViewHealth ? <Link
+                        href={`/church/live-sessions/${session.id}/health`}
+                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-emerald-300/26 px-4 text-sm font-semibold text-emerald-100 transition hover:bg-white/8"
+                      >
+                        <HeartPulse className="h-4 w-4" />
+                        Health
+                      </Link> : null}
                       <Link
                         href={`/display/${session.id}`}
                         target="_blank"

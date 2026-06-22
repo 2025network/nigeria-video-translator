@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Captions, Languages, Monitor, Play, Radio, Square, Trash2 } from "lucide-react";
+import { ArrowLeft, Captions, HeartPulse, Languages, Monitor, Play, Radio, Square, Trash2 } from "lucide-react";
 import { CopyEmbedButton } from "@/app/admin/churches/CopyEmbedButton";
 import { requireChurchPermission } from "@/lib/currentChurch";
-import { canAccessChurchBranch, hasChurchPermission } from "@/lib/churchPermissions";
+import { canAccessChurchBranch, canViewSessionHealth, hasChurchPermission } from "@/lib/churchPermissions";
 import { getSiteUrl } from "@/lib/demoChurches";
 import { normalizeLanguageValue } from "@/lib/languageCatalog";
 import {
@@ -83,6 +83,7 @@ export default async function ChurchLiveSessionDetailPage({
   const canManageSessions = hasChurchPermission(actor, "sessions:manage");
   const canManageTranslations = hasChurchPermission(actor, "translations:manage");
   const canViewAnalytics = hasChurchPermission(actor, "analytics:view");
+  const canViewHealth = canViewSessionHealth(actor);
 
   return (
     <main className="min-h-screen bg-[#06110d] text-white">
@@ -149,6 +150,13 @@ export default async function ChurchLiveSessionDetailPage({
               className="inline-flex min-h-11 items-center justify-center rounded-md border border-emerald-300/26 px-4 text-sm font-semibold text-emerald-100 transition hover:bg-white/8"
             >
               Analytics
+            </Link> : null}
+            {canViewHealth ? <Link
+              href={`/church/live-sessions/${session.id}/health`}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-emerald-300/26 px-4 text-sm font-semibold text-emerald-100 transition hover:bg-white/8"
+            >
+              <HeartPulse className="h-4 w-4" />
+              Health Center
             </Link> : null}
             <Link
               href={`/display/${session.id}`}

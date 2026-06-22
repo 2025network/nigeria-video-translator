@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Download, Globe2, Languages, Monitor, Users } from "lucide-react";
+import { ArrowLeft, Download, Globe2, HeartPulse, Languages, Monitor, Users } from "lucide-react";
 import { CopyEmbedButton } from "@/app/admin/churches/CopyEmbedButton";
 import { requireChurchPermission } from "@/lib/currentChurch";
-import { canAccessChurchBranch } from "@/lib/churchPermissions";
+import { canAccessChurchBranch, canViewSessionHealth } from "@/lib/churchPermissions";
 import { getSiteUrl } from "@/lib/demoChurches";
 import { getSessionAnalytics } from "@/lib/listenerAnalyticsRepository";
 import { ChurchNav } from "../../../ChurchNav";
@@ -41,6 +41,7 @@ export default async function SessionAnalyticsPage({ params }: SessionAnalyticsP
     ...analytics.overlayLanguages.map((item) => item.count),
   );
   const displayUrl = `${getSiteUrl()}/display/${sessionId}`;
+  const canViewHealth = canViewSessionHealth(actor);
 
   return (
     <main className="min-h-screen bg-[#06110d] text-white">
@@ -69,6 +70,12 @@ export default async function SessionAnalyticsPage({ params }: SessionAnalyticsP
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
+            {canViewHealth ? (
+              <Link href={`/church/live-sessions/${sessionId}/health`} className="inline-flex min-h-11 items-center gap-2 rounded-md border border-emerald-300/24 px-4 text-sm font-semibold text-emerald-50 hover:bg-white/8">
+                <HeartPulse className="h-4 w-4" />
+                Health Center
+              </Link>
+            ) : null}
             <Link href={`/display/${sessionId}`} target="_blank" className="inline-flex min-h-11 items-center gap-2 rounded-md border border-emerald-300/24 px-4 text-sm font-semibold text-emerald-50 hover:bg-white/8">
               <Monitor className="h-4 w-4" />
               Open Display Mode

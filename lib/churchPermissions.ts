@@ -59,6 +59,7 @@ const permissionsByRole: Record<ChurchTeamRole, Set<ChurchPermission>> = {
   ]),
   TRANSLATOR: new Set([
     "dashboard:view",
+    "analytics:view",
     "sessions:view",
     "translations:manage",
     "languages:manage",
@@ -92,6 +93,16 @@ export function canAccessChurchBranch(
 ) {
   if (actor.role !== "BRANCH_MANAGER") return true;
   return Boolean(branchId && actor.branchId === branchId);
+}
+
+export function canViewSessionHealth(actor: ChurchActor) {
+  if (actor.role === "VIEWER") {
+    return hasChurchPermission(actor, "analytics:view");
+  }
+
+  return (["OWNER", "ADMIN", "MEDIA", "TRANSLATOR"] as ChurchTeamRole[]).includes(
+    actor.role,
+  );
 }
 
 export function canManageTeamRole(

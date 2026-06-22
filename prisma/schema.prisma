@@ -144,6 +144,7 @@ model SermonTranscriptMessage {
   audioUrl       String?
   audioStatus    String?
   audioError     String?
+  audioGeneratedAt DateTime?
   isApproved     Boolean       @default(true)
   createdAt      DateTime      @default(now())
 
@@ -156,6 +157,7 @@ model LiveSessionErrorLog {
   session   SermonSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   message   String
   context   String?
+  severity  String        @default("ERROR")
   createdAt DateTime      @default(now())
 
   @@index([sessionId, createdAt])
