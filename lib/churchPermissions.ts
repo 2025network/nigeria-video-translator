@@ -21,6 +21,7 @@ export const churchPermissions = [
   "sessions:manage",
   "translations:manage",
   "languages:manage",
+  "recordings:manage",
 ] as const;
 
 export type ChurchPermission = (typeof churchPermissions)[number];
@@ -50,12 +51,14 @@ const permissionsByRole: Record<ChurchTeamRole, Set<ChurchPermission>> = {
     "sessions:manage",
     "translations:manage",
     "languages:manage",
+    "recordings:manage",
   ]),
   MEDIA: new Set([
     "dashboard:view",
     "analytics:view",
     "sessions:view",
     "sessions:manage",
+    "recordings:manage",
   ]),
   TRANSLATOR: new Set([
     "dashboard:view",
@@ -63,6 +66,7 @@ const permissionsByRole: Record<ChurchTeamRole, Set<ChurchPermission>> = {
     "sessions:view",
     "translations:manage",
     "languages:manage",
+    "recordings:manage",
   ]),
   BRANCH_MANAGER: new Set([
     "dashboard:view",

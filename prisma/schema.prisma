@@ -61,6 +61,7 @@ model Church {
   teamMembers            ChurchTeamMember[]
   authSessions           ChurchAuthSession[]
   teamActivities         ChurchTeamActivity[]
+  sermonRecordings       SermonRecording[]
   createdAt              DateTime         @default(now())
   updatedAt              DateTime         @updatedAt
 }
@@ -151,6 +152,46 @@ model SermonTranscriptMessage {
   @@index([sessionId, language, createdAt])
 }
 
+model SermonRecording {
+  id                  String                       @id @default(cuid())
+  churchId            String
+  church              Church                       @relation(fields: [churchId], references: [id], onDelete: Cascade)
+  branchId            String?
+  branch              ChurchBranch?                @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  title               String
+  sourceLanguage      String
+  targetLanguages     String
+  fileUrl             String
+  originalFileName    String
+  status              String                       @default("UPLOADED")
+  transcriptText      String?
+  timedTranscriptJson String?
+  errorMessage        String?
+  translations        SermonRecordingTranslation[]
+  createdAt           DateTime                     @default(now())
+  updatedAt           DateTime                     @updatedAt
+
+  @@index([churchId, createdAt])
+  @@index([churchId, status])
+  @@index([branchId, createdAt])
+}
+
+model SermonRecordingTranslation {
+  id             String          @id @default(cuid())
+  recordingId    String
+  recording      SermonRecording @relation(fields: [recordingId], references: [id], onDelete: Cascade)
+  languageCode   String
+  translatedText String
+  subtitleUrl    String?
+  status         String          @default("PROCESSING")
+  errorMessage   String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@unique([recordingId, languageCode])
+  @@index([recordingId, status])
+}
+
 model LiveSessionErrorLog {
   id        String        @id @default(cuid())
   sessionId String
@@ -186,6 +227,7 @@ model ChurchBranch {
   sermonSessions SermonSession[]
   teamMembers ChurchTeamMember[]
   teamActivities ChurchTeamActivity[]
+  sermonRecordings SermonRecording[]
 
   @@unique([churchId, slug])
 }

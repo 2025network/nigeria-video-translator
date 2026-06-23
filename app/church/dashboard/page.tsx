@@ -1,5 +1,5 @@
 ﻿import Link from "next/link";
-import { Building2, FileCode2, Languages, Radio, Settings, Users } from "lucide-react";
+import { Building2, FileAudio2, FileCode2, Languages, Radio, Settings, Users } from "lucide-react";
 import { getBranchesForChurch } from "@/lib/branchRepository";
 import { getCurrentChurchContext } from "@/lib/currentChurch";
 import { hasChurchPermission } from "@/lib/churchPermissions";
@@ -12,6 +12,7 @@ import {
   getFloatingWidgetScriptCode,
 } from "@/lib/demoChurches";
 import { getChurchAnalyticsSummary } from "@/lib/listenerAnalyticsRepository";
+import { getRecordingDashboardStats } from "@/lib/recordingRepository";
 import { getChurchSessionStats } from "@/lib/sermonSessionRepository";
 import { ChurchNav } from "../ChurchNav";
 import { CopyEmbedButton } from "../../admin/churches/CopyEmbedButton";
@@ -27,12 +28,16 @@ export default async function ChurchDashboardPage() {
     return <EmptyChurchState />;
   }
 
+  const canManageRecordings = hasChurchPermission(actor, "recordings:manage");
   const branchScope = actor.role === "BRANCH_MANAGER" ? actor.branchId : undefined;
-  const [allBranches, stats, analytics, teamStats] = await Promise.all([
+  const [allBranches, stats, analytics, teamStats, recordingStats] = await Promise.all([
     getBranchesForChurch(church.id),
     getChurchSessionStats(church.id, branchScope),
     getChurchAnalyticsSummary(church.id, branchScope),
     getChurchTeamDashboardStats(church.id, branchScope),
+    canManageRecordings
+      ? getRecordingDashboardStats(church.id)
+      : Promise.resolve(null),
   ]);
   const branches = branchScope
     ? allBranches.filter((branch) => branch.id === branchScope)
@@ -81,6 +86,7 @@ export default async function ChurchDashboardPage() {
           {canViewSessions ? <Link href="/church/live-sessions" className="ml-0 mt-3 inline-flex min-h-11 items-center justify-center rounded-md bg-emerald-400 px-4 text-sm font-semibold text-[#04120c] transition hover:bg-emerald-300 sm:ml-3">Live Sessions</Link> : null}
           {canViewBranches ? <Link href="/church/branches" className="ml-0 mt-3 inline-flex min-h-11 items-center justify-center rounded-md border border-emerald-300/22 px-4 text-sm font-semibold text-emerald-50 transition hover:bg-white/8 sm:ml-3">Branches</Link> : null}
           {canManageTeam ? <Link href="/church/team" className="ml-0 mt-3 inline-flex min-h-11 items-center justify-center rounded-md border border-emerald-300/22 px-4 text-sm font-semibold text-emerald-50 transition hover:bg-white/8 sm:ml-3">Manage Team</Link> : null}
+          {canManageRecordings ? <Link href="/church/recordings" className="ml-0 mt-3 inline-flex min-h-11 items-center justify-center rounded-md border border-emerald-300/22 px-4 text-sm font-semibold text-emerald-50 transition hover:bg-white/8 sm:ml-3">Recorded Sermons</Link> : null}
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -99,6 +105,9 @@ export default async function ChurchDashboardPage() {
           <Metric icon={<Building2 className="h-5 w-5" />} label="Top branch" value={analytics.mostPopularBranch} />
           <Metric icon={<Users className="h-5 w-5" />} label="Team members" value={String(teamStats.teamCount)} />
           <Metric icon={<Users className="h-5 w-5" />} label="Active team members" value={String(teamStats.activeTeamCount)} />
+          {recordingStats ? <Metric icon={<FileAudio2 className="h-5 w-5" />} label="Recorded sermons" value={String(recordingStats.total)} /> : null}
+          {recordingStats ? <Metric icon={<FileAudio2 className="h-5 w-5" />} label="Recordings completed" value={String(recordingStats.completed)} /> : null}
+          {recordingStats ? <Metric icon={<FileAudio2 className="h-5 w-5" />} label="Recordings processing" value={String(recordingStats.processing)} /> : null}
         </div>
 
         <div className="mt-4 grid gap-4 md:grid-cols-3">

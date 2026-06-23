@@ -101,6 +101,7 @@ Useful pages:
 http://localhost:3000/admin
 http://localhost:3000/admin/churches
 http://localhost:3000/admin/embed-guide
+http://localhost:3000/church/recordings
 http://localhost:3000/embed/christ-embassy-lagos/live
 http://localhost:3000/upload
 http://localhost:3000/diagnostics

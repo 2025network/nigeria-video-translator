@@ -1,11 +1,12 @@
 ﻿import Link from "next/link";
-import { BarChart3, Building2, FileCode2, Gauge, Languages, Radio, Settings, UserCog, UserRound } from "lucide-react";
+import { BarChart3, Building2, FileAudio2, FileCode2, Gauge, Languages, Radio, Settings, UserCog, UserRound } from "lucide-react";
 import { getCurrentChurchContext } from "@/lib/currentChurch";
 import { hasChurchPermission, type ChurchPermission } from "@/lib/churchPermissions";
 
 const churchLinks: Array<{ label: string; href: string; icon: typeof Gauge; permission: ChurchPermission }> = [
   { label: "Dashboard", href: "/church/dashboard", icon: Gauge, permission: "dashboard:view" },
   { label: "Live Sessions", href: "/church/live-sessions", icon: Radio, permission: "sessions:view" },
+  { label: "Recordings", href: "/church/recordings", icon: FileAudio2, permission: "recordings:manage" },
   { label: "Branches", href: "/church/branches", icon: Building2, permission: "branches:view" },
   { label: "Profile", href: "/church/profile", icon: UserRound, permission: "church:manage" },
   { label: "Settings", href: "/church/settings", icon: Settings, permission: "church:manage" },

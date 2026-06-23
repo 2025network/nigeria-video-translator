@@ -14,6 +14,7 @@ NEXT_PUBLIC_SITE_URL="https://your-domain.com"
 AUTH_COOKIE_SECURE="true"
 OPENAI_API_KEY=""
 OPENAI_TRANSCRIPTION_MODEL="whisper-1"
+OPENAI_RECORDING_TRANSCRIPTION_MODEL="whisper-1"
 OPENAI_TRANSLATION_MODEL="gpt-4o-mini"
 OPENAI_LIVE_TRANSLATION_MODEL="gpt-4o-mini"
 OPENAI_DIAGNOSTIC_MODEL="gpt-4o-mini"
@@ -78,7 +79,12 @@ When the key is configured and quota is available:
 
 - Live microphone chunks can be transcribed.
 - Live transcript text can be translated.
+- Recorded sermons can be transcribed and translated from `/church/recordings`.
 - Diagnostics can run OpenAI connectivity checks.
+
+Keep `OPENAI_RECORDING_TRANSCRIPTION_MODEL=whisper-1` when timed SRT output is required. Other configured transcription models may return plain transcript text without segment timestamps.
+
+Recorded files and generated subtitles are written under `public/recordings`. On a VPS, keep that directory on persistent storage and include it in the server backup plan. For multi-server deployments, move recording storage to shared object storage before scaling horizontally.
 
 When quota is unavailable, manual live updates continue to work.
 

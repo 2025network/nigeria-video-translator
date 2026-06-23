@@ -31,6 +31,7 @@
 /public/voiceovers/
 /public/translated-videos/
 /public/metadata/
+/public/recordings/
 
 # misc
 .DS_Store
